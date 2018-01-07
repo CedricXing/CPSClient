@@ -7,6 +7,9 @@
  */
 
 
+import com.jcraft.jsch.Session;
+
+import java.io.FileInputStream;
 import java.net.*;
 
 public class CPSClient {
@@ -67,8 +70,13 @@ public class CPSClient {
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
         //Todo:JSch Connection
-
+        Transmission transmission = new Transmission("/Users/cedricxing/Desktop/model.xml","/Users/cedricxing/Desktop/cfg.txt");
+        Session session = transmission.connect();
+        //FileInputStream fileInputStream = new FileInputStream("/Users/cedricxing/Desktop/model.xml");
+        transmission.verification(session);
         //Todo:Parameter parsing
 
     }
+
+
 }
