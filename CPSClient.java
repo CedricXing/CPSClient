@@ -56,14 +56,25 @@ public class CPSClient {
         return sourceIP;
     }
 
+    /**
+     * Generate Model File to modelFilePath
+     */
     public void generateModelFile(){
 
     }
 
+    /**
+     * Generate CFG File to cfgFilePath
+     */
     public void generateCFGFile(){
 
     }
 
+    /**
+     * Main Function
+     * @param args
+     * @throws Exception
+     */
     public static void main(String []args) throws Exception{
         String localHost = "127.0.0.1";
         int localPort = 4455;
@@ -74,6 +85,7 @@ public class CPSClient {
         Session session = transmission.connect();
         //FileInputStream fileInputStream = new FileInputStream("/Users/cedricxing/Desktop/model.xml");
         transmission.verification(session);
+
         //Todo:Parameter parsing
 
     }
