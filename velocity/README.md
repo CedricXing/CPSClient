@@ -19,9 +19,9 @@
 >- 根据rfid卡片得到当前位置
 >- 根据计算出的速度 在物理上 实际调整小车速度
 
-4. todo的1234已完成
+3. todo的1234已完成
 
-5. arm-linux-gcc -lm -lpthread -o test rfid.c zigbee.c telecom.c car.c test.c 
+4. arm-linux-gcc -lm -lpthread -o test rfid.c zigbee.c telecom.c car.c test.c 
 
 
 
