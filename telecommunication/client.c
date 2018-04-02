@@ -13,9 +13,9 @@
 #include <sys/time.h>
 #include <signal.h>
 
-#define      TRUE   1
-#define      FALSE  0
-#define      MAXLEN 20
+#define     TRUE   1
+#define     FALSE  0
+#define     MAXLEN 20
 
 static int zigbee_fd;
 
