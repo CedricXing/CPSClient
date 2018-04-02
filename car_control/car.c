@@ -10,6 +10,7 @@
 #include <string.h>
 #include<pthread.h>
 #include"car.h"
+
 static int fd_magtic=-1,fd_motor=-1,fd_grating=-1;
 
 int car_open(void)
@@ -106,21 +107,32 @@ double get_speed(void)
 
 void car_control(void)
 {
-    int local_speed_level=0,k=0;
+    int level=0;
     int j=0;
     int motor_state=0x99;
+	int k = 0;
+    //bool flag=false;
+    
     while(1)
     {
-		if(local_speed_level!=SPEED_LEVEL)
+		if (level != SPEED_LEVEL)
 		{
-		    local_speed_level=SPEED_LEVEL;
-		    k=local_speed_level;
-		    printf("speed level has changed to %d \n",local_speed_level);
+			level = SPEED_LEVEL;
+			printf("speed level has changed to %d \n", level);
+			//flag=true;    
+
+			if (level == 0)
+			{
+				k = -16;
+			}
+			else
+			{
+				k = level;
+			}
 		}
-		
 		motor_state=mgtic_set();
 		j++;
-		if (j % 10 < k ) 
+		if (j % 24 <= k+15 )    //
 		{      //前行
 		    ioctl(fd_motor, 0, motor_state);
 		}
@@ -128,6 +140,18 @@ void car_control(void)
 		{ 
 			ioctl(fd_motor, 0, 0x00); 
 		}
+		//if(flag)
+		//{
+		  //  get_speed();
+		    //flag=false;
+		//}
     }
     return ;
+}
+
+void car_driver(void)
+{
+	car_open();
+	car_control();
+	car_close();
 }
