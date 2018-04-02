@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
-
+#include "car.h"
 //	time interval
 #define TOT_INTERVAL		12
 #define CONTACT_INTERVAL	2
@@ -16,6 +16,10 @@
 #define MAX_SPEED 65
 #define N_LEVEL 9          
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};
+
+//
+int SPEED_LEVEL = 0;
+pthread_mutex_t mutex;
 
 //	3 status:
 //	AC -> +1
@@ -49,7 +53,42 @@ int CC(int cur_lvl) {
 	}
 }
 
+int ebi2level(double ebi)
+{
+	assert(ebi<=MAX_SPEED&&ebi>=0);
+	if(ebi>=52){
+		return 8;
+	}
+	else if(ebi>=45.5){
+		return 7;
+	}
+	else if(ebi>=39){
+		return 6;
+	}
+	else if(ebi>=32.5){
+		return 5;
+	}
+	else if(ebi>=27){
+		return 4;
+	}
+	else if(ebi>=23.5){
+		return 3;
+	}
+	else if(ebi>=20.5){
+		return 2;
+	}
+	else if(ebi>=16){
+		return 1;
+	}
+	return 0;
+} 
+
 int main() {
+	
+	pthread_t reader;
+    pthread_mutex_init(&mutex,NULL);
+    pthread_create(&reader,NULL,(void*)&car_driver,NULL);
+	
 	int ebi_lvl = 0, cur_lvl = 0;
 
 	while (1) {
@@ -57,8 +96,9 @@ int main() {
 		//	communicate and get updated MA
 		
 		sleep(CONTACT_INTERVAL);
-
-		for (int i = 0; i < CNT; ++i) {
+        
+        int i=0;
+		for (i = 0; i < CNT; ++i) {
 			//	TODO: API: rfid card -> distance
 			//	dis = ...
 			double dis = 0;	//	to be modified
@@ -70,8 +110,7 @@ int main() {
 				cur_lvl = AC(cur_lvl);
 			}
 			else {
-				//	TODO: API: ebi -> ebi level
-				//	evi_lvl = ...
+				ebi_lvl = ebi2level(ebi);
 
 				if (ebi_lvl - cur_lvl > 4) {
 					//	AC
@@ -87,7 +126,7 @@ int main() {
 				}
 			}
 		
-			//	TODO: change speed according to the computed value
+			SPEED_LEVEL = cur_lvl;
 		}
 	}
 
