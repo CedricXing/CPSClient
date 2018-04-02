@@ -22,9 +22,11 @@ int car_open(void)
   fd_magtic = open("/dev/mini210-mgtics", 0);
   fd_motor = open("/dev/mini210-motors", 0);
   fd_grating = open("/dev/mini210-grat", 0);
+
   rfid_init();
   rfid_open();
   zigbee_init();
+
   if((fd_magtic < 0)||(fd_motor < 0)||(fd_grating<0)) {
     printf("open car device error\n");
     exit(1);
@@ -43,7 +45,7 @@ int car_close(void)
   close(fd_motor);
   close(fd_grating);
   close(fd_zigbee);
-
+  close(fd_rfid);
   return 0;
 }
 
