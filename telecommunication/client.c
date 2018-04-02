@@ -8,7 +8,10 @@
 #include <linux/fs.h>
 #include <errno.h>
 #include <string.h>
-#include  <termios.h>   
+#include <termios.h>
+#include <time.h>
+#include <sys/time.h>
+#include <signal.h>
 
 #define      TRUE   1
 #define      FALSE  0
@@ -220,11 +223,18 @@ int zigbee_close(void)
 }
 
 int fdMotor;
+int fdMagtic;
+int fdGrat;
+int rfid_fd;
+int ID;
 
 int car_open(void)
 {
+	rfid_init();
+	rfid_open();
 	fdMotor = open("/dev/mini210-motors", 0);
-
+	fdMagtic = open("/dev/mini210-mgtics", 0);
+	fdGrat=open("/dev/mini210-grat", 0);
 	if (fdMotor < 0) {
 		printf("open car device error\n");
 		exit(1);
@@ -237,9 +247,30 @@ int car_open(void)
 
 int car_close(void)
 {
+	close(fdMagtic);
 	close(fdMotor);
+	close(rfid_fd);
 	return 0;
 }
+
+int mgtic_read(void)
+{
+	int value = -1;
+	char buffer[16];
+
+	int len = read(fdMagtic, buffer, sizeof(buffer) - 1);
+	if (len > 0) {
+		buffer[len] = '\0';
+		sscanf(buffer, "%d", &value);
+	}
+	else {
+		printf("read mgtic device error");
+		close(fdMagtic);
+		return -1;
+	}
+	return value;
+}
+
 /*
 bit 0,1	FL	(10前进, 01后退, 00停止)
 2,3	FR	(01前进, 10后退, 00停止)
@@ -247,37 +278,32 @@ bit 0,1	FL	(10前进, 01后退, 00停止)
 6,7	BR	(01前进, 10后退, 00停止)
 前后左轮与右轮电机方向是相反的.
 */
+
 int motor_set(int value)
 {
 	switch (value)
 	{
 	case 0:
 		ioctl(fdMotor, 0, 0x99);	//前行
-		usleep(100 * 1000);
 		break;
 	case 1:
 		ioctl(fdMotor, 0, 0x66);	//后退
-		sleep(1);
 		break;
 	case 2:
 		ioctl(fdMotor, 0, 0xaa);	//逆转
-		sleep(1); usleep(500 * 1000);
 		break;
 	case 3:
 		ioctl(fdMotor, 0, 0x55);	//顺转
-		sleep(1); usleep(500 * 1000);
 		break;
 	case 4:
 		ioctl(fdMotor, 0, 0x88);	//左转
-		sleep(1); usleep(500 * 1000);
 		break;
 	case 5:
 		ioctl(fdMotor, 0, 0x44);	//右转
-		sleep(1); usleep(500 * 1000);
 		break;
 	case 6:
 		ioctl(fdMotor, 0, 0x00);	//停止
-		usleep(100 * 1000);
+		break;
 	default:
 		printf("Cmd error\n");
 		break;
@@ -286,38 +312,151 @@ int motor_set(int value)
 }
 
 float get_speed() {
-	/*
-		TODO: return speed 
-	*/
-	return 1.1;
+	char speed_buffer[20];
+	int value;
+	int len = read(fdGrat, speed_buffer, sizeof(speed_buffer) - 1);
+	if (len > 0) {
+		speed_buffer[len] = '\0';
+		sscanf(speed_buffer, "%d", &value);
+		return 3.14 * 6.8 / 20 * 1000 * 1000 / value;	//n cm/s
+	}
+	else {
+		return 0;
+	}
 }
 
 int get_location() {
-	/*
-		TODO: return rfid UID
-	*/
-	return 1;
+	return rfid_get_card();
 }
 
 int get_ID() {
+	return ID;
+}
+
+int rfid_get_card(void)
+{
+	int nread, i, num;
+	unsigned char buf[16];
+
+	memset(buf, 0, 16);
+	buf[0] = 0xaa;
+	buf[1] = 0xbb;
+	buf[2] = 0x02;
+	buf[3] = 0x20;
+	buf[4] ^= buf[2] ^ buf[3];
+	write(rfid_fd, buf, 5);
+	usleep(50 * 1000);
+	nread = read(rfid_fd, buf, 16);
 	/*
-		TODO: return car ID;
+	printf("rfid read:");
+	for(i=0; i< nread; i++)
+	{
+	printf("%x ", buf[i]);
+	}
+	printf("\n");
 	*/
+	if (nread >= 0x9)
+	{
+		if (buf[0] == 0xaa && buf[1] == 0xbb &&
+			buf[2] == 0x06 && buf[3] == 0x20)
+		{
+			//获得卡号 buf[4],buf[5],buf[6],buf[7];
+			memcpy(&num, &buf[4], 4);
+			return num;
+		}
+	}
 	return 0;
 }
 
+int rfid_init(void)
+{
+	char *Dev = "/dev/ttySAC3";
+	int i;
+
+	rfid_fd = OpenDev(Dev);
+
+	if (rfid_fd > 0) {
+		set_speed(rfid_fd, 19200);
+	}
+	else {
+		printf("Can't Open Serial Port!\n");
+		exit(0);
+	}
+	if (set_Parity(rfid_fd, 8, 1, 'N') == FALSE)
+	{
+		printf("Set parity Error\n");
+		exit(1);
+	}
+	return 0;
+}
+
+int rfid_open(void)
+{
+	int ret, i;
+	unsigned char buf[16];
+
+	memset(buf, 0, 16);
+	buf[0] = 0xaa;
+	buf[1] = 0xbb;
+	buf[2] = 0x03;
+	buf[3] = 0x13;
+	buf[4] = 0x01;
+	buf[5] ^= buf[2] ^ buf[3] ^ buf[4];
+	write(rfid_fd, buf, 6);
+	usleep(50 * 1000);
+	ret = read(rfid_fd, buf, 16);
+	/*
+	printf("rfid read:");
+	for(i=0; i< ret; i++)
+	{
+	printf("%x ", buf[i]);
+	}
+	printf("\n");
+	*/
+	if (ret >= 0x5)
+	{
+		if (buf[0] == 0xaa && buf[1] == 0xbb && buf[2] == 0x02 && buf[3] == 0x13)
+			return 0;
+	}
+	return -1;
+}
+
+
 int main(int argc, char* argv[])
 {
+	printf("input car ID:\n");
+	scanf("%d", &ID);
+
 	int cmd;
 	char buf[MAXLEN];
 	car_open();
 
 	while (1) {
+		int mgtic = mgtic_read();
+
+		if (mgtic == 0) {
+			motor_set(6);
+		}
+		if (mgtic & (1 << 2)) {
+			motor_set(0);
+		}
+		if (mgtic & (1 << 0)) {
+			motor_set(2);
+		}
+		if (mgtic & (1 << 4)) {
+			motor_set(3);
+		}
+		if (mgtic & (1 << 1)) {
+			motor_set(4);
+		}
+		if (mgtic & (1 << 3)) {
+			motor_set(5);
+		}
 		/*
 			接收指令，指令解析与处理待完成。
 		*/
-		cmd = zigbee_get_cmd();    
-		printf("cmd %d\n", cmd);
+		//cmd = zigbee_get_cmd();    
+		//printf("cmd %d\n", cmd);
 	//	motor_set(cmd);
 
 
@@ -332,14 +471,18 @@ int main(int argc, char* argv[])
 		float speed = get_speed();
 		int location = get_location();
 		int car_ID = get_ID();
-		memset(buf, 0, sizeof(buf));
+		memset(buf, '\0', sizeof(buf));
 		buf[0] = car_ID + '0';
 		memcpy(buf + 1, &speed, 4);
 		memcpy(buf + 5, &location, 4);
-
-		zigbee_send_cmd(buf, strlen(buf));
-
-		sleep(2);
+	//	printf("%s\n", buf);
+		printf("ID: %d speed: %f location: %d\n", car_ID, speed, location);
+		zigbee_send_cmd(buf, 1+4+4);
+		int lenRead = read(zigbee_fd, buf, 32);
+		printf("RECV\n");
+		int i;
+			for (i = 0; i < 5; i++)printf("%c", buf[i]);
+		printf("\n");
 	}
 	car_close();
 	return 0;

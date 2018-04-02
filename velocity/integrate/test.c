@@ -95,9 +95,8 @@ int main() {
 	init(trie, "loc.txt");
 
 	while (1) {
-		//	TODO: 
 		//	communicate and get updated MA
-		int dest_id = 0;	//	card id where ma ends, to be modified
+		int dest_id = telecom_main();	//	card id where ma ends,  modified
 			
 		sleep(CONTACT_INTERVAL);
         

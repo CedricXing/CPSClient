@@ -10,15 +10,21 @@
 #include <string.h>
 #include<pthread.h>
 #include"car.h"
+#include "zigbee.h"
+#include "rfid.h"
 
-static int fd_magtic=-1,fd_motor=-1,fd_grating=-1;
+int fd_magtic = -1, fd_motor = -1, fd_grating = -1;
+extern int fd_rfid;
+extern int fd_zigbee;
 
 int car_open(void)
 {
   fd_magtic = open("/dev/mini210-mgtics", 0);
   fd_motor = open("/dev/mini210-motors", 0);
   fd_grating = open("/dev/mini210-grat", 0);
-  
+  rfid_init();
+  rfid_open();
+  zigbee_init();
   if((fd_magtic < 0)||(fd_motor < 0)||(fd_grating<0)) {
     printf("open car device error\n");
     exit(1);
@@ -36,7 +42,8 @@ int car_close(void)
   close(fd_magtic);
   close(fd_motor);
   close(fd_grating);
-  
+  close(fd_zigbee);
+
   return 0;
 }
 
