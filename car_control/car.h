@@ -2,7 +2,7 @@
 #define CAR_H
 
 extern int SPEED_LEVEL;
-
+void car_driver(void);
 int car_open(void);
 /*  
     open the driver devices of the car : motor, trailing and grat
