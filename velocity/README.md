@@ -18,3 +18,8 @@
 >- 当ebi合理时，根据ebi值获得ebi所在的lvl
 >- 根据rfid卡片得到当前位置
 >- 根据计算出的速度 在物理上 实际调整小车速度
+
+3.arm-linux-gcc -o test test.c car.c -lpthread -lm
+
+4.todo的234已完成
+
