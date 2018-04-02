@@ -17,7 +17,7 @@
 #define N_LEVEL 9          
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};
 
-//
+//	for car driver function
 int SPEED_LEVEL = 0;
 pthread_mutex_t mutex;
 
@@ -84,10 +84,9 @@ int ebi2level(double ebi)
 } 
 
 int main() {
-	
 	pthread_t reader;
-    pthread_mutex_init(&mutex,NULL);
-    pthread_create(&reader,NULL,(void*)&car_driver,NULL);
+    	pthread_mutex_init(&mutex,NULL);
+    	pthread_create(&reader,NULL,(void*)&car_driver,NULL);
 	
 	int ebi_lvl = 0, cur_lvl = 0;
 
@@ -101,6 +100,7 @@ int main() {
 		for (i = 0; i < CNT; ++i) {
 			//	TODO: API: rfid card -> distance
 			//	dis = ...
+			unsigned int rfid_card=get_card();
 			double dis = 0;	//	to be modified
 
 			double ebi = calc_ebi(dis);
