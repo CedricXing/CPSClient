@@ -96,14 +96,15 @@ int main() {
 
 	while (1) {
 		//	communicate and get updated MA
-		unsigned dest_id = telecom_main();	//	card id where ma ends,  modified
+		unsigned int card_dest_id = telecom_main();
+		int dest_id = query(trie, card_dest_id);	//	card id where ma ends,  modified
 			
 		sleep(CONTACT_INTERVAL);
         
         int i = 0;
 		for (; i < CNT; ++i) {
-			unsigned int card_id = get_card();
-			int cur_id = query(trie, card_id);
+			unsigned int card_cur_id = get_card();
+			int cur_id = query(trie, card_cur_id);
 
 			double dis = (cur_id - dest_id) * 10;
 			double ebi = calc_ebi(dis);
