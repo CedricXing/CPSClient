@@ -96,7 +96,7 @@ int main() {
 
 	while (1) {
 		//	communicate and get updated MA
-		int dest_id = telecom_main();	//	card id where ma ends,  modified
+		unsigned dest_id = telecom_main();	//	card id where ma ends,  modified
 			
 		sleep(CONTACT_INTERVAL);
         
