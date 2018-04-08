@@ -56,7 +56,7 @@ int CC(int cur_lvl) {
 
 int ebi2level(double ebi)
 {
-	assert(ebi<=MAX_SPEED&&ebi>=0);
+//	assert(ebi<=MAX_SPEED&&ebi>=0);
 	if(ebi>=52){
 		return 8;
 	}
@@ -84,11 +84,16 @@ int ebi2level(double ebi)
 	return 0;
 } 
 
+int car_ID;
+
 int main() {
-	pthread_t reader;
-    	pthread_mutex_init(&mutex,NULL);
-    	pthread_create(&reader,NULL,(void*)&car_driver,NULL);
+	printf("input car ID:");
+	scanf("%d", &car_ID);
+	init_telecom_device();
 	
+	pthread_t reader;
+    pthread_mutex_init(&mutex,NULL);
+    pthread_create(&reader,NULL,(void*)&car_driver,NULL);
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 	Trie* trie = (Trie*)malloc(sizeof(Trie));
@@ -96,9 +101,11 @@ int main() {
 
 	while (1) {
 		//	communicate and get updated MA
-		unsigned int card_dest_id = telecom_main();
+		unsigned int card_dest_id = telecom_main(car_ID);
 		int dest_id = query(trie, card_dest_id);	//	card id where ma ends,  modified
-			
+		
+		printf( "\033[1;31;40m card_id=%x=%u dest_id=%d \033[0m\n",card_dest_id,card_dest_id,dest_id ); 
+		
 		sleep(CONTACT_INTERVAL);
         
         int i = 0;
