@@ -12,6 +12,8 @@
 #define ADJUST_INTERVAL		1
 #define CNT					(TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL
 
+#define RFID_NUM 126
+
 //	acceleration and speed
 #define ACC 14
 #define MAX_SPEED 65
@@ -106,7 +108,7 @@ int main() {
 			unsigned int card_cur_id = get_card();
 			int cur_id = query(trie, card_cur_id);
 
-			double dis = (cur_id - dest_id) * 10;
+			double dis = (cur_id + RFID_NUM - dest_id) % RFID_NUM * 10;
 			double ebi = calc_ebi(dis);
 
 			if (ebi >= MAX_SPEED) {
