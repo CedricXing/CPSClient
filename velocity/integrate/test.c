@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "car.h"
 #include "trie.h"
+#include "rfid.h"
 //	time interval
 #define TOT_INTERVAL		12
 #define CONTACT_INTERVAL	2
@@ -93,9 +94,11 @@ int main() {
 	scanf("%d", &car_ID);
 	init_telecom_device();
 	
-	pthread_t reader;
+	pthread_t read_speed;
+	pthread_t read_card;
     pthread_mutex_init(&mutex,NULL);
-    pthread_create(&reader,NULL,(void*)&car_driver,NULL);
+    pthread_create(&read_speed,NULL,(void*)&car_driver,NULL);
+	pthread_create(&read_card,NULL,(void*)&car_rfid,NULL);
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 	Trie* trie = (Trie*)malloc(sizeof(Trie));
@@ -103,8 +106,7 @@ int main() {
 
 	while (1) {
 		//	communicate and get updated MA
-		unsigned int card_dest_id = telecom_main(car_ID);
-		int dest_id = query(trie, card_dest_id);	//	card id where ma ends,  modified
+		int dest_id = telecom_main(car_ID);	//	card id where ma ends,  modified
 		
 		printf( "\033[1;31;40m card_id=%x=%u dest_id=%d \033[0m\n",card_dest_id,card_dest_id,dest_id ); 
 		

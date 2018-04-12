@@ -22,7 +22,8 @@
 
 extern int fd_rfid;
 
-unsigned get_card(void);
+void car_rfid(void);
+unsigned rfid_get_card(void);
 int rfid_init(void);
 int rfid_open(void);
 int OpenDev(char *Dev);

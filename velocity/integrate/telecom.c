@@ -3,7 +3,7 @@
 int fd_zigbee=-1;
 int fd_grating=-1;
 static int cnt;
-unsigned telecom_main(int car_ID) {
+int telecom_main(int car_ID) {
 	char buf[100];
 	float speed = get_speed();
 	printf("speed=%f\n",speed);
@@ -25,15 +25,14 @@ unsigned telecom_main(int car_ID) {
 			memcpy(tbuf,buf+i,7);
 		}
 	}
-	unsigned *rtn = (unsigned*)(tbuf + 2);
+	int rtn = (tbuf[3]-'0')*100+(tbuf[2]-'0')*10+(tbuf[1]-'0');
 	while(read(fd_zigbee,buf,99));
 	printf("RECV!!!!!!   %d\n",cnt);
 	cnt++;
 	//	int i;
 	//	for (i = 0; i < 5; i++)printf("%c", buf[i]);
 	//	printf("\n");
-	
-	return *rtn;
+	return rtn;
 }
 
 void init_telecom_device()
