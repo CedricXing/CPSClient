@@ -95,10 +95,8 @@ int main() {
 	init_telecom_device();
 	
 	pthread_t read_speed;
-	pthread_t read_card;
     pthread_mutex_init(&mutex,NULL);
     pthread_create(&read_speed,NULL,(void*)&car_driver,NULL);
-	pthread_create(&read_card,NULL,(void*)&car_rfid,NULL);
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 	Trie* trie = (Trie*)malloc(sizeof(Trie));

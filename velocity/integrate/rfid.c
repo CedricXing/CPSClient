@@ -210,12 +210,3 @@ int set_Parity(int fd, int databits, int stopbits, int parity)
 	}
 	return(TRUE);
 }
-
-void car_rfid(void)
-{
-	while(1)
-	{
-		get_card();
-	}
-}
-
