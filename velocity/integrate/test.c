@@ -108,7 +108,7 @@ int main() {
 		//	communicate and get updated MA
 		int dest_id = telecom_main(car_ID);	//	card id where ma ends,  modified
 		
-		printf( "\033[1;31;40m card_id=%x=%u dest_id=%d \033[0m\n",card_dest_id,card_dest_id,dest_id ); 
+		printf( "\033[1;31;40m dest_id=%d \033[0m\n",dest_id ); 
 		
 		sleep(CONTACT_INTERVAL);
         

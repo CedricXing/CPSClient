@@ -2,7 +2,6 @@
 #define __TELECOM_H__
 
 #include "rfid.h"
-#include "zigbee.h"
 #include <fcntl.h>
 #include <linux/fs.h>
 #include <errno.h>
@@ -19,7 +18,7 @@
 
 void init_telecom_device();
 float get_speed(void);
-unsigned telecom_main(int car_ID);
+int telecom_main(int car_ID);
 int zigbee_init(void);
 int zigbee_send_cmd(char* buff, int len);
 
