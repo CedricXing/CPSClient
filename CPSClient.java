@@ -6,20 +6,14 @@
  * Copyright (c) 2017/12/4. CedricXing All rights Reserved.
  */
 
+import com.jcraft.jsch.*;
 
-import com.jcraft.jsch.Session;
-
-import java.io.FileInputStream;
+import java.io.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.*;
 
 public class CPSClient {
-    /**
-     * modelFilePath
-     */
-    private String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model.xml";
-
-    private String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg.txt";
-
     /**
      * Socket related
      * USE UDP Protocol
@@ -28,10 +22,23 @@ public class CPSClient {
 
     private DatagramSocket datagramSocket = null;
 
-    private String sourceIP;
+    private DatagramPacket datagramPacket = null;
+
+    private InetAddress sourceInetAddress;
 
     private byte[] buffer = new byte[1024];
 
+    /**
+     * 小车参数信息
+     */
+    private int carNum = 1;
+    private Long[] loc = new Long[carNum];
+    private String[] velocity = new String[carNum];
+
+    /**
+     * rfid Number
+     */
+    private Map<Long,Integer> rfidInfo = null;
     /**
      *
      * @param hostIP local host IP address
@@ -46,28 +53,240 @@ public class CPSClient {
         catch (SocketException exception){
             System.out.println(exception.getMessage());
         }
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("/Users/cedricxing/Documents/大四/毕业设计/Client/src/loc.txt"))));
+            rfidInfo = new HashMap<Long,Integer>();
+            String line = "";
+            line = bufferedReader.readLine();
+            int no = 0;
+            while (line != null){
+                Long t = Long.parseLong(line);
+                //System.out.println(t);
+                rfidInfo.put(t,no);
+                ++no;
+                line = bufferedReader.readLine();
+            }
+            bufferedReader.close();
+        }
+        catch (FileNotFoundException e){
+            System.err.println("File not found!");
+        }
+        catch (IOException e){
+            System.err.println("IO exception!");
+        }
     }
 
-    /**
-     * Get Source IP Address
-     * @return
-     */
-    public final String getSourceIP(){
-        return sourceIP;
-    }
 
     /**
      * Generate Model File to modelFilePath
      */
-    public void generateModelFile(){
+    public void generateModelFile(String path,String ma){
+        try {
+            BufferedWriter outXml = new BufferedWriter(new FileWriter(new File(path)));
+            outXml.write("<?xml version=" + '"' + "1.0" + '"' + " encoding=" + '"' + "iso-8859-1" + '"' + "?>" + "\n");
+            outXml.write("<sspaceex xmlns=" + '"' + "http://www-verimag.imag.fr/xml-namespaces/sspaceex" + '"'
+                    + " version=" + '"' + "0.2" + '"' + " math=" + '"' + "SpaceEx" + '"' + ">" + "\n");
+            outXml.write("<component id=" + '"' + "system" + '"' + ">" + "\n");
+            outXml.write("<param name=" + '"' + "x" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "v" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "t" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "vebi" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "a" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
 
+            //label
+            for(int i = 1;i <= 7;++i){
+                outXml.write("<param name=" + '"' + "e" + i + '"' + " type=" + '"' + "label" + '"' + " local=" + '"' + "false"
+                        + '"' + "/>" + "\n");
+            }
+
+            //State Init
+            outXml.write("	<location id=" + '"' + "1" + '"' + " name=" + '"' + "v1" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant>"  + "t == 0 " + " </invariant>" + "\n");
+            outXml.write("      <flow>x'==v &amp; t'==1 &amp; v'==0 &amp; vebi'==0 &amp; a'==0 </flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State AC
+            outXml.write("	<location id=" + '"' + "2" + '"' + " name=" + '"' + "v2" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State CC
+            outXml.write("	<location id=" + '"' + "3" + '"' + " name=" + '"' + "v3" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State EB
+            outXml.write("	<location id=" + '"' + "4" + '"' + " name=" + '"' + "v4" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == -10 &amp; t'==1 &amp;vebi'==-14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //Transition Init->AC
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
+            outXml.write("      <label>e1</label>" + "\n");
+            outXml.write("	  <guard>0&lt;=v&lt;=vebi - 20" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition Init->CC
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e2</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition Init->EB
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
+            outXml.write("      <label>e3</label>" + "\n");
+            outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = a</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition AC->CC
+            outXml.write("    <transition source=" + '"' + "2" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e4</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition CC->AC
+            outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
+            outXml.write("      <label>e5</label>" + "\n");
+            outXml.write("	  <guard>0&lt;=v&lt;=vebi - 20" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition CC->EB
+            outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
+            outXml.write("      <label>e6</label>" + "\n");
+            outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = a</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition EB->CC
+            outXml.write("    <transition source=" + '"' + "4" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e7</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            outXml.write("  </component>" + "\n");
+            outXml.write("</sspaceex>" + "\n");
+            outXml.close();
+        }
+        catch (Exception e){
+            System.err.println("Error occured when the xmlfile was created!");
+        }
     }
 
     /**
      * Generate CFG File to cfgFilePath
      */
-    public void generateCFGFile(){
+    public void generateCFGFile(String v,String vebi,String ma,String path){
+        try{
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File(path)));
+            bufferedWriter.write("# analysis options" + "\n");
+            bufferedWriter.write("system = " + '"' + "system" + '"' + "" + "\n");
+            //To be modified
+            bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==[-7,7]" + '"' + "" + "\n");
+            bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<12 & loc() == v4" + '"' + "" + "\n");
+//            bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
+//            bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
+//            bufferedWriter.write("sampling-time = 0.1" + "\n");
+//            bufferedWriter.write("time-horizon = 40000" + "\n");
+//            bufferedWriter.write("output-variables = " + '"' + "x,v,t" + '"' + "" + "\n");
+//            bufferedWriter.write("output-format = " + '"' + "INTV" + '"' + "" + "\n");
+//            bufferedWriter.write("rel-err = 1.0e-12" + "\n");
+//            bufferedWriter.write("abs-err = 1.0e-13" + "\n");
 
+            bufferedWriter.close();
+        }
+        catch (Exception e){
+            System.err.println("Error occured when the cfgfile was created!");
+        }
+    }
+
+    /**
+     * Receive data
+     * @return String of data
+     * @throws IOException
+     */
+    public final String receive() throws IOException{
+        datagramPacket = new DatagramPacket(buffer,buffer.length);
+        datagramSocket.receive(datagramPacket);
+        sourceInetAddress = datagramPacket.getAddress();
+        String mes = new String(datagramPacket.getData(),0,datagramPacket.getLength());
+        return mes;
+    }
+
+    /**
+     * Send data
+     * @param mes
+     * @throws IOException
+     */
+    public final void response(String mes) throws IOException{
+        DatagramPacket sendPacket = new DatagramPacket(buffer,buffer.length,sourceInetAddress,4455);
+        sendPacket.setData(mes.getBytes());
+        datagramSocket.send(sendPacket);
+    }
+
+    public class VerificationTask extends Thread{
+        private Transmission transmission;
+        private Session session;
+        private int carID;
+
+        public VerificationTask(Transmission transmission,Session session,int carID){
+            this.transmission = transmission;
+            this.session = session;
+            this.carID = carID;
+        }
+
+        public void run(){
+            int previousCarLoc = rfidInfo.get(loc[(carID + 1) % carNum]);
+            int selfCarloc = rfidInfo.get(loc[carID]);
+            int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 126) * 10 - selfCarloc *10);
+            double vebi = Math.sqrt(2 * 14 * ma);//compute vebi
+            String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model" + Integer.toString(carID) + ".xml";
+            String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg" + Integer.toString(carID) + ".txt";
+            generateModelFile(modelFilePath,Integer.toString(ma));
+            generateCFGFile(velocity[carID],Double.toString(vebi),Integer.toString(ma),cfgFilePath);
+            //1 for safe ,0 for unsafe
+            String result = transmission.verification(session,modelFilePath,cfgFilePath);
+            String preCarLocString = Integer.toString(previousCarLoc);
+            if(preCarLocString.length() == 1) preCarLocString = "00" + preCarLocString;
+            else if(preCarLocString.length() == 2) preCarLocString = "0" + preCarLocString;
+            String returnMessage = String.valueOf(carID) + result + preCarLocString;
+            System.out.println(returnMessage);
+            try {
+                response(returnMessage);
+            }
+            catch (Exception e){
+                System.err.println("Send verification result failed!");
+            }
+        }
     }
 
     /**
@@ -76,17 +295,70 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "127.0.0.1";
+        String localHost = "172.25.188.140";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
-        //Todo:JSch Connection
-        Transmission transmission = new Transmission("/Users/cedricxing/Desktop/model.xml","/Users/cedricxing/Desktop/cfg.txt");
-        Session session = transmission.connect();
-        //FileInputStream fileInputStream = new FileInputStream("/Users/cedricxing/Desktop/model.xml");
-        transmission.verification(session);
+        //String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model1.xml";
+        //String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg1.txt";
+        //double vebi = Math.sqrt(2 * 14 * 400);
+        //cpsClient.generateModelFile(modelFilePath,Integer.toString(400));
+        //cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(400),cfgFilePath);
+        //System.out.println(cpsClient.rfidInfo.size());
 
+
+        //Todo:JSch Connection
+        Transmission transmission = new Transmission();
+        //Session session = transmission.connect();
+        Session session = null;
         //Todo:Parameter parsing
+
+        while(true){
+            String message = cpsClient.receive();
+            System.out.println(message);
+            cpsClient.response("01123");
+        }
+
+//        while(true){
+//            Set<Integer> set = new HashSet<Integer>();
+//            for(int i = 0;i < cpsClient.carNum;++i){
+//                set.add(i);
+//            }
+//            while(!set.isEmpty()){
+//                String message = cpsClient.receive();
+//                System.out.println(message);
+//                char carID = message.charAt(0);
+//                String returnText = "10123";
+//                cpsClient.response(returnText);
+//                if(set.contains(carID - '0')){
+//                    String v = "",rfid = "";
+//                    for(int i = 1;i <= 5;++i) {
+//                        //System.out.println(message.charAt(i));
+//                        v += String.valueOf(message.charAt(i));
+//                    }
+//                    for(int i = 6;i <= 15;++i){
+//                        rfid += String.valueOf(message.charAt(i));
+//                    }
+//                    cpsClient.velocity[carID - '0'] = v;
+////                    Long rfidTemp = Long.parseLong(rfid);
+////                    if(rfidTemp == 0)
+////                        continue;
+//                    cpsClient.loc[carID - '0'] = Long.parseLong(rfid);
+//                    //System.out.println("loc:" + cpsClient.loc[carID - '0']);
+//                    //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
+//                    //System.out.println("get here");
+//                    //cpsClient.new VerificationTask(transmission,session,carID - '0').start();
+//                    set.remove(carID-'0');
+//                }
+//                else{//Packet Loss or other problems
+//                    System.err.println("Waiting for other car!");
+//                }
+//            }
+//            for(int i = 0;i < cpsClient.carNum;++i) {
+//                cpsClient.new VerificationTask(transmission, session,i).start();
+//            }
+//
+//        }
 
     }
 
