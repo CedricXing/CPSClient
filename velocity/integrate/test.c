@@ -95,15 +95,17 @@ int main() {
 	init_telecom_device();
 	
 	pthread_t read_speed;
+//	pthread_t read_card;
     pthread_mutex_init(&mutex,NULL);
     pthread_create(&read_speed,NULL,(void*)&car_driver,NULL);
+//	pthread_create(&read_card,NULL,(void*)&car_rfid,NULL);
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 	Trie* trie = (Trie*)malloc(sizeof(Trie));
 	init(trie, "loc.txt");
 
 	while (1) {
-		//	communicate and get updated MA
+		//	communicate and get updated MA	
 		int dest_id = telecom_main(car_ID);	//	card id where ma ends,  modified
 		
 		printf( "\033[1;31;40m dest_id=%d \033[0m\n",dest_id ); 
@@ -114,8 +116,8 @@ int main() {
 		for (; i < CNT; ++i) {
 			unsigned int card_cur_id = get_card();
 			int cur_id = query(trie, card_cur_id);
-
-			double dis = (cur_id + RFID_NUM - dest_id) % RFID_NUM * 10;
+			printf("\033[1;31;40m cur_id=%d \033[0m\n",cur_id ); 
+			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
 			double ebi = calc_ebi(dis);
 
 			if (ebi >= MAX_SPEED) {
@@ -140,9 +142,11 @@ int main() {
 			}
 		
 			SPEED_LEVEL = cur_lvl;
+			sleep(ADJUST_INTERVAL);
 		}
 	}
 
 	return 0;
 }
+
 
