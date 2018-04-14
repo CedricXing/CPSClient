@@ -31,7 +31,7 @@ public class CPSClient {
     /**
      * 小车参数信息
      */
-    private int carNum = 1;
+    private int carNum = 2;
     private Long[] loc = new Long[carNum];
     private String[] velocity = new String[carNum];
 
@@ -123,7 +123,7 @@ public class CPSClient {
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State CC
@@ -132,7 +132,7 @@ public class CPSClient {
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State EB
@@ -141,7 +141,7 @@ public class CPSClient {
                     + ">" + "\n");
             outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == -10 &amp; t'==1 &amp;vebi'==-14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -v / 5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //Transition Init->AC
@@ -213,14 +213,14 @@ public class CPSClient {
             //To be modified
             bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==[-7,7]" + '"' + "" + "\n");
             bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<12 & loc() == v4" + '"' + "" + "\n");
-//            bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
-//            bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
-//            bufferedWriter.write("sampling-time = 0.1" + "\n");
-//            bufferedWriter.write("time-horizon = 40000" + "\n");
-//            bufferedWriter.write("output-variables = " + '"' + "x,v,t" + '"' + "" + "\n");
-//            bufferedWriter.write("output-format = " + '"' + "INTV" + '"' + "" + "\n");
-//            bufferedWriter.write("rel-err = 1.0e-12" + "\n");
-//            bufferedWriter.write("abs-err = 1.0e-13" + "\n");
+            bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
+            bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
+            bufferedWriter.write("sampling-time = 0.1" + "\n");
+            bufferedWriter.write("time-horizon = 40000" + "\n");
+            bufferedWriter.write("output-variables = " + '"' + "x,v,t" + '"' + "" + "\n");
+            bufferedWriter.write("output-format = " + '"' + "INTV" + '"' + "" + "\n");
+            bufferedWriter.write("rel-err = 1.0e-12" + "\n");
+            bufferedWriter.write("abs-err = 1.0e-13" + "\n");
 
             bufferedWriter.close();
         }
@@ -265,8 +265,14 @@ public class CPSClient {
         }
 
         public void run(){
-            int previousCarLoc = rfidInfo.get(loc[(carID + 1) % carNum]);
-            int selfCarloc = rfidInfo.get(loc[carID]);
+            int previousCarLoc;
+            if(rfidInfo.containsKey(loc[(carID + 1) % carNum]))
+                previousCarLoc = rfidInfo.get(loc[(carID + 1) % carNum]);
+            else previousCarLoc = 10;
+            int selfCarloc;
+            if(rfidInfo.containsKey(loc[carID]))
+                selfCarloc =  rfidInfo.get(loc[carID]);
+            else selfCarloc = 0;
             int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 126) * 10 - selfCarloc *10);
             double vebi = Math.sqrt(2 * 14 * ma);//compute vebi
             String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model" + Integer.toString(carID) + ".xml";
@@ -275,6 +281,7 @@ public class CPSClient {
             generateCFGFile(velocity[carID],Double.toString(vebi),Integer.toString(ma),cfgFilePath);
             //1 for safe ,0 for unsafe
             String result = transmission.verification(session,modelFilePath,cfgFilePath);
+            System.out.println(carID + "号车的运行结果为" + result);
             String preCarLocString = Integer.toString(previousCarLoc);
             if(preCarLocString.length() == 1) preCarLocString = "00" + preCarLocString;
             else if(preCarLocString.length() == 2) preCarLocString = "0" + preCarLocString;
@@ -295,70 +302,87 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "172.25.188.140";
+        String localHost = "172.25.182.52";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
-        //String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model1.xml";
-        //String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg1.txt";
-        //double vebi = Math.sqrt(2 * 14 * 400);
-        //cpsClient.generateModelFile(modelFilePath,Integer.toString(400));
-        //cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(400),cfgFilePath);
-        //System.out.println(cpsClient.rfidInfo.size());
+        String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model1.xml";
+        String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg1.txt";
+        double vebi = Math.sqrt(2 * 14 * 400);
+        cpsClient.generateModelFile(modelFilePath,Integer.toString(400));
+        cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(400),cfgFilePath);
+
 
 
         //Todo:JSch Connection
         Transmission transmission = new Transmission();
-        //Session session = transmission.connect();
-        Session session = null;
+        Session session = transmission.connect();
         //Todo:Parameter parsing
 
-        while(true){
-            String message = cpsClient.receive();
-            System.out.println(message);
-            cpsClient.response("01123");
-        }
+//        int i = 0;
+//        while(i < 10){
+//            String result = transmission.verification(session,modelFilePath,cfgFilePath);
+//            ++ i;
+//            System.out.println(result);
+//        }
 
 //        while(true){
-//            Set<Integer> set = new HashSet<Integer>();
-//            for(int i = 0;i < cpsClient.carNum;++i){
-//                set.add(i);
-//            }
-//            while(!set.isEmpty()){
-//                String message = cpsClient.receive();
-//                System.out.println(message);
-//                char carID = message.charAt(0);
+//            String message = cpsClient.receive();
+//            System.out.println(message);
+//            cpsClient.response("01123");
+//        }
+
+        while(true){
+            Set<Integer> set = new HashSet<Integer>();
+            for(int i = 0;i < cpsClient.carNum;++i){
+                set.add(i);
+            }
+            while(!set.isEmpty()){
+                String message = cpsClient.receive();
+                System.out.println(message);
+                char carID = message.charAt(0);
 //                String returnText = "10123";
 //                cpsClient.response(returnText);
-//                if(set.contains(carID - '0')){
-//                    String v = "",rfid = "";
-//                    for(int i = 1;i <= 5;++i) {
-//                        //System.out.println(message.charAt(i));
-//                        v += String.valueOf(message.charAt(i));
-//                    }
-//                    for(int i = 6;i <= 15;++i){
-//                        rfid += String.valueOf(message.charAt(i));
-//                    }
-//                    cpsClient.velocity[carID - '0'] = v;
-////                    Long rfidTemp = Long.parseLong(rfid);
-////                    if(rfidTemp == 0)
-////                        continue;
-//                    cpsClient.loc[carID - '0'] = Long.parseLong(rfid);
-//                    //System.out.println("loc:" + cpsClient.loc[carID - '0']);
-//                    //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
-//                    //System.out.println("get here");
-//                    //cpsClient.new VerificationTask(transmission,session,carID - '0').start();
-//                    set.remove(carID-'0');
-//                }
-//                else{//Packet Loss or other problems
-//                    System.err.println("Waiting for other car!");
-//                }
-//            }
-//            for(int i = 0;i < cpsClient.carNum;++i) {
-//                cpsClient.new VerificationTask(transmission, session,i).start();
-//            }
-//
-//        }
+                if(set.contains(carID - '0')){
+                    System.out.println("get here!");
+                    String v = "",rfid = "";
+                    for(int i = 1;i <= 5;++i) {
+                        //System.out.println(message.charAt(i));
+                        v += String.valueOf(message.charAt(i));
+                    }
+                    if(v.charAt(0) == '-')
+                        v = "1";
+                    for(int i = 6;i <= 15;++i){
+                        rfid += String.valueOf(message.charAt(i));
+                    }
+                    cpsClient.velocity[carID - '0'] = v;
+//                    Long rfidTemp = Long.parseLong(rfid);
+//                    if(rfidTemp == 0)
+//                        continue;
+                    cpsClient.loc[carID - '0'] = Long.parseLong(rfid);
+                    //System.out.println("loc:" + cpsClient.loc[carID - '0']);
+                    //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
+                    //System.out.println("get here");
+                    //cpsClient.new VerificationTask(transmission,session,carID - '0').start();
+                    set.remove(carID-'0');
+                    if(!set.isEmpty()){
+                        String ackMessage = "11111";
+                        System.out.println("Send Ack Message!");
+                        cpsClient.response(ackMessage);
+                    }
+                }
+                else{//Packet Loss or other problems
+                    System.err.println("Waiting for other car!");
+                }
+            }
+            String ackMessage = "00000";
+            cpsClient.response(ackMessage);
+            for(int i = 0;i < cpsClient.carNum;++i) {
+                System.out.println("Start Verification!");
+                cpsClient.new VerificationTask(transmission, session,i).start();
+            }
+
+        }
 
     }
 

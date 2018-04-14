@@ -32,7 +32,7 @@ public class Transmission {
     /**
      * Command related
      */
-    private String bound = "2";
+    private String bound = "5";
     private String calcommand = "./bach modelfile cfgfile " + bound;
     //private String clearCommandModel = "true >modelfile";
     //private String clearcommandCFG = "true >cfgfile";
@@ -242,7 +242,7 @@ public class Transmission {
             }
             bufferedReader.close();
             channelCFG.disconnect();
-            session.disconnect();
+            //session.disconnect();
             return judge;
         }
         catch (Exception e){
