@@ -108,7 +108,7 @@ int main() {
 			unsigned int card_cur_id = get_card();
 			int cur_id = query(trie, card_cur_id);
 
-			double dis = (cur_id + RFID_NUM - dest_id) % RFID_NUM * 10;
+			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
 			double ebi = calc_ebi(dis);
 
 			if (ebi >= MAX_SPEED) {
@@ -133,6 +133,7 @@ int main() {
 			}
 		
 			SPEED_LEVEL = cur_lvl;
+			sleep(ADJUST_INTERVAL);
 		}
 	}
 
