@@ -41,12 +41,8 @@ public class Transmission {
 
     /**
      * Constructor
-     * @param modelFilePath
-     * @param cfgFilePath
      */
-    public Transmission(String modelFilePath,String cfgFilePath){
-        this.modelFilePath = modelFilePath;
-        this.cfgFilePath = cfgFilePath;
+    public Transmission(){
     }
 
     /**
@@ -79,8 +75,11 @@ public class Transmission {
      * @param session
      * @return
      */
-    public String verification(Session session) {
-        String result = (transmitfile(session) ? "安全" : "危险");
+    public String verification(Session session,String modelFilePath,String cfgFilePath) {
+        this.modelFilePath = modelFilePath;
+        this.cfgFilePath = cfgFilePath;
+        //1 for safe
+        String result = (transmitfile(session) ? "1" : "0");
         return result;
     }
 
@@ -90,7 +89,7 @@ public class Transmission {
      * @param session
      * @return
      */
-    public boolean transmitfile(Session session) {
+    private boolean transmitfile(Session session) {
         String modelfilePath = modelFilePath;
         String cfgfilePath = cfgFilePath;
         boolean ptimestamp = true;

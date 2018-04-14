@@ -28,7 +28,7 @@ int mgtic_read(void);
 
 int mgtic_set(void);
 
-double get_speed(void);
+//float get_speed(void);
 /*
     read the speed of the car
 */

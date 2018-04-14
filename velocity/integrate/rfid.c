@@ -7,6 +7,8 @@ static int name_arr[] = { 230400, 115200, 57600, 38400, 19200, 9600, 4800, 2400,
 38400, 19200, 9600, 4800, 2400, 1200, 300 };
 
 int fd_rfid=-1;
+int pre_card_ID=0;
+
 
 unsigned get_card(void)
 {
@@ -27,12 +29,13 @@ unsigned get_card(void)
 		if (buf[0] == 0xaa && buf[1] == 0xbb &&
 			buf[2] == 0x06 && buf[3] == 0x20)
 		{
-			//»ñµÃ¿¨ºÅ buf[4],buf[5],buf[6],buf[7];
+			//??¦Ì??¡§o? buf[4],buf[5],buf[6],buf[7];
 			memcpy(&num, &buf[4], 4);
-			return num;
+			return pre_card_ID=num;
 		}
+	}else{
+		return pre_card_ID;
 	}
-	return 0;
 }
 
 int rfid_init(void)
@@ -207,7 +210,3 @@ int set_Parity(int fd, int databits, int stopbits, int parity)
 	}
 	return(TRUE);
 }
-
-
-
-

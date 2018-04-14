@@ -21,7 +21,8 @@
 
 3. todo的1234已完成
 
-4. arm-linux-gcc -lm -lpthread -o test rfid.c zigbee.c telecom.c car.c test.c 
+4. arm-linux-gcc -lm -lpthread -o test rfid.c telecom.c car.c test.c 
+
 
 
 
