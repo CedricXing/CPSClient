@@ -65,7 +65,7 @@ float get_speed(void)
 	}
 	else
 	{
-	    iSpeed = -1;
+	    iSpeed = 0;
 	    printf("fail to get the correct speed\n");
 	}
 	printf("Speed %.2fcm/s\n", iSpeed);
