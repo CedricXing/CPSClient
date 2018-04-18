@@ -32,13 +32,13 @@ public class CPSClient {
      * 小车参数信息
      */
     private int carNum = 2;
-    private Long[] loc = new Long[carNum];
+    private int[] loc = new int[carNum];
     private String[] velocity = new String[carNum];
-
+    public int cycle;
     /**
      * rfid Number
      */
-    private Map<Long,Integer> rfidInfo = null;
+    //private Map<Long,Integer> rfidInfo = null;
     /**
      *
      * @param hostIP local host IP address
@@ -46,6 +46,7 @@ public class CPSClient {
      * @throws Exception thrown when fail to create DatagramSocket
      */
     public CPSClient(String hostIP,int port){
+        cycle = 0;
         socketAddress = new InetSocketAddress(hostIP,port);
         try {
             datagramSocket = new DatagramSocket(socketAddress);
@@ -53,27 +54,27 @@ public class CPSClient {
         catch (SocketException exception){
             System.out.println(exception.getMessage());
         }
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("/Users/cedricxing/Documents/大四/毕业设计/Client/src/loc.txt"))));
-            rfidInfo = new HashMap<Long,Integer>();
-            String line = "";
-            line = bufferedReader.readLine();
-            int no = 0;
-            while (line != null){
-                Long t = Long.parseLong(line);
-                //System.out.println(t);
-                rfidInfo.put(t,no);
-                ++no;
-                line = bufferedReader.readLine();
-            }
-            bufferedReader.close();
-        }
-        catch (FileNotFoundException e){
-            System.err.println("File not found!");
-        }
-        catch (IOException e){
-            System.err.println("IO exception!");
-        }
+//        try {
+//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("/Users/cedricxing/Documents/大四/毕业设计/Client/src/loc.txt"))));
+//            rfidInfo = new HashMap<Long,Integer>();
+//            String line = "";
+//            line = bufferedReader.readLine();
+//            int no = 0;
+//            while (line != null){
+//                Long t = Long.parseLong(line);
+//                //System.out.println(t);
+//                rfidInfo.put(t,no);
+//                ++no;
+//                line = bufferedReader.readLine();
+//            }
+//            bufferedReader.close();
+//        }
+//        catch (FileNotFoundException e){
+//            System.err.println("File not found!");
+//        }
+//        catch (IOException e){
+//            System.err.println("IO exception!");
+//        }
     }
 
 
@@ -122,8 +123,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State CC
@@ -131,8 +132,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State EB
@@ -140,36 +141,36 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == -10 &amp; t'==1 &amp;vebi'==-14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == -10 &amp; t'==1 &amp;vebi'==-14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //Transition Init->AC
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
             outXml.write("      <label>e1</label>" + "\n");
-            outXml.write("	  <guard>0&lt;=v&lt;=vebi - 20" + "</guard>" + "\n");
+            outXml.write("	  <guard>0&lt;=v&lt;vebi - 20" + "</guard>" + "\n");
             outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition Init->CC
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e2</label>" + "\n");
-            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition Init->EB
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e3</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = a</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition AC->CC
             outXml.write("    <transition source=" + '"' + "2" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e4</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition CC->AC
@@ -183,14 +184,14 @@ public class CPSClient {
             outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e6</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = a</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10 </assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition EB->CC
             outXml.write("    <transition source=" + '"' + "4" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e7</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-7,7]</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             outXml.write("  </component>" + "\n");
@@ -211,7 +212,7 @@ public class CPSClient {
             bufferedWriter.write("# analysis options" + "\n");
             bufferedWriter.write("system = " + '"' + "system" + '"' + "" + "\n");
             //To be modified
-            bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==[-7,7]" + '"' + "" + "\n");
+            bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==0" + '"' + "" + "\n");
             bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<12 & loc() == v4" + '"' + "" + "\n");
             bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
             bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
@@ -265,23 +266,18 @@ public class CPSClient {
         }
 
         public void run(){
-            int previousCarLoc;
-            if(rfidInfo.containsKey(loc[(carID + 1) % carNum]))
-                previousCarLoc = rfidInfo.get(loc[(carID + 1) % carNum]);
-            else previousCarLoc = 10;
-            int selfCarloc;
-            if(rfidInfo.containsKey(loc[carID]))
-                selfCarloc =  rfidInfo.get(loc[carID]);
-            else selfCarloc = 0;
+            int previousCarLoc = loc[(carID + 1) % carNum];
+            int selfCarloc = loc[carID];
             int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 126) * 10 - selfCarloc *10);
             double vebi = Math.sqrt(2 * 14 * ma);//compute vebi
-            String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model" + Integer.toString(carID) + ".xml";
-            String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg" + Integer.toString(carID) + ".txt";
+            String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model_" + cycle + "_" + Integer.toString(carID) + ".xml";
+            String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg_" + cycle + "_" + Integer.toString(carID) + ".txt";
             generateModelFile(modelFilePath,Integer.toString(ma));
             generateCFGFile(velocity[carID],Double.toString(vebi),Integer.toString(ma),cfgFilePath);
             //1 for safe ,0 for unsafe
+            System.out.println(carID + "号小车当前的位置为" + selfCarloc + " ,vebi为" + vebi + "  ,ma为" + ma);
             String result = transmission.verification(session,modelFilePath,cfgFilePath);
-            System.out.println(carID + "号车的运行结果为" + result);
+            System.out.println(carID + "号车的验证结果为" + result);
             String preCarLocString = Integer.toString(previousCarLoc);
             if(preCarLocString.length() == 1) preCarLocString = "00" + preCarLocString;
             else if(preCarLocString.length() == 2) preCarLocString = "0" + preCarLocString;
@@ -302,7 +298,7 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "172.25.182.52";
+        String localHost = "172.25.180.232";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
@@ -359,7 +355,7 @@ public class CPSClient {
 //                    Long rfidTemp = Long.parseLong(rfid);
 //                    if(rfidTemp == 0)
 //                        continue;
-                    cpsClient.loc[carID - '0'] = Long.parseLong(rfid);
+                    cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
                     //System.out.println("loc:" + cpsClient.loc[carID - '0']);
                     //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
                     //System.out.println("get here");
@@ -377,11 +373,12 @@ public class CPSClient {
             }
             String ackMessage = "00000";
             cpsClient.response(ackMessage);
+            System.out.println("Start Verification!");
+            System.out.println("******************************************");
             for(int i = 0;i < cpsClient.carNum;++i) {
-                System.out.println("Start Verification!");
                 cpsClient.new VerificationTask(transmission, session,i).start();
             }
-
+            ++cpsClient.cycle;
         }
 
     }
