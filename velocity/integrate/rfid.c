@@ -1,4 +1,5 @@
 #include "rfid.h"
+#include "trie.h"
 
 static int speed_arr[] = { B230400, B115200, B57600, B38400, B19200, B9600, B4800, B2400, B1200, B300,
 B38400, B19200, B9600, B4800, B2400, B1200, B300 };
@@ -7,12 +8,13 @@ static int name_arr[] = { 230400, 115200, 57600, 38400, 19200, 9600, 4800, 2400,
 38400, 19200, 9600, 4800, 2400, 1200, 300 };
 
 int fd_rfid=-1;
-int pre_card_ID=0;
-
+int pre_id=0;
+Trie* trie;
 
 unsigned get_card(void)
 {
-	int nread, i, num;
+	int nread, i;
+	unsigned int num;
 	unsigned char buf[16];
 
 	memset(buf, 0, 16);
@@ -24,6 +26,17 @@ unsigned get_card(void)
 	write(fd_rfid, buf, 5);
 	usleep(50 * 1000);
 	nread = read(fd_rfid, buf, 16);
+
+	memcpy(&num, &buf[4], 4);
+	int cur_id = query(trie, num);
+	if (cur_id == -1) {
+		return pre_id;
+	}
+	else {
+		pre_id = cur_id;
+		return cur_id;
+	}
+/*
 	if (nread >= 0x9)
 	{
 		if (buf[0] == 0xaa && buf[1] == 0xbb &&
@@ -36,10 +49,14 @@ unsigned get_card(void)
 	}else{
 		return pre_card_ID;
 	}
+*/
 }
 
 int rfid_init(void)
 {
+	trie = (Trie*)malloc(sizeof(Trie));
+	init(trie, "loc.txt");
+	
 	char *Dev = "/dev/ttySAC3";
 	int i;
 
@@ -210,3 +227,12 @@ int set_Parity(int fd, int databits, int stopbits, int parity)
 	}
 	return(TRUE);
 }
+
+void car_rfid(void)
+{
+	while(1)
+	{
+		get_card();
+	}
+}
+

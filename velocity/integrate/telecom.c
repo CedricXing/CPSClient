@@ -3,10 +3,21 @@
 int fd_zigbee=-1;
 int fd_grating=-1;
 static int cnt;
-int telecom_main(int car_ID) {
+int is_me(char buf[],int car_ID){
+	int i;
+	for(i=0;i<100;i++){
+		if(buf[i]=='a'&&buf[i+1]==car_ID+'0'){
+			//printf("IS ME.\n");
+			return 1;
+		}
+	}
+	//printf("NOT ME\n");
+	return 0;
+}
+int telecom_main(int car_ID,int *safe) {
 	char buf[100];
 	float speed = get_speed();
-	printf("speed=%f\n",speed);
+	//printf("speed=%f\n",speed);
 	unsigned card = get_card();
 	//int car_ID = get_ID();
 	memset(buf, '\0', sizeof(buf));
@@ -17,7 +28,7 @@ int telecom_main(int car_ID) {
 	printf("ID: %d speed: %f location: %d\n", car_ID, speed, card);
 	zigbee_send_cmd(buf, 1 + 4 + 4);
 	int i,j;
-	while (read(fd_zigbee, buf, 99) == 0){
+	while (read(fd_zigbee, buf, 99) == 0||!is_me(buf,car_ID)){
 	}
 	char tbuf[32];
 	for(i=0;i<100;i++){
@@ -25,13 +36,15 @@ int telecom_main(int car_ID) {
 			memcpy(tbuf,buf+i,7);
 		}
 	}
-	int rtn = (tbuf[3]-'0')*100+(tbuf[2]-'0')*10+(tbuf[1]-'0');
+	int rtn = (tbuf[3]-'0')*100+(tbuf[4]-'0')*10+(tbuf[5]-'0');
 	while(read(fd_zigbee,buf,99));
-	printf("RECV!!!!!!   %d\n",cnt);
+	//printf("RECV!!!!!!   %d\n",cnt);
 	cnt++;
 	//	int i;
 	//	for (i = 0; i < 5; i++)printf("%c", buf[i]);
 	//	printf("\n");
+	*safe=tbuf[2]-'0';
+	printf("\033[1;31;40m safe=%d \033[0m\n",*safe);
 	return rtn;
 }
 
@@ -65,10 +78,10 @@ float get_speed(void)
 	}
 	else
 	{
-	    iSpeed = 0;
-	    printf("fail to get the correct speed\n");
+	    iSpeed = -1;
+	   // printf("fail to get the correct speed\n");
 	}
-	printf("Speed %.2fcm/s\n", iSpeed);
+	//printf("Speed %.2fcm/s\n", iSpeed);
 	return iSpeed;
 }
 

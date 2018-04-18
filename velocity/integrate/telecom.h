@@ -18,7 +18,7 @@
 
 void init_telecom_device();
 float get_speed(void);
-int telecom_main(int car_ID);
+int telecom_main(int car_ID,int* safe);
 int zigbee_init(void);
 int zigbee_send_cmd(char* buff, int len);
 

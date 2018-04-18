@@ -11,8 +11,6 @@
 #include<pthread.h>
 #include"car.h"
 
-/*function declare for get rfid */
-unsigned int get_card(void);
 static int fd_magtic=-1,fd_motor=-1;//fd_grating=-1;
 
 int car_open(void)
@@ -33,7 +31,7 @@ int car_open(void)
   return 0;
 }
 
-int car_close()
+int car_close(void)
 {
   close(fd_magtic);
   close(fd_motor);
@@ -117,7 +115,6 @@ void car_control(void)
     
     while(1)
     {
-	    	get_card();
 		if (level != SPEED_LEVEL)
 		{
 			level = SPEED_LEVEL;
