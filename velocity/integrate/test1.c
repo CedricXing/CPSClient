@@ -102,55 +102,20 @@ int main() {
 	
 
 	sleep(10);
-	cur_lvl = SPEED_LEVEL = 2;
+	cur_lvl = SPEED_LEVEL = 4;
 	sleep(5);
 
 	while (1) {
 		//	communicate and get updated MA	
-		int safe;
-		int dest_id = telecom_main(car_ID, &safe);	//	card id where ma ends,  modified
-		
-		printf( "\033[1;31;40m dest_id=%d \033[0m\n",dest_id ); 
-		
-		if (!safe) {
+		int cur_id = get_card();
+		if (cur_id >= 20 && cur_id <= 30) {
 			SPEED_LEVEL = 0;
 			sleep(1);
 			break;
 		}
-			
-		sleep(CONTACT_INTERVAL);
-        
-        int i = 0;
-		for (; i < CNT; ++i) {
-			int cur_id = get_card();
-			printf("\033[1;31;40m cur_id=%d \033[0m\n",cur_id ); 
-			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
-			double ebi = calc_ebi(dis);
-
-			if (ebi >= MAX_SPEED) {
-				//	AC
-				cur_lvl = AC(cur_lvl);
-			}
-			else {
-				ebi_lvl = ebi2level(ebi);
-
-				if (ebi_lvl - cur_lvl > 4) {
-					//	AC
-					cur_lvl = AC(cur_lvl);
-				}
-				else if (ebi_lvl - cur_lvl <= 0) {
-					//	EB
-					cur_lvl = EB(cur_lvl);
-				}
-				else {
-					//	CC
-					cur_lvl = CC(cur_lvl);
-				}
-			}
-		
-			SPEED_LEVEL = cur_lvl;
-			sleep(ADJUST_INTERVAL);
-		}
+		cur_lvl = CC(cur_lvl);
+		SPEED_LEVEL = cur_lvl;
+		sleep(1);	
 	}
 
 	return 0;
