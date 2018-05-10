@@ -7,13 +7,12 @@
 #include "car.h"
 #include "rfid.h"
 //	time interval
-#define TOT_INTERVAL		4
-#define CONTACT_INTERVAL	1
+#define TOT_INTERVAL		12
+#define CONTACT_INTERVAL	2
 #define ADJUST_INTERVAL		1
 #define CNT					(TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL
 
-#define RFID_NUM        120
-#define MAX_DISTANCE    200
+#define RFID_NUM 126
 
 //	acceleration and speed
 #define ACC 14
@@ -102,57 +101,21 @@ int main() {
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 
-	sleep(10);
-	cur_lvl = SPEED_LEVEL = 2;
+//	sleep(10);
+	cur_lvl = SPEED_LEVEL = 4;
 	sleep(5);
 
 	while (1) {
 		//	communicate and get updated MA	
-		int safe;
-		int dest_id = telecom_main(car_ID, &safe);	//	card id where ma ends,  modified
-		
-		printf( "\033[1;31;40m dest_id=%d \033[0m\n",dest_id ); 
-		
-		if (!safe) {
-			SPEED_LEVEL = 0;
-			sleep(1);
-			break;
+		//int cur_id = get_card();
+		//if (cur_id >= 20 && cur_id <= 30) {
+		//	SPEED_LEVEL = 0;
+		//	sleep(1);
+		//	break;
 		}
-			
-		//sleep(CONTACT_INTERVAL);
-        
-        int i = 0;
-		for (; i < CNT; ++i) {
-			int cur_id = get_card();
-			printf("\033[1;31;40m cur_id=%d \033[0m\n",cur_id ); 
-			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
-            dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
-			double ebi = calc_ebi(dis);
-
-			if (ebi >= MAX_SPEED) {
-				//	AC
-				cur_lvl = AC(cur_lvl);
-			}
-			else {
-				ebi_lvl = ebi2level(ebi);
-
-				if (ebi_lvl - cur_lvl > 4) {
-					//	AC
-					cur_lvl = AC(cur_lvl);
-				}
-				else if (ebi_lvl - cur_lvl <= 0) {
-					//	EB
-					cur_lvl = EB(cur_lvl);
-				}
-				else {
-					//	CC
-					cur_lvl = CC(cur_lvl);
-				}
-			}
-		
-			SPEED_LEVEL = cur_lvl;
-			sleep(ADJUST_INTERVAL);
-		}
+		cur_lvl = AC(cur_lvl);
+		SPEED_LEVEL = cur_lvl;
+		sleep(5);	
 	}
 
 	return 0;
