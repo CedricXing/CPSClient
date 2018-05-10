@@ -12,6 +12,9 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CPSClient {
     /**
@@ -123,8 +126,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State CC
@@ -132,8 +135,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //State EB
@@ -141,8 +144,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == -10 &amp; t'==1 &amp;vebi'==-14 * v / (2 * 14 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
-            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== 0 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
             //Transition Init->AC
@@ -213,7 +216,7 @@ public class CPSClient {
             bufferedWriter.write("system = " + '"' + "system" + '"' + "" + "\n");
             //To be modified
             bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==0" + '"' + "" + "\n");
-            bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<12 & loc() == v4" + '"' + "" + "\n");
+            bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<4 & loc() == v4" + '"' + "" + "\n");
             bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
             bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
             bufferedWriter.write("sampling-time = 0.1" + "\n");
@@ -258,24 +261,27 @@ public class CPSClient {
         private Transmission transmission;
         private Session session;
         private int carID;
+        private int cycle;
 
-        public VerificationTask(Transmission transmission,Session session,int carID){
+        public VerificationTask(Transmission transmission,Session session,int carID,int cycle){
             this.transmission = transmission;
             this.session = session;
             this.carID = carID;
+            this.cycle = cycle;
         }
 
         public void run(){
             int previousCarLoc = loc[(carID + 1) % carNum];
             int selfCarloc = loc[carID];
-            int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 126) * 10 - selfCarloc *10);
-            double vebi = Math.sqrt(2 * 14 * ma);//compute vebi
-            String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model_" + cycle + "_" + Integer.toString(carID) + ".xml";
-            String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg_" + cycle + "_" + Integer.toString(carID) + ".txt";
+            int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 120) * 10 - selfCarloc *10);
+            if(ma > 200) ma = 200;
+            double vebi = Math.sqrt(2 * 10 * ma);//compute vebi
+            String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model_" + this.cycle + "_" + Integer.toString(carID) + ".xml";
+            String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg_" + this.cycle + "_" + Integer.toString(carID) + ".txt";
             generateModelFile(modelFilePath,Integer.toString(ma));
             generateCFGFile(velocity[carID],Double.toString(vebi),Integer.toString(ma),cfgFilePath);
             //1 for safe ,0 for unsafe
-            System.out.println(carID + "号小车当前的位置为" + selfCarloc + " ,vebi为" + vebi + "  ,ma为" + ma);
+            System.out.println(carID + "号小车当前的位置为" + selfCarloc + " ,速度为" + velocity[carID] + " ,vebi为" + vebi + "  ,ma为" + ma);
             String result = transmission.verification(session,modelFilePath,cfgFilePath);
             System.out.println(carID + "号车的验证结果为" + result);
             String preCarLocString = Integer.toString(previousCarLoc);
@@ -298,15 +304,16 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "172.25.180.232";
+        String localHost = "172.25.182.64";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
         String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model1.xml";
         String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg1.txt";
-        double vebi = Math.sqrt(2 * 14 * 400);
-        cpsClient.generateModelFile(modelFilePath,Integer.toString(400));
-        cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(400),cfgFilePath);
+        int x = 200;
+        double vebi = Math.sqrt(2 * 10 * x);
+        cpsClient.generateModelFile(modelFilePath,Integer.toString(x));
+        cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(x),cfgFilePath);
 
 
 
@@ -335,12 +342,13 @@ public class CPSClient {
             }
             while(!set.isEmpty()){
                 String message = cpsClient.receive();
-                System.out.println(message);
+                if(message.equals("11111") || message.equals("00000"))
+                    continue;
+                System.out.println("接收到的数据包为： " + message);
                 char carID = message.charAt(0);
 //                String returnText = "10123";
 //                cpsClient.response(returnText);
                 if(set.contains(carID - '0')){
-                    System.out.println("get here!");
                     String v = "",rfid = "";
                     for(int i = 1;i <= 5;++i) {
                         //System.out.println(message.charAt(i));
@@ -363,7 +371,7 @@ public class CPSClient {
                     set.remove(carID-'0');
                     if(!set.isEmpty()){
                         String ackMessage = "11111";
-                        System.out.println("Send Ack Message!");
+                        //System.out.println("Send Ack Message!");
                         cpsClient.response(ackMessage);
                     }
                 }
@@ -374,9 +382,13 @@ public class CPSClient {
             String ackMessage = "00000";
             cpsClient.response(ackMessage);
             System.out.println("Start Verification!");
-            System.out.println("******************************************");
+            System.out.println("****************周期" + cpsClient.cycle + "**************************");
+//            for(int i = 0;i < cpsClient.carNum;++i) {
+//                cpsClient.new VerificationTask(transmission, session,i,cpsClient.cycle).start();
+//            }
+            ExecutorService threadPool = Executors.newFixedThreadPool(1);
             for(int i = 0;i < cpsClient.carNum;++i) {
-                cpsClient.new VerificationTask(transmission, session,i).start();
+                threadPool.execute(cpsClient.new VerificationTask(transmission, session, i, cpsClient.cycle));
             }
             ++cpsClient.cycle;
         }
