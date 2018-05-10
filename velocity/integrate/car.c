@@ -118,7 +118,7 @@ void car_control(void)
 		if (level != SPEED_LEVEL)
 		{
 			level = SPEED_LEVEL;
-			printf("speed level has changed to %d \n", level);
+			//printf("speed level has changed to %d \n", level);
 			//flag=true;    
 
 			if (level == 0)
