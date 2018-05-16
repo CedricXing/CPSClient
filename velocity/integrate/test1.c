@@ -12,7 +12,8 @@
 #define ADJUST_INTERVAL		1
 #define CNT					(TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL
 
-#define RFID_NUM 126
+#define RFID_NUM 120
+#define MAX_DISTANCE 200
 
 //	acceleration and speed
 #define ACC 14
@@ -102,18 +103,32 @@ int main() {
 	
 
 	sleep(10);
-	cur_lvl = SPEED_LEVEL = 4;
+	cur_lvl = SPEED_LEVEL = 1;
 	sleep(5);
 
+	int dest_id = 60;
 	while (1) {
-		//	communicate and get updated MA	
 		int cur_id = get_card();
-		if (cur_id >= 20 && cur_id <= 30) {
+		if (cur_id >= 59 && cur_id <= 61) {
 			SPEED_LEVEL = 0;
 			sleep(1);
 			break;
 		}
-		cur_lvl = CC(cur_lvl);
+		float speed = get_speed();
+		printf("current loc %d\n:",cur_id);
+		printf("current speed %f\n", speed);
+		printf("current speed level %d\n",cur_lvl);
+		printf("*********************\n");
+		double dis = (dest_id + RFID_NUM -cur_id) % RFID_NUM * 10;
+		dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
+		double ebi = calc_ebi(dis);
+		ebi_lvl = ebi2level(ebi);
+		if(ebi_lvl - cur_lvl > 4)
+			cur_lvl = AC(cur_lvl);
+		else if(ebi_lvl - cur_lvl <= 0)
+			cur_lvl = EB(cur_lvl);
+		else
+			cur_lvl = CC(cur_lvl);
 		SPEED_LEVEL = cur_lvl;
 		sleep(1);	
 	}

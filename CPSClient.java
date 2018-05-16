@@ -126,7 +126,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
@@ -135,7 +136,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
@@ -144,7 +146,8 @@ public class CPSClient {
                     + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
                     + ">" + "\n");
             outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
-            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
             //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
             outXml.write("    </location>" + "\n");
 
@@ -152,49 +155,49 @@ public class CPSClient {
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
             outXml.write("      <label>e1</label>" + "\n");
             outXml.write("	  <guard>0&lt;=v&lt;vebi - 20" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 10</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition Init->CC
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e2</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [0,10]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition Init->EB
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e3</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -15</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition AC->CC
             outXml.write("    <transition source=" + '"' + "2" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e4</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [0,10]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition CC->AC
             outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
             outXml.write("      <label>e5</label>" + "\n");
             outXml.write("	  <guard>0&lt;=v&lt;=vebi - 20" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 10</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition CC->EB
             outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e6</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10 </assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -15 </assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition EB->CC
             outXml.write("    <transition source=" + '"' + "4" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
             outXml.write("      <label>e7</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [0,10]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             outXml.write("  </component>" + "\n");
@@ -216,7 +219,7 @@ public class CPSClient {
             bufferedWriter.write("system = " + '"' + "system" + '"' + "" + "\n");
             //To be modified
             bufferedWriter.write("initially = " + '"' + "loc()==v1 & x==" + 0 + "& v==" + v + " & vebi==" + vebi + " & t==0 &a==0" + '"' + "" + "\n");
-            bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<4 & loc() == v4" + '"' + "" + "\n");
+            bufferedWriter.write("forbidden=" + '"' + "x>" + ma + "& t<5 & loc() == v4" + '"' + "" + "\n");
             bufferedWriter.write("scenario = " + '"' + "phaver" + '"' + "" + "\n");
             bufferedWriter.write("directions = " + '"' + "uni32" + '"' + "" + "\n");
             bufferedWriter.write("sampling-time = 0.1" + "\n");
@@ -304,23 +307,28 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "172.25.182.64";
+        String localHost = "192.168.1.102";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
-        String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model1.xml";
-        String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg1.txt";
-        int x = 200;
-        double vebi = Math.sqrt(2 * 10 * x);
+        String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model.xml";
+        String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg.txt";
+        int x = 100;
+        double vebi = Math.sqrt(2 * 20 * x);
         cpsClient.generateModelFile(modelFilePath,Integer.toString(x));
-        cpsClient.generateCFGFile(Integer.toString(25),Double.toString(vebi),Integer.toString(x),cfgFilePath);
+        cpsClient.generateCFGFile(Integer.toString(30),Double.toString(vebi),Integer.toString(x),cfgFilePath);
 
 
 
         //Todo:JSch Connection
         Transmission transmission = new Transmission();
         Session session = transmission.connect();
-        //Todo:Parameter parsing
+
+        System.out.println("参数信息：");
+        System.out.println("*******移动授权距离为100");
+        System.out.println("*******初始速度为30");
+        System.out.println("*******初始顶棚速度为" + vebi);
+        transmission.verification(session,modelFilePath,cfgFilePath);
 
 //        int i = 0;
 //        while(i < 10){
@@ -382,7 +390,7 @@ public class CPSClient {
             String ackMessage = "00000";
             cpsClient.response(ackMessage);
             System.out.println("Start Verification!");
-            System.out.println("****************周期" + cpsClient.cycle + "**************************");
+            System.out.println("******************************周期" + cpsClient.cycle + "******************************************");
 //            for(int i = 0;i < cpsClient.carNum;++i) {
 //                cpsClient.new VerificationTask(transmission, session,i,cpsClient.cycle).start();
 //            }
