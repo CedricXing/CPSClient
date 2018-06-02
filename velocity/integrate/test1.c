@@ -16,7 +16,7 @@
 #define MAX_DISTANCE 200
 
 //	acceleration and speed
-#define ACC 14
+#define ACC 10
 #define MAX_SPEED 65
 #define N_LEVEL 9          
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};

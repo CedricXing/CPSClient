@@ -7,8 +7,8 @@
 #include "car.h"
 #include "rfid.h"
 //	time interval
-#define TOT_INTERVAL		12
-#define CONTACT_INTERVAL	2
+#define TOT_INTERVAL		4
+#define CONTACT_INTERVAL	1
 #define ADJUST_INTERVAL		1
 #define CNT					(TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL
 
@@ -109,38 +109,47 @@ int main() {
 	int dest_id = 10;
 	int pre_loc = 0;
 	while (1) {
-		int cur_id = get_card();
-		if(!(cur_id >= 0 && cur_id <= 119)){
-			cur_id = pre_loc;
-		}
-		if(cur_id >= dest_id + 5){
-			cur_lvl = SPEED_LEVEL = 0;
+		int safe;
+		int dest_id = telecom_main(car_ID,&safe);
+		if(!safe){
+			SPEED_LEVEL = 0;
 			break;
 		}
-		pre_loc = cur_id;
-		// if (cur_id >= 47 && cur_id <= 49) {
-		// 	SPEED_LEVEL = 0;
-		// 	sleep(1);
-		// 	break;
-		// }
-		//float speed = get_speed();
-		printf("current loc %d\n:",cur_id);
-		//printf("current speed %f\n", speed);
-		printf("current speed level %d\n",cur_lvl);
-		double dis = (dest_id + RFID_NUM -cur_id) % RFID_NUM * 10;
-		dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
-		double ebi = calc_ebi(dis);
-		ebi_lvl = ebi2level(ebi);
-		printf("current ebi level %d\n",ebi_lvl);
-		printf("*********************\n");
-		if(ebi_lvl - cur_lvl > 4)
-			cur_lvl = AC(cur_lvl);
-		else if(ebi_lvl - cur_lvl <= 0)
-			cur_lvl = EB(cur_lvl);
-		else
-			cur_lvl = CC(cur_lvl);
-		SPEED_LEVEL = cur_lvl;
-		sleep(1);	
+		int i = 0;
+		for(;i < CNT;++i){
+			int cur_id = get_card();
+			if(!(cur_id >= 0 && cur_id <= 119)){
+				cur_id = pre_loc;
+			}
+			if(cur_id >= dest_id + 5){
+				cur_lvl = SPEED_LEVEL = 0;
+				break;
+			}
+			pre_loc = cur_id;
+			// if (cur_id >= 47 && cur_id <= 49) {
+			// 	SPEED_LEVEL = 0;
+			// 	sleep(1);
+			// 	break;
+			// }
+			//float speed = get_speed();
+			printf("current loc %d\n:",cur_id);
+			//printf("current speed %f\n", speed);
+			printf("current speed level %d\n",cur_lvl);
+			double dis = (dest_id + RFID_NUM -cur_id) % RFID_NUM * 10;
+			dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
+			double ebi = calc_ebi(dis);
+			ebi_lvl = ebi2level(ebi);
+			printf("current ebi level %d\n",ebi_lvl);
+			printf("*********************\n");
+			if(ebi_lvl - cur_lvl > 4)
+				cur_lvl = AC(cur_lvl);
+			else if(ebi_lvl - cur_lvl <= 0)
+				cur_lvl = EB(cur_lvl);
+			else
+				cur_lvl = CC(cur_lvl);
+			SPEED_LEVEL = cur_lvl;
+			sleep(1);
+		}	
 	}
 
 	return 0;
