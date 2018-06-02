@@ -317,18 +317,12 @@ public class CPSClient {
         double vebi = Math.sqrt(2 * 20 * x);
         cpsClient.generateModelFile(modelFilePath,Integer.toString(x));
         cpsClient.generateCFGFile(Integer.toString(30),Double.toString(vebi),Integer.toString(x),cfgFilePath);
-
-
+        
 
         //Todo:JSch Connection
         Transmission transmission = new Transmission();
         Session session = transmission.connect();
 
-        System.out.println("参数信息：");
-        System.out.println("*******移动授权距离为100");
-        System.out.println("*******初始速度为30");
-        System.out.println("*******初始顶棚速度为" + vebi);
-        transmission.verification(session,modelFilePath,cfgFilePath);
 
 //        int i = 0;
 //        while(i < 10){
