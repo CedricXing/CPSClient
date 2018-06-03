@@ -34,7 +34,7 @@ public class CPSClient {
     /**
      * 小车参数信息
      */
-    private int carNum = 2;
+    private int carNum = 1;
     private int[] loc = new int[carNum];
     private String[] velocity = new String[carNum];
     public int cycle;
@@ -274,7 +274,8 @@ public class CPSClient {
         }
 
         public void run(){
-            int previousCarLoc = loc[(carID + 1) % carNum];
+//            int previousCarLoc = loc[(carID + 1) % carNum];
+            int previousCarLoc = 250;
             int selfCarloc = loc[carID];
             int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 120) * 10 - selfCarloc *10);
             if(ma > 200) ma = 200;

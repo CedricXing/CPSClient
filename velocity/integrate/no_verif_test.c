@@ -106,14 +106,14 @@ int main() {
 	cur_lvl = SPEED_LEVEL = 4;
 	//sleep(5);
 
-	int dest_id = 10;
+	int dest_id = 25;
 	int pre_loc = 0;
 	while (1) {
 		int cur_id = get_card();
 		if(!(cur_id >= 0 && cur_id <= 119)){
 			cur_id = pre_loc;
 		}
-		if(cur_id >= dest_id + 5){
+		if(cur_id >= dest_id){
 			cur_lvl = SPEED_LEVEL = 0;
 			break;
 		}
