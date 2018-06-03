@@ -169,7 +169,7 @@ public class CPSClient {
             outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e3</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -15</assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition AC->CC
@@ -190,7 +190,7 @@ public class CPSClient {
             outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
             outXml.write("      <label>e6</label>" + "\n");
             outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
-            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -15 </assignment>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5 </assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             //Transition EB->CC
@@ -198,6 +198,131 @@ public class CPSClient {
             outXml.write("      <label>e7</label>" + "\n");
             outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
             outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [0,10]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            outXml.write("  </component>" + "\n");
+            outXml.write("</sspaceex>" + "\n");
+            outXml.close();
+        }
+        catch (Exception e){
+            System.err.println("Error occured when the xmlfile was created!");
+        }
+    }
+
+    public void generateModelFile1(String path,String ma){
+        try {
+            BufferedWriter outXml = new BufferedWriter(new FileWriter(new File(path)));
+            outXml.write("<?xml version=" + '"' + "1.0" + '"' + " encoding=" + '"' + "iso-8859-1" + '"' + "?>" + "\n");
+            outXml.write("<sspaceex xmlns=" + '"' + "http://www-verimag.imag.fr/xml-namespaces/sspaceex" + '"'
+                    + " version=" + '"' + "0.2" + '"' + " math=" + '"' + "SpaceEx" + '"' + ">" + "\n");
+            outXml.write("<component id=" + '"' + "system" + '"' + ">" + "\n");
+            outXml.write("<param name=" + '"' + "x" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "v" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "t" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "vebi" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+            outXml.write("<param name=" + '"' + "a" + '"' + " type=" + '"' + "real" + '"' + " local=" + '"' + "false"
+                    + '"' + " d1=" + '"' + "1" + '"' + " d2=" + '"' + "1" + '"' + " dynamics=" + '"' + "any" + '"'
+                    + "/>" + "\n");
+
+            //label
+            for(int i = 1;i <= 7;++i){
+                outXml.write("<param name=" + '"' + "e" + i + '"' + " type=" + '"' + "label" + '"' + " local=" + '"' + "false"
+                        + '"' + "/>" + "\n");
+            }
+
+            //State Init
+            outXml.write("	<location id=" + '"' + "1" + '"' + " name=" + '"' + "v1" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant>"  + "t == 0 " + " </invariant>" + "\n");
+            outXml.write("      <flow>x'==v &amp; t'==1 &amp; v'==0 &amp; vebi'==0 &amp; a'==0 </flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State AC
+            outXml.write("	<location id=" + '"' + "2" + '"' + " name=" + '"' + "v2" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> vebi-20&gt;=v&gt;=0  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State CC
+            outXml.write("	<location id=" + '"' + "3" + '"' + " name=" + '"' + "v3" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> vebi&gt;=v&gt;=vebi-20  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //State EB
+            outXml.write("	<location id=" + '"' + "4" + '"' + " name=" + '"' + "v4" + '"' + " x=" + '"' + "710" + '"'
+                    + " y=" + '"' + "351" + '"' + " width=" + '"' + "135.0" + '"' + " height=" + '"' + "73.0" + '"'
+                    + ">" + "\n");
+            outXml.write("	  <invariant> v&gt;=vebi  " + "</invariant>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * " + ma + ") ^ 0.5 - 100 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * 2 * v / (20 * " + ma + ") ^ 0.5 - 100 * 4 * v * x / (20 * " + ma + ") ^ 1.5 - 1500 * 8 * v * x * x / (20 * " + ma + ") ^ 2.5 &amp;a' == 0</flow>" + "\n");
+            //outXml.write("      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / (20 * (" + ma + " - x)) ^ 0.5 &amp;a' == 0</flow>" + "\n");
+            outXml.write("    </location>" + "\n");
+
+            //Transition Init->AC
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
+            outXml.write("      <label>e1</label>" + "\n");
+            outXml.write("	  <guard>0&lt;=v&lt;vebi - 20" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition Init->CC
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e2</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition Init->EB
+            outXml.write("    <transition source=" + '"' + "1" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
+            outXml.write("      <label>e3</label>" + "\n");
+            outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition AC->CC
+            outXml.write("    <transition source=" + '"' + "2" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e4</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition CC->AC
+            outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "2" + '"' + ">" + "\n");
+            outXml.write("      <label>e5</label>" + "\n");
+            outXml.write("	  <guard>0&lt;=v&lt;=vebi - 20" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition CC->EB
+            outXml.write("    <transition source=" + '"' + "3" + '"' + " target=" + '"' + "4" + '"' + ">" + "\n");
+            outXml.write("      <label>e6</label>" + "\n");
+            outXml.write("	  <guard>vebi&lt;=v" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10 </assignment>" + "\n");
+            outXml.write("    </transition>" + "\n");
+
+            //Transition EB->CC
+            outXml.write("    <transition source=" + '"' + "4" + '"' + " target=" + '"' + "3" + '"' + ">" + "\n");
+            outXml.write("      <label>e7</label>" + "\n");
+            outXml.write("	  <guard>vebi-20&lt;=v&lt;=vebi" + "</guard>" + "\n");
+            outXml.write("	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>" + "\n");
             outXml.write("    </transition>" + "\n");
 
             outXml.write("  </component>" + "\n");
@@ -274,15 +399,17 @@ public class CPSClient {
         }
 
         public void run(){
-//            int previousCarLoc = loc[(carID + 1) % carNum];
-            int previousCarLoc = 250;
+            int previousCarLoc = loc[(carID + 1) % carNum];
+//            int previousCarLoc = 25;
             int selfCarloc = loc[carID];
             int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 120) * 10 - selfCarloc *10);
             if(ma > 200) ma = 200;
             double vebi = Math.sqrt(2 * 10 * ma);//compute vebi
             String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model_" + this.cycle + "_" + Integer.toString(carID) + ".xml";
             String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg_" + this.cycle + "_" + Integer.toString(carID) + ".txt";
-            generateModelFile(modelFilePath,Integer.toString(ma));
+            if(selfCarloc >= 10)
+                generateModelFile(modelFilePath,Integer.toString(ma));
+            else generateModelFile1(modelFilePath,Integer.toString(ma));
             generateCFGFile(velocity[carID],Double.toString(vebi),Integer.toString(ma),cfgFilePath);
             //1 for safe ,0 for unsafe
             System.out.println(carID + "号小车当前的位置为" + selfCarloc + " ,速度为" + velocity[carID] + " ,vebi为" + vebi + "  ,ma为" + ma);
@@ -308,7 +435,7 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "192.168.1.102";
+        String localHost = "172.25.178.130";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
@@ -359,6 +486,8 @@ public class CPSClient {
                     }
                     if(v.charAt(0) == '-')
                         v = "1";
+                    //if(Double.parseDouble(v) > 40)
+                      //  v = "20";
                     for(int i = 6;i <= 15;++i){
                         rfid += String.valueOf(message.charAt(i));
                     }
@@ -367,6 +496,10 @@ public class CPSClient {
 //                    if(rfidTemp == 0)
 //                        continue;
                     cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+                    //int temp = Integer.parseInt(rfid);
+                    //if(temp >= 0 && temp <= 120)
+                        cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+                    //else cpsClient.loc[carID - '0'] = 5;
                     //System.out.println("loc:" + cpsClient.loc[carID - '0']);
                     //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
                     //System.out.println("get here");
