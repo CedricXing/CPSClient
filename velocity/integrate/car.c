@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <linux/fs.h>
-#include <errno.h>
-#include <string.h>
-#include<pthread.h>
+#include "common.h"
 #include"car.h"
 
 static int fd_magtic=-1,fd_motor=-1;//fd_grating=-1;

@@ -1,5 +1,5 @@
-#ifndef CAR_H
-#define CAR_H
+#ifndef __CAR_H__
+#define __CAR_H__
 
 extern int SPEED_LEVEL;
 void car_driver(void);

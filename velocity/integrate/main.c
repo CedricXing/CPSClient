@@ -1,11 +1,7 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <assert.h>
-#include <time.h>
-#include <math.h>
-#include <stdlib.h>
+#include "common.h"
 #include "car.h"
 #include "rfid.h"
+
 //	time interval
 #define TOT_INTERVAL		4
 #define CONTACT_INTERVAL	1

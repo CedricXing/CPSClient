@@ -1,3 +1,4 @@
+#include "common.h"
 #include "telecom.h"
 
 int fd_zigbee=-1;
