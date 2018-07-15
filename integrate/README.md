@@ -11,6 +11,7 @@
 > * 新增trie.c，修改原来的trie.h
 > * 原来的test.c更名为main.c
 > * 新增了test文件夹用以存储新的测试文件
+> * 新增了common.h头文件包含系统头文件
 
 > makefile使用：
 >
