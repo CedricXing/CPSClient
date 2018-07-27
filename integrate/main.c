@@ -1,30 +1,12 @@
 #include "include/common.h"
 #include "include/car.h"
 #include "include/rfid.h"
-
-//	time interval
-#define TOT_INTERVAL		4
-#define CONTACT_INTERVAL	1
-#define ADJUST_INTERVAL		1
-#define CNT					(TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL
-
-#define RFID_NUM        120
-#define MAX_DISTANCE    200
-
-//	acceleration and speed
-#define ACC 10
-#define MAX_SPEED 65
-#define N_LEVEL 9          
+     
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};
 
 //	for car driver function
 int SPEED_LEVEL = 0;
 pthread_mutex_t mutex;
-
-//	3 status:
-//	AC -> +1
-//	CC -> +1 / 0 / -1
-//	EB -> -2
 
 //	calculate ebi
 //	input: dis, output: ebi
@@ -34,6 +16,11 @@ double calc_ebi(double dis) {
 
 int min(int a, int b) { return a < b ? a : b; }
 int max(int a, int b) { return a > b ? a : b; }
+
+//	3 status:
+//	AC -> +1
+//	CC -> +1 / 0 / -1
+//	EB -> -2
 
 int AC(int cur_lvl) {
 	return min(N_LEVEL-1, cur_lvl+1);

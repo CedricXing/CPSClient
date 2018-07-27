@@ -1,22 +1,20 @@
 #include "include/common.h"
 #include "include/car.h"
 
-static int fd_magtic=-1,fd_motor=-1;//fd_grating=-1;
+static int fd_magtic=-1,fd_motor=-1;
 
 int car_open(void)
 {
   fd_magtic = open("/dev/mini210-mgtics", 0);
   fd_motor = open("/dev/mini210-motors", 0);
-//  fd_grating = open("/dev/mini210-grat", 0);
   
-  if((fd_magtic < 0)||(fd_motor < 0)){//||(fd_grating<0)) {
+  if((fd_magtic < 0)||(fd_motor < 0)){
     printf("open car device error\n");
     exit(1);
   }
   
   printf("open magnetics id:%d\n", fd_magtic);
   printf("open motor id:%d\n", fd_motor);
-//  printf("open grating id:%d\n", fd_grating);
   
   return 0;
 }
