@@ -1,5 +1,5 @@
-#include "common.h"
-#include "telecom.h"
+#include "include/common.h"
+#include "include/telecom.h"
 
 int fd_zigbee=-1;
 int fd_grating=-1;
