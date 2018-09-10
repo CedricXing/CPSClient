@@ -10,9 +10,7 @@ import com.jcraft.jsch.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -435,7 +433,7 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "172.25.178.130";
+        String localHost = "192.168.1.104";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
@@ -450,20 +448,6 @@ public class CPSClient {
         //Todo:JSch Connection
         Transmission transmission = new Transmission();
         Session session = transmission.connect();
-
-
-//        int i = 0;
-//        while(i < 10){
-//            String result = transmission.verification(session,modelFilePath,cfgFilePath);
-//            ++ i;
-//            System.out.println(result);
-//        }
-
-//        while(true){
-//            String message = cpsClient.receive();
-//            System.out.println(message);
-//            cpsClient.response("01123");
-//        }
 
         while(true){
             Set<Integer> set = new HashSet<Integer>();
@@ -498,7 +482,7 @@ public class CPSClient {
                     cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
                     //int temp = Integer.parseInt(rfid);
                     //if(temp >= 0 && temp <= 120)
-                        cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+                    //cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
                     //else cpsClient.loc[carID - '0'] = 5;
                     //System.out.println("loc:" + cpsClient.loc[carID - '0']);
                     //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
