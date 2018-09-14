@@ -1,9 +1,11 @@
+package Client;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 /**
- * SendPacket
+ * Client.SendPacket
  *
  * @author CedricXing
  * Created on 29/03/2018

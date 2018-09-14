@@ -1,5 +1,5 @@
-/**
- * CPSClient
+package Client; /**
+ * Client.CPSClient
  *
  * @author CedricXing
  * Created on 2017/12/4
@@ -389,7 +389,7 @@ public class CPSClient {
         private int carID;
         private int cycle;
 
-        public VerificationTask(Transmission transmission,Session session,int carID,int cycle){
+        public VerificationTask(Transmission transmission, Session session, int carID, int cycle){
             this.transmission = transmission;
             this.session = session;
             this.carID = carID;

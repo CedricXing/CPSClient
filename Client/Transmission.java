@@ -1,5 +1,5 @@
-/**
- * Transmission
+package Client; /**
+ * Client.Transmission
  *
  * @author CedricXing
  * Created on 2017/12/4
@@ -84,7 +84,7 @@ public class Transmission {
     }
 
     /**
-     * Transmission Code.
+     * Client.Transmission Code.
      * Reference:http://www.jcraft.com/jsch/examples/ScpTo.java
      * @param session
      * @return

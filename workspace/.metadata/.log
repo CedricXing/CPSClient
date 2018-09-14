@@ -3,8 +3,8 @@ eclipse.buildId=4.7.2.M20171130-0510
 java.version=1.8.0_144
 java.vendor=Oracle Corporation
 BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
-Framework arguments:  -product org.eclipse.epp.package.java.product C:\SmartCar\CPSClient\CPSClient.java
-Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product C:\SmartCar\CPSClient\CPSClient.java
+Framework arguments:  -product org.eclipse.epp.package.java.product C:\SmartCar\Client.CPSClient\Client.CPSClient.java
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product C:\SmartCar\Client.CPSClient\Client.CPSClient.java
 
 !ENTRY org.eclipse.egit.ui 2 0 2018-03-04 12:37:49.702
 !MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
@@ -17,8 +17,8 @@ eclipse.buildId=4.7.2.M20171130-0510
 java.version=1.8.0_144
 java.vendor=Oracle Corporation
 BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
-Framework arguments:  -product org.eclipse.epp.package.java.product C:\SmartCar\CPSClient\Transmission.java
-Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product C:\SmartCar\CPSClient\Transmission.java
+Framework arguments:  -product org.eclipse.epp.package.java.product C:\SmartCar\Client.CPSClient\Client.Transmission.java
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product org.eclipse.epp.package.java.product C:\SmartCar\Client.CPSClient\Client.Transmission.java
 
 !ENTRY org.eclipse.egit.ui 2 0 2018-03-04 12:40:42.917
 !MESSAGE Warning: The environment variable HOME is not set. The following directory will be used to store the Git
