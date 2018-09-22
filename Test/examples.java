@@ -1,13 +1,8 @@
 package Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import Racos.Componet.*;
 import Racos.Method.*;
 import Racos.ObjectiveFunction.*;
-import Racos.Tools.RandomOperator;
 
 public class examples {
 
@@ -15,7 +10,7 @@ public class examples {
 		// TODO Auto-generated method stub
 		
 		// parameters of Racos
-		int samplesize = 300;       // parameter: the number of samples in each iteration
+		int samplesize = 30;       // parameter: the number of samples in each iteration
 		int iteration = 1000;       // parameter: the number of iterations for batch racos
 		int budget = 2000;         // parameter: the budget of sampling for sequential racos
 		int positivenum = 1;       // parameter: the number of positive instances in each iteration

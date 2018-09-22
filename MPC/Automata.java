@@ -3,6 +3,8 @@ package MPC;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -17,9 +19,54 @@ public class Automata {
     private ArrayList<Location> locations;
     private ArrayList<Transition> transitions;
     private ArrayList<String> parameters;
+    private int initLoc;
+    private Map<String,Double> initParameterValues;
+    private ArrayList<Constraint> forbiddenConstraints;
 
-    public Automata(String filename){
-        File modelFile = new File(filename);
+    public Automata(String modelFileName,String cfgFileName){
+        processModelFile(modelFileName);
+        processCFGFile(cfgFileName);
+    }
+
+    void processCFGFile(String cfgFileName){
+        File cfgFile = new File(cfgFileName);
+        BufferedReader reader = null;
+        initParameterValues = new HashMap<>();
+        forbiddenConstraints = new ArrayList<>();
+        try{
+            reader = new BufferedReader(new FileReader(cfgFile));
+            String tempLine = null;
+            while((tempLine = reader.readLine()) != null){
+                if(tempLine.indexOf("initially") != -1){
+                    String []strings = tempLine.split("\"");
+                    setInitParameterValues(strings[1]);
+                }
+                if(tempLine.indexOf("forbidden") != -1){
+                    String []strings = tempLine.split("\"");
+                    setForbiddenValues(strings[1]);
+                }
+            }
+
+        }
+        catch (FileNotFoundException e){
+            System.out.println("File not found" + '\n' + e.getMessage());
+        }
+        catch (IOException e){
+            System.out.println("IO Exception" + '\n' + e.getMessage());
+        }
+        finally {
+            if(reader != null){
+                try{
+                    reader.close();
+                }
+                catch (IOException e){
+                    System.out.println("IO Exception" + '\n' + e.getMessage());
+                }
+            }
+        }
+    }
+    void processModelFile(String modelFileName){
+        File modelFile = new File(modelFileName);
         BufferedReader reader = null;
         locations = new ArrayList<>();
         transitions = new ArrayList<>();
@@ -91,6 +138,8 @@ public class Automata {
                     transitions.add(transition);
                 }
             }
+
+
         }
         catch (FileNotFoundException e){
             System.out.println("File not found" + '\n' + e.getMessage());
@@ -110,7 +159,39 @@ public class Automata {
         }
     }
 
+    void setInitParameterValues(String initValues){
+        String []strings = initValues.split("&");
+        for(int i = 0;i < strings.length;++i){
+            String []temp = strings[i].split("==");
+            if(temp[0].trim().equals("loc()")){
+                initLoc = Integer.parseInt(temp[1].trim().substring(1));
+            }
+            else{
+                initParameterValues.put(temp[0].trim(),Double.parseDouble(temp[1].trim()));
+            }
+        }
+    }
+
+    void setForbiddenValues(String forbiddenValues){
+        String []strings = forbiddenValues.split("&");
+        for(int i = 0;i < strings.length;++i){
+
+        }
+    }
+
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Downloads/model.xml");
+        Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
+        int samplesize = 30;       // parameter: the number of samples in each iteration
+        int iteration = 1000;       // parameter: the number of iterations for batch racos
+        int budget = 2000;         // parameter: the budget of sampling for sequential racos
+        int positivenum = 1;       // parameter: the number of positive instances in each iteration
+        double probability = 0.95; // parameter: the probability of sampling from the model
+        int uncertainbit = 1;      // parameter: the number of sampled dimensions
+
+        int maxPathSize = 2;
+        for(int i = 1;i < maxPathSize;++i){
+            int []path = new int[i];
+
+        }
     }
 }

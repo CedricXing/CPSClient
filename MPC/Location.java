@@ -30,9 +30,9 @@ public class Location {
         }
         processVariant(variant,parameters);
 
-//        for(int i = 0;i < variants.size();++i){
-//            System.out.println(variants.get(i));
-//        }
+        for(int i = 0;i < variants.size();++i){
+            System.out.println(variants.get(i));
+        }
     }
 
     private void processVariant(String variant,ArrayList<String> parameters){
