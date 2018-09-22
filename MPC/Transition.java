@@ -40,13 +40,20 @@ public class Transition {
         guard = guard.replace("&gt;",">");
         guard = guard.replace("&lt;","<");
 
-        for(int i = parameters.size() - 1;i >= 0;--i ){
-            guard = guard.replace(parameters.get(i),"$" + i);
-        }
+//        for(int i = parameters.size() - 1;i >= 0;--i ){
+//            guard = guard.replace(parameters.get(i),"$" + i);
+//        }
         guards.add(guard);
     }
 
     public void setAssignment(String assignment,ArrayList<String> parameters){
 
+    }
+
+    public void printTransition(){
+        System.out.println("source " + source + " target " + target);
+        for(int i = 0;i < guards.size();++i){
+            System.out.println(guards.get(i));
+        }
     }
 }

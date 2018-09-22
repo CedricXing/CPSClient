@@ -1,5 +1,11 @@
 package MPC;
 
+import Racos.Componet.Instance;
+import Racos.Method.Continue;
+import Racos.ObjectiveFunction.MIN_L;
+import Racos.ObjectiveFunction.ObjectFunction;
+import Racos.ObjectiveFunction.Task;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,12 +22,13 @@ import java.util.logging.Logger;
  */
 
 public class Automata {
-    private ArrayList<Location> locations;
-    private ArrayList<Transition> transitions;
-    private ArrayList<String> parameters;
-    private int initLoc;
-    private Map<String,Double> initParameterValues;
-    private ArrayList<Constraint> forbiddenConstraints;
+    public Map<Integer,Location> locations;
+    public ArrayList<Transition> transitions;
+    public ArrayList<String> parameters;
+    public int initLoc;
+    public int forbiddenLoc;
+    public Map<String,Double> initParameterValues;
+    public ArrayList<String> forbiddenConstraints;
 
     public Automata(String modelFileName,String cfgFileName){
         processModelFile(modelFileName);
@@ -68,7 +75,7 @@ public class Automata {
     void processModelFile(String modelFileName){
         File modelFile = new File(modelFileName);
         BufferedReader reader = null;
-        locations = new ArrayList<>();
+        locations = new HashMap<>();
         transitions = new ArrayList<>();
         parameters = new ArrayList<>();
         try{
@@ -113,13 +120,14 @@ public class Automata {
                     //System.out.println(flow);
                     location.setFlow(flow);
 
-                    locations.add(location);
+                    locations.put(location.getNo(),location);
                 }
                 if(tempLine.indexOf("<transition") != -1){ // transition definition
                     String []strings = tempLine.split("\"");
                     int source = Integer.parseInt(strings[1]);
                     int target = Integer.parseInt(strings[3]);
                     Transition transition = new Transition(source,target);
+                    locations.get(source).addNeibour(target);
                     tempLine = reader.readLine(); // label (useless)
                     tempLine = reader.readLine(); // guard
                     int beginIndex = tempLine.indexOf("<guard>") + 7;
@@ -159,7 +167,7 @@ public class Automata {
         }
     }
 
-    void setInitParameterValues(String initValues){
+    public void setInitParameterValues(String initValues){
         String []strings = initValues.split("&");
         for(int i = 0;i < strings.length;++i){
             String []temp = strings[i].split("==");
@@ -172,26 +180,98 @@ public class Automata {
         }
     }
 
-    void setForbiddenValues(String forbiddenValues){
+    public void setForbiddenValues(String forbiddenValues){
         String []strings = forbiddenValues.split("&");
         for(int i = 0;i < strings.length;++i){
-
+            if(strings[i].indexOf("loc()") != -1){
+                forbiddenLoc = Integer.parseInt(strings[i].substring(strings[i].indexOf("v") + 1));
+                continue;
+            }
+            forbiddenConstraints.add(strings[i].trim());
+//            for(int j = parameters.size() - 1;j >= 0;--j ){
+//                String tempString = strings[i].replace(parameters.get(j),"$" + j);
+//            }
         }
     }
 
-    public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
+    public int getInitLoc(){
+        return initLoc;
+    }
+
+    void DFS(Automata automata,int []path,int depth,int maxPathSize){
+        if(depth + 1 == maxPathSize){
+            runRacos(automata,path);
+        }
+        else{
+            ArrayList<Integer> neibours = automata.locations.get(path[depth]).getNeibours();
+            for(int i = 0;i < neibours.size();++i){
+                path[depth + 1] = neibours.get(i);
+                DFS(automata,path,depth + 1,maxPathSize);
+            }
+        }
+    }
+
+    void runRacos(Automata automata,int []path){
         int samplesize = 30;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
-
-        int maxPathSize = 2;
-        for(int i = 1;i < maxPathSize;++i){
-            int []path = new int[i];
-
+        Instance ins = null;
+        int repeat = 15;
+        Task t = new ObjectFunction(automata,path);
+        for (int i = 0; i < repeat; i++) {
+            Continue conti = new Continue(t);
+            conti.TurnOnSequentialRacos();
+            conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
+            conti.setBudget(budget);              // parameter: the budget of sampling
+            conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
+            conti.setRandProbability(probability);// parameter: the probability of sampling from the model
+            conti.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
+            conti.run();                          // call sequential Racos
+            ins = conti.getOptimal();             // obtain optimal
+            System.out.print("best function value:");
+            if(ins.getValue() == Double.MAX_VALUE)
+                System.out.print("MaxValue     ");
+            else
+                System.out.print(ins.getValue() + "    ");
+            System.out.print("[");
+            for(int j = 0;j < ins.getFeature().length;++j)
+                System.out.print(ins.getFeature(j) + ",");
+            System.out.println("]");
         }
+    }
+
+    void checkAutomata(){
+        System.out.println("Init loc is " + initLoc);
+        for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
+            System.out.println("The init value of " + entry.getKey() + " is " + entry.getValue());
+        }
+        System.out.println("Forbidden loc is " + forbiddenLoc);
+        System.out.println("Forbidden constraints is ");
+        for(int i = 0;i < forbiddenConstraints.size();++i){
+            System.out.println(forbiddenConstraints.get(i));
+        }
+        for(Map.Entry<Integer,Location> entry : locations.entrySet()){
+            System.out.println(entry.getKey());
+            entry.getValue().printLocation();
+            System.out.println("**************");
+        }
+
+        for(int i = 0;i < transitions.size();++i){
+            transitions.get(i).printTransition();
+        }
+    }
+
+    public static void main(String []args){
+        Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
+        automata.checkAutomata();
+//        int maxPathSize = 2;
+//        for(int i = 1;i < maxPathSize;++i){
+//            int []path = new int[i];
+//            path[0] = automata.getInitLoc();
+//            automata.DFS(automata,path,0,i);
+//        }
     }
 }

@@ -6,11 +6,13 @@ import Racos.Componet.*;
 import Racos.Method.*;
 import MPC.Automata;
 
+import com.greenpineyu.fel.*;
+
 public class ObjectFunction implements Task{
     private Dimension dim;
     private Automata automata;
 
-    public ObjectFunction(Automata automata){
+    public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
     }
     @Override
