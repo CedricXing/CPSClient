@@ -11,7 +11,7 @@
 5. 其他数据包格式详见源码注释.
 6. UDP部分尚未测试.
 7. 目前认为位置信息(position和MA)仍从0至某个正整数进行编号.
-8. Bridge::updatePostion(uwbBuf& uwbBuffer)待完成，该方法的传入参数为含3个字符串的结构体，包含计算坐标所需的全部数据，计算出坐标后将位置信息写入Bridge::pos[]数组中即可.
+8. Bridge::updatePostion()待完成，该方法需要使用到的数据在私有成员变量Bridge::uwbBuffer中，其为含3个字符串（含0xD66D包头的完整14字节字符串）的结构体，包含计算坐标所需的全部数据，计算出坐标后将位置信息写入Bridge::pos[]数组中即可.注意：不要修改结构体uwbBuffer中的任何成员变量.
     
     
     
