@@ -264,14 +264,22 @@ public class Automata {
         }
     }
 
+    public Map<String,Double> duplicateInitParametersValues(){
+        Map<String,Double> newMap = new HashMap<>();
+        for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
+            newMap.put(entry.getKey(),entry.getValue());
+        }
+        return newMap;
+    }
+
     public static void main(String []args){
         Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
-        automata.checkAutomata();
-//        int maxPathSize = 2;
-//        for(int i = 1;i < maxPathSize;++i){
-//            int []path = new int[i];
-//            path[0] = automata.getInitLoc();
-//            automata.DFS(automata,path,0,i);
-//        }
+        //automata.checkAutomata();
+        int maxPathSize = 2;
+        for(int i = 1;i < maxPathSize;++i){
+            int []path = new int[i];
+            path[0] = automata.getInitLoc();
+            automata.DFS(automata,path,0,i);
+        }
     }
 }
