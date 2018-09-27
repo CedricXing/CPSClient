@@ -11,9 +11,9 @@ import java.util.ArrayList;
  */
 
 public class Transition {
-    private int source;
-    private int target;
-    private ArrayList<String> guards;
+    public int source;
+    public int target;
+    public ArrayList<String> guards;
 
     public Transition(int source,int target){
         this.source = source;

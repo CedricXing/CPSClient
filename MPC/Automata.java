@@ -29,8 +29,11 @@ public class Automata {
     public int forbiddenLoc;
     public Map<String,Double> initParameterValues;
     public ArrayList<String> forbiddenConstraints;
+    public double cycle;
 
     public Automata(String modelFileName,String cfgFileName){
+        forbiddenLoc = -1;
+        cycle = -1;
         processModelFile(modelFileName);
         processCFGFile(cfgFileName);
     }
@@ -187,6 +190,16 @@ public class Automata {
                 forbiddenLoc = Integer.parseInt(strings[i].substring(strings[i].indexOf("v") + 1));
                 continue;
             }
+            if(strings[i].trim().indexOf("t<=") != -1){
+                cycle = Double.parseDouble(strings[i].trim().substring(3));
+                forbiddenConstraints.add("t>=" + cycle);
+                continue;
+            }
+            if(strings[i].trim().indexOf("t<") != -1){
+                cycle = Double.parseDouble(strings[i].trim().substring(2));
+                forbiddenConstraints.add("t>" + cycle);
+                continue;
+            }
             forbiddenConstraints.add(strings[i].trim());
 //            for(int j = parameters.size() - 1;j >= 0;--j ){
 //                String tempString = strings[i].replace(parameters.get(j),"$" + j);
@@ -200,6 +213,7 @@ public class Automata {
 
     void DFS(Automata automata,int []path,int depth,int maxPathSize){
         if(depth + 1 == maxPathSize){
+            System.out.println("hello");
             runRacos(automata,path);
         }
         else{
@@ -221,6 +235,7 @@ public class Automata {
         Instance ins = null;
         int repeat = 15;
         Task t = new ObjectFunction(automata,path);
+        ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
             Continue conti = new Continue(t);
             conti.TurnOnSequentialRacos();
@@ -234,11 +249,20 @@ public class Automata {
             System.out.print("best function value:");
             if(ins.getValue() == Double.MAX_VALUE)
                 System.out.print("MaxValue     ");
-            else
+            else {
                 System.out.print(ins.getValue() + "    ");
+                result.add(ins);
+            }
             System.out.print("[");
             for(int j = 0;j < ins.getFeature().length;++j)
                 System.out.print(ins.getFeature(j) + ",");
+            System.out.println("]");
+        }
+        for(int i = 0;i < result.size();++i){
+            System.out.println(result.get(i).getValue());
+            System.out.print("[");
+            for(int j = 0;j < result.get(i).getFeature().length;++j)
+                System.out.print(result.get(i).getFeature(j) + ",");
             System.out.println("]");
         }
     }
@@ -264,8 +288,8 @@ public class Automata {
         }
     }
 
-    public Map<String,Double> duplicateInitParametersValues(){
-        Map<String,Double> newMap = new HashMap<>();
+    public HashMap<String,Double> duplicateInitParametersValues(){
+        HashMap<String,Double> newMap = new HashMap<>();
         for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
             newMap.put(entry.getKey(),entry.getValue());
         }
@@ -275,8 +299,8 @@ public class Automata {
     public static void main(String []args){
         Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
         //automata.checkAutomata();
-        int maxPathSize = 2;
-        for(int i = 1;i < maxPathSize;++i){
+        int maxPathSize = 5;
+        for(int i = 1;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);

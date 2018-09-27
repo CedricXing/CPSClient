@@ -13,12 +13,14 @@ import java.util.Comparator;
 
 public class Location {
     private int no;
-    private ArrayList<String> variants;
+    public ArrayList<String> invariants;
+    public ArrayList<String> invarientsExpression;
     private ArrayList<Integer> neibours;
 
     public Location(int no){
         this.no = no;
-        variants = new ArrayList<>();
+        invariants = new ArrayList<>();
+        invarientsExpression = new ArrayList<>();
         neibours = new ArrayList<>();
     }
 
@@ -32,9 +34,9 @@ public class Location {
         }
         processVariant(variant,parameters);
 
-//        for(int i = 0;i < variants.size();++i){
-//            System.out.println(variants.get(i));
-//        }
+        for(int i = 0;i < invarientsExpression.size();++i){
+            System.out.println(invarientsExpression.get(i));
+        }
     }
 
     private void processVariant(String variant,ArrayList<String> parameters){
@@ -44,7 +46,19 @@ public class Location {
 //        for(int i = parameters.size() - 1;i >= 0;--i ){
 //            variant = variant.replace(parameters.get(i),"$" + i);
 //        }
-        variants.add(variant);
+        invariants.add(variant);
+        if(variant.indexOf(">=") != -1){
+            invarientsExpression.add(variant.substring(0,variant.indexOf(">=")) + "-(" + variant.substring(variant.indexOf(">=") + 2) + ")");
+        }
+        else if(variant.indexOf(">") != -1){
+            invarientsExpression.add(variant.substring(0,variant.indexOf(">")) + "-(" + variant.substring(variant.indexOf(">") + 1) + ")");
+        }
+        else if(variant.indexOf("<=") != -1){
+            invarientsExpression.add(variant.substring(variant.indexOf("<=") + 2) + "-(" + variant.substring(0,variant.indexOf("<=")) + ")");
+        }
+        else if(variant.indexOf("<") != -1){
+            invarientsExpression.add(variant.substring(variant.indexOf("<") + 1) + "-(" + variant.substring(0,variant.indexOf("<")) + ")");
+        }
     }
 
     public void setFlow(String flow){
@@ -64,8 +78,8 @@ public class Location {
     }
 
     public void printLocation(){
-        for(int i = 0;i < variants.size();++i){
-            System.out.println(variants.get(i));
+        for(int i = 0;i < invariants.size();++i){
+            System.out.println(invariants.get(i));
         }
         System.out.println("Neibours");
         for(int i = 0;i < neibours.size();++i){
