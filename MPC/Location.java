@@ -2,6 +2,7 @@ package MPC;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 
 /**
  * Location
@@ -16,12 +17,14 @@ public class Location {
     public ArrayList<String> invariants;
     public ArrayList<String> invarientsExpression;
     private ArrayList<Integer> neibours;
+    public HashMap<String,String> flows;
 
     public Location(int no){
         this.no = no;
         invariants = new ArrayList<>();
         invarientsExpression = new ArrayList<>();
         neibours = new ArrayList<>();
+        flows = new HashMap<>();
     }
 
     public void setVariant(String variant,ArrayList<String> parameters){
@@ -34,9 +37,9 @@ public class Location {
         }
         processVariant(variant,parameters);
 
-        for(int i = 0;i < invarientsExpression.size();++i){
-            System.out.println(invarientsExpression.get(i));
-        }
+//        for(int i = 0;i < invarientsExpression.size();++i){
+//            System.out.println(invarientsExpression.get(i));
+//        }
     }
 
     private void processVariant(String variant,ArrayList<String> parameters){
@@ -61,8 +64,29 @@ public class Location {
         }
     }
 
-    public void setFlow(String flow){
+    private void processFlow(String flow,ArrayList<String> parameters){
+        String []strings = flow.split("=");
+        for(int i = parameters.size() - 1;i >= 0;--i){
+            if(strings[0].indexOf(parameters.get(i)) != -1){
+                String string = strings[strings.length - 1].replace("pow","$(Math).pow");
+                flows.put(parameters.get(i),string);
+                return;
+            }
+        }
+    }
 
+    public void setFlow(String flow,ArrayList<String> parameters){
+        int index = flow.indexOf("&amp;");
+        while(index != -1){
+            String temp = flow.substring(0,index).trim();
+            processFlow(temp,parameters);
+            flow = flow.substring(index + 5).trim();
+            index = flow.indexOf("&amp;");
+        }
+        processFlow(flow,parameters);
+//        for(HashMap.Entry<String,String> entry : flows.entrySet()){
+//            System.out.println(entry.getKey() + " " + entry.getValue());
+//        }
     }
 
     public void addNeibour(int no){

@@ -30,6 +30,7 @@ public class Automata {
     public Map<String,Double> initParameterValues;
     public ArrayList<String> forbiddenConstraints;
     public double cycle;
+    public String cycleConstraint;
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLoc = -1;
@@ -121,7 +122,7 @@ public class Automata {
                     endIndex = tempLine.indexOf("</flow>");
                     String flow = tempLine.substring(beginIndex,endIndex).trim();
                     //System.out.println(flow);
-                    location.setFlow(flow);
+                    location.setFlow(flow,parameters);
 
                     locations.put(location.getNo(),location);
                 }
@@ -192,12 +193,12 @@ public class Automata {
             }
             if(strings[i].trim().indexOf("t<=") != -1){
                 cycle = Double.parseDouble(strings[i].trim().substring(3));
-                forbiddenConstraints.add("t>=" + cycle);
+                cycleConstraint = new String("t>=" + cycle);
                 continue;
             }
             if(strings[i].trim().indexOf("t<") != -1){
                 cycle = Double.parseDouble(strings[i].trim().substring(2));
-                forbiddenConstraints.add("t>" + cycle);
+                cycleConstraint = new String("t>" + cycle);
                 continue;
             }
             forbiddenConstraints.add(strings[i].trim());
@@ -227,13 +228,13 @@ public class Automata {
 
     void runRacos(Automata automata,int []path){
         int samplesize = 30;       // parameter: the number of samples in each iteration
-        int iteration = 1000;       // parameter: the number of iterations for batch racos
+        int iteration = 10000;       // parameter: the number of iterations for batch racos
         int budget = 2000;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 15;
+        int repeat = 1;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -297,10 +298,10 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Downloads/model.xml","/home/cedricxing/Downloads/cfg.txt");
+        Automata automata = new Automata("/home/cedricxing/Downloads/model1.xml","/home/cedricxing/Downloads/cfg.txt");
         //automata.checkAutomata();
-        int maxPathSize = 5;
-        for(int i = 1;i <= maxPathSize;++i){
+        int maxPathSize = 3;
+        for(int i = 2;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);
