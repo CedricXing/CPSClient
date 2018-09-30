@@ -234,7 +234,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 1;
+        int repeat = 15;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -301,7 +301,7 @@ public class Automata {
         Automata automata = new Automata("/home/cedricxing/Downloads/model1.xml","/home/cedricxing/Downloads/cfg.txt");
         //automata.checkAutomata();
         int maxPathSize = 3;
-        for(int i = 2;i <= maxPathSize;++i){
+        for(int i = 1;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);

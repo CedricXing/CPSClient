@@ -140,17 +140,17 @@ public class ObjectFunction implements Task{
 
     public boolean checkInvarientsByODE(double []args){
         //System.out.println("here");
-        double start = 0,end = 0;
-        double delta = 0.05;
+        double end = 0;
+        double delta = 0.5;
         HashMap<String,Double> newMap = new HashMap<>();
         for(int locIndex = 0;locIndex < path.length;++locIndex){
-            start = end;
             end = args[locIndex];
             double tempT = 0;
             if(locIndex == 0)
                 newMap = automata.duplicateInitParametersValues();
             else {
                 //System.out.println(allParametersValues.get(locIndex - 1).get("t"));
+                //System.out.println(args[0]);
                 newMap = allParametersValues.get(locIndex - 1);
             }
             int no = automata.locations.get(path[locIndex]).getNo();
@@ -161,7 +161,7 @@ public class ObjectFunction implements Task{
                 newMap.put("a",0 + (Math.random() - 0.5) * 10);
             }
             else newMap.put("a",-10.0);
-            while(tempT <= end - start){
+            while(tempT <= end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
@@ -172,6 +172,9 @@ public class ObjectFunction implements Task{
                 }
                 tempT += delta;
                 //newMap.put("t",newMap.get("t") + delta);
+//                if(locIndex == 1){
+//                    System.out.println(newMap.get("t"));
+//                }
             }
             if(newMap.get("t") > 5.0){
                 System.out.println("?????");
@@ -227,9 +230,9 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
         }
-//        if(!checkCycle(args)){
-//            return Double.MAX_VALUE;
-//        }
+        if(!checkCycle(args)){
+            return Double.MAX_VALUE;
+        }
         if(!checkInvarientsByODE(args)) {
             //System.out.println("3");
             return Double.MAX_VALUE;
@@ -255,6 +258,7 @@ public class ObjectFunction implements Task{
 //        if(Math.abs(sum - allParametersValues.get(allParametersValues.size() - 1).get("t")) > 0.5){
 //            System.out.println("what");
 //            System.out.println(sum);
+//            System.out.println(allParametersValues.get(0).get("t"));
 //            System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
 //            System.out.println(args[0]);
 //            System.out.println(args[1]);
