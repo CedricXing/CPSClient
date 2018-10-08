@@ -149,18 +149,32 @@ public class ObjectFunction implements Task{
             if(locIndex == 0)
                 newMap = automata.duplicateInitParametersValues();
             else {
-                //System.out.println(allParametersValues.get(locIndex - 1).get("t"));
-                //System.out.println(args[0]);
                 newMap = allParametersValues.get(locIndex - 1);
+                //check assignments
+                Transition transition = automata.getTransitionBySourceAndTarget(path[locIndex - 1],path[locIndex]);
+                if(transition == null){
+                    System.out.println("Found no transition");
+                    System.exit(-1);
+                }
+                for(HashMap.Entry<String,String> entry : transition.assignments.entrySet()){
+                    Object obj = fel.eval(entry.getValue());
+                    double result = 0;
+                    if(obj instanceof Integer)  result = (int)obj;
+                    else if(obj instanceof Double) result = (double)obj;
+                    else{
+                        System.out.println("Not Double and Not Integer!");
+                    }
+                    newMap.put(entry.getKey(),result);
+                }
             }
-            int no = automata.locations.get(path[locIndex]).getNo();
-            if(no == 2){
-                newMap.put("a",5.0);
-            }
-            else if(no == 3){
-                newMap.put("a",0 + (Math.random() - 0.5) * 10);
-            }
-            else newMap.put("a",-10.0);
+            //int no = automata.locations.get(path[locIndex]).getNo();
+//            if(no == 2){
+//                newMap.put("a",5.0);
+//            }
+//            else if(no == 3){
+//                newMap.put("a",0 + (Math.random() - 0.5) * 10);
+//            }
+//            else newMap.put("a",-10.0);
             while(tempT <= end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
@@ -171,15 +185,7 @@ public class ObjectFunction implements Task{
                     if(!result) return false;
                 }
                 tempT += delta;
-                //newMap.put("t",newMap.get("t") + delta);
-//                if(locIndex == 1){
-//                    System.out.println(newMap.get("t"));
-//                }
             }
-            if(newMap.get("t") > 5.0){
-                System.out.println("?????");
-            }
-            //System.out.println(newMap.get("t"));
             allParametersValues.add(newMap);
         }
         return true;
@@ -234,23 +240,14 @@ public class ObjectFunction implements Task{
             return Double.MAX_VALUE;
         }
         if(!checkInvarientsByODE(args)) {
-            //System.out.println("3");
             return Double.MAX_VALUE;
         }
-//        for(int i = 0;i < allParametersValues.size();++i){
-//            for(HashMap.Entry<String,Double> entry : allParametersValues.get(i).entrySet()){
-//                System.out.println(entry.getKey() + " " + entry.getValue());
-//            }
-//        }
         if(!checkConstraints(args)) {
-            System.out.println("2");
             return Double.MAX_VALUE;
         }
         if(!checkGuards(args)) {
-            //System.out.println("1");
             return Double.MAX_VALUE;
         }
-
         //System.out.println(allParametersValues.size());
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
@@ -271,7 +268,8 @@ public class ObjectFunction implements Task{
     }
 
     public double computeValue(double []args){
-        return 200 - allParametersValues.get(allParametersValues.size() - 1).get("x");
+        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
+        return map.get("x") ;
     }
 
     @Override

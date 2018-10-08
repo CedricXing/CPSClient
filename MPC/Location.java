@@ -68,11 +68,19 @@ public class Location {
         String []strings = flow.split("=");
         for(int i = parameters.size() - 1;i >= 0;--i){
             if(strings[0].indexOf(parameters.get(i)) != -1){
-                String string = strings[strings.length - 1].replace("pow","$(Math).pow");
+                String string = processMathFunction(strings[strings.length - 1]);
                 flows.put(parameters.get(i),string);
                 return;
             }
         }
+    }
+
+    public String processMathFunction(String string){
+        string = string.replace("pow","$(Math).pow");
+        string = string.replace("sin","$(Math).sin");
+        string = string.replace("cos","$(Math).cos");
+        string = string.replace("tan","$(Math).tan");
+        return string;
     }
 
     public void setFlow(String flow,ArrayList<String> parameters){

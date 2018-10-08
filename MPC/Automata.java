@@ -112,18 +112,24 @@ public class Automata {
                     //System.out.println(strings[1]);
                     Location location = new Location(Integer.parseInt(strings[1]));
                     tempLine = reader.readLine();
-                    int beginIndex = tempLine.indexOf("<invariant>") + 11;
-                    int endIndex = tempLine.indexOf("</invariant>");
-                    String variant = tempLine.substring(beginIndex,endIndex).trim();
-                    //System.out.println(variant);
-                    location.setVariant(variant,parameters);
-                    tempLine = reader.readLine();
-                    beginIndex = tempLine.indexOf("<flow>") + 6;
-                    endIndex = tempLine.indexOf("</flow>");
-                    String flow = tempLine.substring(beginIndex,endIndex).trim();
-                    //System.out.println(flow);
-                    location.setFlow(flow,parameters);
-
+                    while(tempLine.indexOf("</location>") == -1){
+                        int beginIndex,endIndex;
+                        if(tempLine.indexOf("<invar") != -1){
+                            beginIndex = tempLine.indexOf("<invariant>") + 11;
+                            endIndex = tempLine.indexOf("</invariant>");
+                            String variant = tempLine.substring(beginIndex,endIndex).trim();
+                            //System.out.println(variant);
+                            location.setVariant(variant,parameters);
+                        }
+                        if(tempLine.indexOf("<flow>") != -1){
+                            beginIndex = tempLine.indexOf("<flow>") + 6;
+                            endIndex = tempLine.indexOf("</flow>");
+                            String flow = tempLine.substring(beginIndex,endIndex).trim();
+                            //System.out.println(flow);
+                            location.setFlow(flow,parameters);
+                        }
+                        tempLine = reader.readLine();
+                    }
                     locations.put(location.getNo(),location);
                 }
                 if(tempLine.indexOf("<transition") != -1){ // transition definition
@@ -134,19 +140,24 @@ public class Automata {
                     locations.get(source).addNeibour(target);
                     tempLine = reader.readLine(); // label (useless)
                     tempLine = reader.readLine(); // guard
-                    int beginIndex = tempLine.indexOf("<guard>") + 7;
-                    int endIndex = tempLine.indexOf("</guard>");
-                    String guard = tempLine.substring(beginIndex,endIndex).trim();
+                    while(tempLine.indexOf("</transi") == -1){
+                        int beginIndex,endIndex;
+                        if(tempLine.indexOf("<guard>") != -1){
+                            beginIndex = tempLine.indexOf("<guard>") + 7;
+                            endIndex = tempLine.indexOf("</guard>");
+                            String guard = tempLine.substring(beginIndex,endIndex).trim();
 //                    System.out.println(source + "->" + target);
 //                    System.out.println(guard);
-                    transition.setGuard(guard,parameters);
-
-                    tempLine = reader.readLine();
-                    beginIndex = tempLine.indexOf("<assignment>") + 12;
-                    endIndex = tempLine.indexOf("</assignment>");
-                    String assignment = tempLine.substring(beginIndex,endIndex).trim();
-                    transition.setAssignment(assignment,parameters);
-
+                            transition.setGuard(guard,parameters);
+                        }
+                        if(tempLine.indexOf("<assignment>") != -1){
+                            beginIndex = tempLine.indexOf("<assignment>") + 12;
+                            endIndex = tempLine.indexOf("</assignment>");
+                            String assignment = tempLine.substring(beginIndex,endIndex).trim();
+                            transition.setAssignment(assignment,parameters);
+                        }
+                        tempLine = reader.readLine();
+                    }
                     transitions.add(transition);
                 }
             }
@@ -188,16 +199,16 @@ public class Automata {
         String []strings = forbiddenValues.split("&");
         for(int i = 0;i < strings.length;++i){
             if(strings[i].indexOf("loc()") != -1){
-                forbiddenLoc = Integer.parseInt(strings[i].substring(strings[i].indexOf("v") + 1));
+                forbiddenLoc = Integer.parseInt(strings[i].substring(strings[i].indexOf("v") + 1).trim());
                 continue;
             }
             if(strings[i].trim().indexOf("t<=") != -1){
-                cycle = Double.parseDouble(strings[i].trim().substring(3));
+                cycle = Double.parseDouble(strings[i].trim().substring(3).trim());
                 cycleConstraint = new String("t>=" + cycle);
                 continue;
             }
             if(strings[i].trim().indexOf("t<") != -1){
-                cycle = Double.parseDouble(strings[i].trim().substring(2));
+                cycle = Double.parseDouble(strings[i].trim().substring(2).trim());
                 cycleConstraint = new String("t>" + cycle);
                 continue;
             }
@@ -214,7 +225,7 @@ public class Automata {
 
     void DFS(Automata automata,int []path,int depth,int maxPathSize){
         if(depth + 1 == maxPathSize){
-            System.out.println("hello");
+            System.out.println("The depth is " + maxPathSize);
             runRacos(automata,path);
         }
         else{
@@ -234,7 +245,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 15;
+        int repeat = 5;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -297,8 +308,15 @@ public class Automata {
         return newMap;
     }
 
+    public Transition getTransitionBySourceAndTarget(int source,int target){
+        for(int i = 0;i < transitions.size();++i){
+            if(transitions.get(i).source == source && transitions.get(i).target == target)
+                return transitions.get(i);
+        }
+        return null;
+    }
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Downloads/model1.xml","/home/cedricxing/Downloads/cfg.txt");
+        Automata automata = new Automata("/home/cedricxing/Desktop/case/1.xml","/home/cedricxing/Desktop/case/1.cfg");
         //automata.checkAutomata();
         int maxPathSize = 3;
         for(int i = 1;i <= maxPathSize;++i){
