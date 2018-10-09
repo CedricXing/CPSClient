@@ -59,9 +59,9 @@ public class Transition {
         }
         processAssignment(assignment,parameters);
 
-        for(HashMap.Entry<String,String> entry : assignments.entrySet()){
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
+//        for(HashMap.Entry<String,String> entry : assignments.entrySet()){
+//            System.out.println(entry.getKey() + " " + entry.getValue());
+//        }
     }
 
     public void processAssignment(String assignment,ArrayList<String> parameters){

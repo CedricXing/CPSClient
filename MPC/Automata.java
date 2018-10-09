@@ -226,6 +226,10 @@ public class Automata {
     void DFS(Automata automata,int []path,int depth,int maxPathSize){
         if(depth + 1 == maxPathSize){
             System.out.println("The depth is " + maxPathSize);
+            for(int i = 0;i < path.length - 1;++i){
+                System.out.print(path[i] + "->");
+            }
+            System.out.println(path[path.length - 1]);
             runRacos(automata,path);
         }
         else{
@@ -239,7 +243,7 @@ public class Automata {
 
     void runRacos(Automata automata,int []path){
         int samplesize = 30;       // parameter: the number of samples in each iteration
-        int iteration = 10000;       // parameter: the number of iterations for batch racos
+        int iteration = 10000000;       // parameter: the number of iterations for batch racos
         int budget = 2000;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
@@ -316,9 +320,9 @@ public class Automata {
         return null;
     }
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/case/1.xml","/home/cedricxing/Desktop/case/1.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/case/2.xml","/home/cedricxing/Desktop/case/2.cfg");
         //automata.checkAutomata();
-        int maxPathSize = 3;
+        int maxPathSize = 10;
         for(int i = 1;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();

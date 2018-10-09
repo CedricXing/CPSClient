@@ -44,6 +44,8 @@ public class ObjectFunction implements Task{
         result = (boolean)fel.eval(automata.cycleConstraint);
         if(result) return false;
         //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
+        if(automata.forbiddenConstraints.size() == 0)
+            return true;
         for(int i = 0;i < automata.forbiddenConstraints.size();++i){
             result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
             //System.out.println(automata.forbiddenConstraints.get(i));
@@ -240,36 +242,26 @@ public class ObjectFunction implements Task{
             return Double.MAX_VALUE;
         }
         if(!checkInvarientsByODE(args)) {
+            //System.out.println("1");
             return Double.MAX_VALUE;
         }
         if(!checkConstraints(args)) {
+            //System.out.println("2");
             return Double.MAX_VALUE;
         }
         if(!checkGuards(args)) {
+            //System.out.println("3");
             return Double.MAX_VALUE;
         }
-        //System.out.println(allParametersValues.size());
-//        double sum = 0;
-//        for(int i = 0;i < args.length;++i)
-//            sum += args[i];
-//        if(Math.abs(sum - allParametersValues.get(allParametersValues.size() - 1).get("t")) > 0.5){
-//            System.out.println("what");
-//            System.out.println(sum);
-//            System.out.println(allParametersValues.get(0).get("t"));
-//            System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
-//            System.out.println(args[0]);
-//            System.out.println(args[1]);
-//        }
-//        if(allParametersValues.get(allParametersValues.size() - 1).get("t") > 5.0){
-//            System.out.println("no");
-//        }
-        //if(!checkInvarientsByRacos(args))   return Double.MAX_VALUE;
         return computeValue(args);
     }
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        return map.get("x") ;
+        double sum = 0;
+        for(int i = 0;i < args.length;++i)
+            sum += args[i];
+        return  -sum;
     }
 
     @Override
