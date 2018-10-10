@@ -182,6 +182,12 @@ void Bridge::sendToVerify() {
 }
 
 void Bridge::updatePosition() {
+	RTLSClient* rtls=new RTLSClient();
+	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
+	int pos0, pos1;
+	rtls->processData(pos0, pos1);
+	this->pos[0] = pos0;
+	this->pos[1] = pos1;
 	
 }
 
