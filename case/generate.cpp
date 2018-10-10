@@ -40,11 +40,11 @@ int main()
 	}
 	
 		
-	out=new ofstream("navigation_staliro.xml");
+	out=new ofstream("1.xml");
     	print_xml();
 	out->close();
 
-	out=new ofstream("navigation_staliro.cfg");
+	out=new ofstream("1.cfg");
 	print_cfg();
     	out->close();
     	return 0;

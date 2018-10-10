@@ -242,11 +242,11 @@ public class Automata {
     }
 
     void runRacos(Automata automata,int []path){
-        int samplesize = 30;       // parameter: the number of samples in each iteration
-        int iteration = 10000000;       // parameter: the number of iterations for batch racos
+        int samplesize = 30 ;       // parameter: the number of samples in each iteration
+        int iteration = 1000000;       // parameter: the number of iterations for batch racos
         int budget = 2000;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
-        double probability = 0.95; // parameter: the probability of sampling from the model
+        double probability = 0.5; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
         int repeat = 5;
@@ -320,7 +320,7 @@ public class Automata {
         return null;
     }
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/case/2.xml","/home/cedricxing/Desktop/case/2.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/3.xml","/home/cedricxing/Desktop/CPS/src/case/3.cfg");
         //automata.checkAutomata();
         int maxPathSize = 10;
         for(int i = 1;i <= maxPathSize;++i){

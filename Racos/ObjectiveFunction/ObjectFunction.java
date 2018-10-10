@@ -257,11 +257,13 @@ public class ObjectFunction implements Task{
     }
 
     public double computeValue(double []args){
+
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        double sum = 0;
-        for(int i = 0;i < args.length;++i)
-            sum += args[i];
-        return  -sum;
+        return map.get("x");
+//        double sum = 0;
+//        for(int i = 0;i < args.length;++i)
+//            sum += args[i];
+//        return  -sum;
     }
 
     @Override
