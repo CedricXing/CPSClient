@@ -243,19 +243,20 @@ public class Automata {
     }
 
     void runRacos(Automata automata,int []path){
-        int samplesize = 300 ;       // parameter: the number of samples in each iteration
-        int iteration = 10000;       // parameter: the number of iterations for batch racos
+        int samplesize = 30 ;       // parameter: the number of samples in each iteration
+        int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
-        int uncertainbit =3;      // parameter: the number of sampled dimensions
+        int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
         int repeat = 5;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
             Continue con = new Continue(t);
-            con.TurnOnSequentialRacos();
+            //con.TurnOnSequentialRacos();
+            con.setMaxIteration(iteration);
             con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
             con.setBudget(budget);              // parameter: the budget of sampling
             con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
@@ -324,7 +325,7 @@ public class Automata {
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/2.xml","/home/cedricxing/Desktop/CPS/src/case/2.cfg");
         //automata.checkAutomata();
         int maxPathSize = 10;
-        for(int i = 2;i <= maxPathSize;++i){
+        for(int i = 7;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);

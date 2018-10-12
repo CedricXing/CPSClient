@@ -478,11 +478,18 @@ public class Continue extends BaseParameters{
 		
 		ResetModel();
 		Initialize();
-		
+
+		int bestValueCount = 0;
 		// batch Racos
 		if (!this.on_off){
 			// for each loop
-			for(int i=1; i<this.MaxIteration; i++){	
+			for(int i=1; i<this.MaxIteration; i++){
+				double bestValue = getOptimal().getValue();
+				System.out.println(bestValue);
+				if(bestValue < 0)
+					++bestValueCount;
+				if(bestValueCount > 100)
+					break;
 				// for each sample in a loop
 				for(int j=0; j<this.SampleSize; j++){	
 					reSample = true;

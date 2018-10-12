@@ -24,6 +24,11 @@ public class ObjectFunction implements Task{
     private ArrayList<HashMap<String,Double>> allParametersValues;
     public double delta = 0.05;
     private int c = 0;
+    private double p1 = 0;
+    private double p2 = 0;
+    private double p3 = 0;
+    private double p4 = 0;
+    private boolean flag = false;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
@@ -52,6 +57,8 @@ public class ObjectFunction implements Task{
             result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
             //System.out.println(automata.forbiddenConstraints.get(i));
             if(!result){
+                String constraint = automata.forbiddenConstraints.get(i);
+                p3 = computePenalty(constraint);
                 //System.out.println(automata.forbiddenConstraints.get(i));
                 //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("x"));
                 return true;
@@ -132,7 +139,14 @@ public class ObjectFunction implements Task{
                         for(int guardIndex = 0;guardIndex < transition.guards.size();++guardIndex){
                             //System.out.println(transition.guards.get(guardIndex));
                             boolean result = (boolean)fel.eval(transition.guards.get(guardIndex));
-                            if(!result) return false;
+                            if(!result) {
+                                String guard = transition.guards.get(guardIndex);
+//                                if(flag)
+//                                    p4 += computePenalty(guard);
+                                p4 = computePenalty(guard);
+                                System.out.println("p4 : " + p4);
+                                return false;
+                            }
                         }
                     }
                 }
@@ -177,13 +191,71 @@ public class ObjectFunction implements Task{
                 }
                 for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
-                    if(!result) return false;
+                    if(!result) {
+                        String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
+                        p2 = computePenalty(invariant);
+                        return false;
+                    }
                 }
                 step += 1;
             }
             allParametersValues.add(newMap);
         }
         return true;
+    }
+
+    private double computePenalty(String expression){
+        String []strings;
+        String bigPart = "",smallPart = "";
+        if(expression.indexOf("<=") != -1){
+            strings = expression.split("<=");
+            bigPart = strings[0].trim();
+            smallPart = strings[1].trim();
+        }
+        else if(expression.indexOf("<") != -1){
+            strings = expression.split("<");
+            bigPart = strings[0].trim();
+            smallPart = strings[1].trim();
+        }
+        else if(expression.indexOf(">=") != -1){
+            strings = expression.split(">=");
+            bigPart = strings[1].trim();
+            smallPart = strings[0].trim();
+        }
+        else if(expression.indexOf(">") != -1){
+            strings = expression.split(">");
+            bigPart = strings[1].trim();
+            smallPart = strings[0].trim();
+        }
+        Object obj1 = fel.eval(bigPart);
+        Object obj2 = fel.eval(smallPart);
+        double big = 0,small = 0;
+        if(obj1 instanceof Double)
+            big = (double)obj1;
+        else if(obj1 instanceof Integer) {
+            big = (int) obj1;
+            //System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        else {
+            obj1 = 0;
+            System.out.println("Not Double and Not Integer!");
+        }
+        if(obj2 instanceof Double)
+            small = (double)obj2;
+        else if(obj2 instanceof Integer) {
+            small = (int) obj2;
+            //System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+        else {
+            small = 0;
+            System.out.println("Not Double and Not Integer!");
+        }
+        double penalty = big - small;
+        flag = true;
+//        if(flag)
+//            penalty *= 2;
+//        else flag = true;
+        return penalty;
     }
 
     public boolean checkInvarientsByRacos(double []args){
@@ -219,8 +291,10 @@ public class ObjectFunction implements Task{
         double sum = 0;
         for(int i = 0;i < args.length;++i){
             sum += args[i];
-            if(sum > automata.cycle / delta)
+            if(sum > automata.cycle / delta) {
+                p1 = sum - automata.cycle / delta;
                 return false;
+            }
         }
         return true;
     }
@@ -230,8 +304,8 @@ public class ObjectFunction implements Task{
         double []args = new double[ins.getFeature().length];
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
-            if(args[i] >= 4000)
-                System.out.println(args[i]);
+//            if(args[i] >= 4000)
+//                System.out.println(args[i]);
         }
 //        if(ins.getFeature().length >=2){
 //            ++c;
@@ -242,22 +316,23 @@ public class ObjectFunction implements Task{
 //        }
         if(!checkCycle(args)){
             //System.out.println("not");
-            return Double.MAX_VALUE;
+            return 100000 + p1;
         }
         //System.out.println("1");
         if(!checkInvarientsByODE(args)) {
             //System.out.println("1");
-            return Double.MAX_VALUE;
+            return 10000 + p2;
         }
         //System.out.println("2");
         if(!checkConstraints(args)) {
             //System.out.println("2");
-            return Double.MAX_VALUE;
+            return 1000 + p3;
         }
         //System.out.println("3");
         if(!checkGuards(args)) {
             //System.out.println("3");
-            return Double.MAX_VALUE;
+            //System.out.println(p4);
+            return 100 + p4;
         }
         //System.out.println("4");
         return computeValue(args);
