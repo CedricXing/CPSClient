@@ -144,7 +144,7 @@ public class ObjectFunction implements Task{
 //                                if(flag)
 //                                    p4 += computePenalty(guard);
                                 p4 = computePenalty(guard);
-                                System.out.println("p4 : " + p4);
+                                //System.out.println("p4 : " + p4);
                                 return false;
                             }
                         }
@@ -255,6 +255,7 @@ public class ObjectFunction implements Task{
 //        if(flag)
 //            penalty *= 2;
 //        else flag = true;
+        //System.out.println(penalty);
         return penalty;
     }
 
@@ -321,6 +322,7 @@ public class ObjectFunction implements Task{
         //System.out.println("1");
         if(!checkInvarientsByODE(args)) {
             //System.out.println("1");
+            System.out.println(p2);
             return 10000 + p2;
         }
         //System.out.println("2");
