@@ -22,13 +22,15 @@ public class ObjectFunction implements Task{
     private FelEngine fel;
     private FelContext ctx;
     private ArrayList<HashMap<String,Double>> allParametersValues;
+    public double delta = 0.05;
+    private int c = 0;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
         dim = new Dimension();
         dim.setSize(path.length);
         for(int i = 0;i < path.length;++i)
-            dim.setDimension(i,0.0,automata.cycle,true);
+            dim.setDimension(i,0,automata.cycle / delta,true);
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
@@ -143,11 +145,10 @@ public class ObjectFunction implements Task{
     public boolean checkInvarientsByODE(double []args){
         //System.out.println("here");
         double end = 0;
-        double delta = 0.5;
         HashMap<String,Double> newMap = new HashMap<>();
         for(int locIndex = 0;locIndex < path.length;++locIndex){
             end = args[locIndex];
-            double tempT = 0;
+            double step = 0;
             if(locIndex == 0)
                 newMap = automata.duplicateInitParametersValues();
             else {
@@ -169,15 +170,7 @@ public class ObjectFunction implements Task{
                     newMap.put(entry.getKey(),result);
                 }
             }
-            //int no = automata.locations.get(path[locIndex]).getNo();
-//            if(no == 2){
-//                newMap.put("a",5.0);
-//            }
-//            else if(no == 3){
-//                newMap.put("a",0 + (Math.random() - 0.5) * 10);
-//            }
-//            else newMap.put("a",-10.0);
-            while(tempT <= end){
+            while(step <= end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
@@ -186,7 +179,7 @@ public class ObjectFunction implements Task{
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) return false;
                 }
-                tempT += delta;
+                step += 1;
             }
             allParametersValues.add(newMap);
         }
@@ -226,7 +219,7 @@ public class ObjectFunction implements Task{
         double sum = 0;
         for(int i = 0;i < args.length;++i){
             sum += args[i];
-            if(sum > automata.cycle)
+            if(sum > automata.cycle / delta)
                 return false;
         }
         return true;
@@ -237,29 +230,43 @@ public class ObjectFunction implements Task{
         double []args = new double[ins.getFeature().length];
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
+            if(args[i] >= 4000)
+                System.out.println(args[i]);
         }
+//        if(ins.getFeature().length >=2){
+//            ++c;
+//            System.out.println(c);
+//        }
+//        if(c == 649){
+//            System.out.println("hello");
+//        }
         if(!checkCycle(args)){
+            //System.out.println("not");
             return Double.MAX_VALUE;
         }
+        //System.out.println("1");
         if(!checkInvarientsByODE(args)) {
             //System.out.println("1");
             return Double.MAX_VALUE;
         }
+        //System.out.println("2");
         if(!checkConstraints(args)) {
             //System.out.println("2");
             return Double.MAX_VALUE;
         }
+        //System.out.println("3");
         if(!checkGuards(args)) {
             //System.out.println("3");
             return Double.MAX_VALUE;
         }
+        //System.out.println("4");
         return computeValue(args);
     }
 
     public double computeValue(double []args){
 
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        return map.get("x");
+        return -map.get("t");
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

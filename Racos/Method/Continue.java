@@ -138,14 +138,21 @@ public class Continue extends BaseParameters{
 	 */
 	protected Instance RandomInstance(){
 		Instance ins = new Instance(dimension);
-		for(int i=0; i<dimension.getSize(); i++){
-			
-			if(dimension.getType(i)){//if i-th dimension type is continue
-				ins.setFeature(i, ro.getDouble(dimension.getRegion(i)[0], dimension.getRegion(i)[1]));
-			}else{//if i-th dimension type is discrete
-				ins.setFeature(i, ro.getInteger((int)dimension.getRegion(i)[0], (int)dimension.getRegion(i)[1]));
+		while(true) {
+			for (int i = 0; i < dimension.getSize(); i++) {
+
+				if (dimension.getType(i)) {//if i-th dimension type is continue
+					ins.setFeature(i, ro.getDouble(dimension.getRegion(i)[0], dimension.getRegion(i)[1]));
+				} else {//if i-th dimension type is discrete
+					ins.setFeature(i, ro.getInteger((int) dimension.getRegion(i)[0], (int) dimension.getRegion(i)[1]));
+				}
 			}
-			
+			double sum = 0;
+			for(int j = 0;j < ins.getFeature().length;++j){
+				sum += ins.getFeature(j);
+			}
+			if(sum <= dimension.getRegion(0)[1])
+				break;
 		}
 		return ins;
 	}
@@ -160,7 +167,7 @@ public class Continue extends BaseParameters{
 		Instance ins = new Instance(dimension);
 //		model.PrintLabel();
 		for(int i=0; i<dimension.getSize(); i++){
-			
+
 			if(dimension.getType(i)){//if i-th dimension type is continue
 				if(model.label[i]){//according to fixed dimension, valuate using corresponding value in pos
 					ins.setFeature(i, pos.getFeature(i));
@@ -175,7 +182,7 @@ public class Continue extends BaseParameters{
 					ins.setFeature(i, ro.getInteger((int)model.region[i][0], (int)model.region[i][1]));
 				}
 			}
-			
+
 		}
 		return ins;
 	}
@@ -524,6 +531,15 @@ public class Continue extends BaseParameters{
 					}
 				}
 				UpdateSampleSet(new_sample);//update PosPop set
+//				while(true) {
+//					UpdateSampleSet(new_sample);//update PosPop set
+//					double sum = 0;
+//					for(int i = 0;i < new_sample.getFeature().length;++i){
+//						sum += new_sample.getFeature(i);
+//					}
+//					if(sum <= dimension.getRegion(0)[1])
+//						break;
+//				}
 				UpdateOptimal();//obtain optimal
 
 			}

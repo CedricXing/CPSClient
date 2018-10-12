@@ -2,6 +2,7 @@ package MPC;
 
 import Racos.Componet.Instance;
 import Racos.Method.Continue;
+import Racos.Method.Discrete;
 import Racos.ObjectiveFunction.MIN_L;
 import Racos.ObjectiveFunction.ObjectFunction;
 import Racos.ObjectiveFunction.Task;
@@ -242,26 +243,26 @@ public class Automata {
     }
 
     void runRacos(Automata automata,int []path){
-        int samplesize = 30 ;       // parameter: the number of samples in each iteration
-        int iteration = 1000000;       // parameter: the number of iterations for batch racos
-        int budget = 2000;         // parameter: the budget of sampling for sequential racos
+        int samplesize = 300 ;       // parameter: the number of samples in each iteration
+        int iteration = 10000;       // parameter: the number of iterations for batch racos
+        int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
-        double probability = 0.5; // parameter: the probability of sampling from the model
-        int uncertainbit = 1;      // parameter: the number of sampled dimensions
+        double probability = 0.95; // parameter: the probability of sampling from the model
+        int uncertainbit =3;      // parameter: the number of sampled dimensions
         Instance ins = null;
         int repeat = 5;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
-            Continue conti = new Continue(t);
-            conti.TurnOnSequentialRacos();
-            conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
-            conti.setBudget(budget);              // parameter: the budget of sampling
-            conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
-            conti.setRandProbability(probability);// parameter: the probability of sampling from the model
-            conti.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-            conti.run();                          // call sequential Racos
-            ins = conti.getOptimal();             // obtain optimal
+            Continue con = new Continue(t);
+            con.TurnOnSequentialRacos();
+            con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
+            con.setBudget(budget);              // parameter: the budget of sampling
+            con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
+            con.setRandProbability(probability);// parameter: the probability of sampling from the model
+            con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
+            con.run();                          // call sequential Racos              // call Racos
+            ins = con.getOptimal();             // obtain optimal
             System.out.print("best function value:");
             if(ins.getValue() == Double.MAX_VALUE)
                 System.out.print("MaxValue     ");
@@ -271,14 +272,14 @@ public class Automata {
             }
             System.out.print("[");
             for(int j = 0;j < ins.getFeature().length;++j)
-                System.out.print(ins.getFeature(j) + ",");
+                System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
             System.out.println("]");
         }
         for(int i = 0;i < result.size();++i){
             System.out.println(result.get(i).getValue());
             System.out.print("[");
             for(int j = 0;j < result.get(i).getFeature().length;++j)
-                System.out.print(result.get(i).getFeature(j) + ",");
+                System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
             System.out.println("]");
         }
     }
@@ -320,10 +321,10 @@ public class Automata {
         return null;
     }
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/3.xml","/home/cedricxing/Desktop/CPS/src/case/3.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/2.xml","/home/cedricxing/Desktop/CPS/src/case/2.cfg");
         //automata.checkAutomata();
         int maxPathSize = 10;
-        for(int i = 1;i <= maxPathSize;++i){
+        for(int i = 2;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);

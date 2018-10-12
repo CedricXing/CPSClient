@@ -7,20 +7,22 @@
 		<param name="e1" type="label" local="false" />
 		<param name="e2" type="label" local="false" />
 		<location id="1" name="v1">
-			<flow>t:=1 &amp;x:=a</flow> 
+			<flow>t:=1 &amp;x:=a</flow>
+			<invariant>x&lt;=40</invariant> 
 		</location>
 		<location id="2" name="v2">
-			<flow>t:=1 &amp;x:=a</flow> 
+			<flow>t:=1 &amp;x:=a</flow>
+			<invariant>x&gt;=-20</invariant> 
 		</location>
 		<transition source="1" target="2">
 			<label>e1</label>
-			<guard>x&gt;=5</guard>
-			<assignment>a:=-3</assignment>
+			<guard>x&gt;=20</guard>
+			<assignment>a:=-2</assignment>
 		</transition>
 		<transition source="2" target="1">
 			<label>e2</label>
 			<guard>x&lt;=0</guard>
-			<assignment>a:=1</assignment>
+			<assignment>a:=2</assignment>
 		</transition>
 </component>
 </sspaceex>
