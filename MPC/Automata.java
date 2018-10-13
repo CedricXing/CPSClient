@@ -255,7 +255,6 @@ public class Automata {
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
             Continue con = new Continue(t);
-            //con.TurnOnSequentialRacos();
             con.setMaxIteration(iteration);
             con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
             con.setBudget(budget);              // parameter: the budget of sampling
@@ -322,10 +321,10 @@ public class Automata {
         return null;
     }
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/2.xml","/home/cedricxing/Desktop/CPS/src/case/2.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml","/home/cedricxing/Desktop/CPS/src/case/train.txt");
         //automata.checkAutomata();
         int maxPathSize = 10;
-        for(int i = 7;i <= maxPathSize;++i){
+        for(int i = 1 ;i <= maxPathSize;++i){
             int []path = new int[i];
             path[0] = automata.getInitLoc();
             automata.DFS(automata,path,0,i);

@@ -8,7 +8,7 @@
 		<param name="e2" type="label" local="false" />
 		<location id="1" name="v1">
 			<flow>t:=1 &amp;x:=a</flow>
-			<invariant>x&lt;=20</invariant>
+			<invariant>x&lt;=40</invariant>
 		</location>
 		<location id="2" name="v2">
 			<flow>t:=1 &amp;x:=a</flow>

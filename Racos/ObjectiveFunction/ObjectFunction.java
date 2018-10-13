@@ -29,13 +29,15 @@ public class ObjectFunction implements Task{
     private double p3 = 0;
     private double p4 = 0;
     private boolean flag = false;
+    private double penalty = 0;
+    private boolean sat = true;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
         dim = new Dimension();
         dim.setSize(path.length);
         for(int i = 0;i < path.length;++i)
-            dim.setDimension(i,0,automata.cycle / delta,true);
+            dim.setDimension(i,0,automata.cycle / delta,false);
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
@@ -58,9 +60,11 @@ public class ObjectFunction implements Task{
             //System.out.println(automata.forbiddenConstraints.get(i));
             if(!result){
                 String constraint = automata.forbiddenConstraints.get(i);
-                p3 = computePenalty(constraint);
+                //p3 = computePenalty(constraint);
                 //System.out.println(automata.forbiddenConstraints.get(i));
                 //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("x"));
+//                sat = false;
+//                penalty += computePenalty(constraint);
                 return true;
             }
         }
@@ -143,7 +147,9 @@ public class ObjectFunction implements Task{
                                 String guard = transition.guards.get(guardIndex);
 //                                if(flag)
 //                                    p4 += computePenalty(guard);
-                                p4 = computePenalty(guard);
+                                //p4 = computePenalty(guard);
+//                                sat = false;
+//                                penalty += computePenalty(guard);
                                 //System.out.println("p4 : " + p4);
                                 return false;
                             }
@@ -184,7 +190,7 @@ public class ObjectFunction implements Task{
                     newMap.put(entry.getKey(),result);
                 }
             }
-            while(step <= end){
+            while(step < end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
@@ -193,7 +199,15 @@ public class ObjectFunction implements Task{
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
                         String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                        p2 = computePenalty(invariant);
+                        //p2 = computePenalty(invariant);
+                        if(computePenalty(invariant) < 0.1)
+                            continue;
+                        //p2 = computePenalty(invariant);
+                        //p2 = end - step;
+                        //System.out.println(p2);
+                        //System.out.println(invariant);
+                        //sat = false;
+                        //penalty += computePenalty(invariant);
                         return false;
                     }
                 }
@@ -250,6 +264,8 @@ public class ObjectFunction implements Task{
             small = 0;
             System.out.println("Not Double and Not Integer!");
         }
+        //System.out.println(big);
+        //System.out.println(small);
         double penalty = big - small;
         flag = true;
 //        if(flag)
@@ -273,7 +289,7 @@ public class ObjectFunction implements Task{
         Task t = new InvarientsObjectFunction(automata,path,args,allParametersValues);
         for (int i = 0; i < repeat; i++) {
             Continue conti = new Continue(t);
-            conti.TurnOnSequentialRacos();
+            //conti.TurnOnSequentialRacos();
             conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
             conti.setBudget(budget);              // parameter: the budget of sampling
             conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
@@ -292,10 +308,12 @@ public class ObjectFunction implements Task{
         double sum = 0;
         for(int i = 0;i < args.length;++i){
             sum += args[i];
-            if(sum > automata.cycle / delta) {
-                p1 = sum - automata.cycle / delta;
-                return false;
-            }
+        }
+        if(sum > automata.cycle / delta) {
+            //p1 = sum - automata.cycle / delta;
+            //sat = false;
+            //penalty += sum - automata.cycle / delta;
+            return false;
         }
         return true;
     }
@@ -306,36 +324,35 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
 //            if(args[i] >= 4000)
-//                System.out.println(args[i]);
+            //System.out.print(args[i] + " ");
         }
-//        if(ins.getFeature().length >=2){
-//            ++c;
-//            System.out.println(c);
-//        }
-//        if(c == 649){
-//            System.out.println("hello");
-//        }
+        //System.out.println("");
         if(!checkCycle(args)){
             //System.out.println("not");
-            return 100000 + p1;
+            return 100000;
         }
         //System.out.println("1");
         if(!checkInvarientsByODE(args)) {
             //System.out.println("1");
-            System.out.println(p2);
-            return 10000 + p2;
+            return 10000;
         }
         //System.out.println("2");
         if(!checkConstraints(args)) {
             //System.out.println("2");
-            return 1000 + p3;
+            return 1000;
         }
         //System.out.println("3");
         if(!checkGuards(args)) {
             //System.out.println("3");
             //System.out.println(p4);
-            return 100 + p4;
+            return 100;
         }
+//        checkCycle(args);
+//        checkInvarientsByODE(args);
+//        checkConstraints(args);
+//        checkGuards(args);
+//        if(!sat)
+//            return penalty;
         //System.out.println("4");
         return computeValue(args);
     }
