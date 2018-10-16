@@ -485,7 +485,7 @@ public class Continue extends BaseParameters{
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
 				double bestValue = getOptimal().getValue();
-				System.out.println(bestValue);
+				//System.out.println(bestValue);
 				if(bestValue < 0)
 					++bestValueCount;
 				if(bestValueCount > 100)
@@ -527,7 +527,7 @@ public class Continue extends BaseParameters{
 					GlobalSample = ro.getDouble(0, 1);
 					if (GlobalSample >= this.RandProbability) {
 					} else {
-						ShrinkModel(PosPop[ChoosenPos]);//shrinking model
+						//ShrinkModel(PosPop[ChoosenPos]);//shrinking model
 						setRandomBits();//set uncertain bits						
 					}
 					new_sample = RandomInstance(PosPop[ChoosenPos]);//sample

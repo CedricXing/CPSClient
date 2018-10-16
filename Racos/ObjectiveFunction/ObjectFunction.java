@@ -63,9 +63,9 @@ public class ObjectFunction implements Task{
                 //p3 = computePenalty(constraint);
                 //System.out.println(automata.forbiddenConstraints.get(i));
                 //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("x"));
-//                sat = false;
-//                penalty += computePenalty(constraint);
-                return true;
+                sat = false;
+                penalty += computePenalty(constraint);
+                //return true;
             }
         }
         return false;
@@ -148,10 +148,10 @@ public class ObjectFunction implements Task{
 //                                if(flag)
 //                                    p4 += computePenalty(guard);
                                 //p4 = computePenalty(guard);
-//                                sat = false;
-//                                penalty += computePenalty(guard);
+                                sat = false;
+                                penalty += computePenalty(guard);
                                 //System.out.println("p4 : " + p4);
-                                return false;
+                                //return false;
                             }
                         }
                     }
@@ -206,9 +206,10 @@ public class ObjectFunction implements Task{
                         //p2 = end - step;
                         //System.out.println(p2);
                         //System.out.println(invariant);
-                        //sat = false;
-                        //penalty += computePenalty(invariant);
-                        return false;
+                        sat = false;
+                        penalty += computePenalty(invariant);
+                        //System.out.println(penalty);
+                        //return false;
                     }
                 }
                 step += 1;
@@ -266,13 +267,8 @@ public class ObjectFunction implements Task{
         }
         //System.out.println(big);
         //System.out.println(small);
-        double penalty = big - small;
-        flag = true;
-//        if(flag)
-//            penalty *= 2;
-//        else flag = true;
-        //System.out.println(penalty);
-        return penalty;
+        double penal = big - small;
+        return penal;
     }
 
     public boolean checkInvarientsByRacos(double []args){
@@ -310,7 +306,7 @@ public class ObjectFunction implements Task{
             sum += args[i];
         }
         if(sum > automata.cycle / delta) {
-            //p1 = sum - automata.cycle / delta;
+            p1 = sum - automata.cycle / delta;
             //sat = false;
             //penalty += sum - automata.cycle / delta;
             return false;
@@ -319,40 +315,42 @@ public class ObjectFunction implements Task{
     }
     @Override
     public double getValue(Instance ins) {
+        penalty = 0;
+        sat = true;
         allParametersValues = new ArrayList<>();
         double []args = new double[ins.getFeature().length];
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
 //            if(args[i] >= 4000)
-            //System.out.print(args[i] + " ");
+            //System.out.println(args[i] + " ");
         }
         //System.out.println("");
-        if(!checkCycle(args)){
-            //System.out.println("not");
-            return 100000;
-        }
-        //System.out.println("1");
-        if(!checkInvarientsByODE(args)) {
-            //System.out.println("1");
-            return 10000;
-        }
-        //System.out.println("2");
-        if(!checkConstraints(args)) {
-            //System.out.println("2");
-            return 1000;
-        }
-        //System.out.println("3");
-        if(!checkGuards(args)) {
-            //System.out.println("3");
-            //System.out.println(p4);
-            return 100;
-        }
-//        checkCycle(args);
-//        checkInvarientsByODE(args);
-//        checkConstraints(args);
-//        checkGuards(args);
-//        if(!sat)
-//            return penalty;
+//        if(!checkCycle(args)){
+//            //System.out.println("not");
+//            return 100000;
+//        }
+//        //System.out.println("1");
+//        if(!checkInvarientsByODE(args)) {
+//            //System.out.println("1");
+//            return 10000;
+//        }
+//        //System.out.println("2");
+//        if(!checkConstraints(args)) {
+//            //System.out.println("2");
+//            return 1000;
+//        }
+//        //System.out.println("3");
+//        if(!checkGuards(args)) {
+//            //System.out.println("3");
+//            //System.out.println(p4);
+//            return 100;
+//        }
+        checkCycle(args);
+        checkInvarientsByODE(args);
+        checkConstraints(args);
+        checkGuards(args);
+        if(!sat)
+            return penalty;
         //System.out.println("4");
         return computeValue(args);
     }

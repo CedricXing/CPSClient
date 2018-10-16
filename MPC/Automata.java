@@ -32,6 +32,8 @@ public class Automata {
     public ArrayList<String> forbiddenConstraints;
     public double cycle;
     public String cycleConstraint;
+    File output;
+    BufferedWriter bufferedWriter;
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLoc = -1;
@@ -226,11 +228,14 @@ public class Automata {
 
     void DFS(Automata automata,int []path,int depth,int maxPathSize){
         if(depth + 1 == maxPathSize){
-            System.out.println("The depth is " + maxPathSize);
+            //System.out.println("The depth is " + maxPathSize);
+            println("The depth is " + maxPathSize);
             for(int i = 0;i < path.length - 1;++i){
-                System.out.print(path[i] + "->");
+                //System.out.print(path[i] + "->");
+                print(path[i] + "->");
             }
-            System.out.println(path[path.length - 1]);
+            //System.out.println(path[path.length - 1]);
+            println(Integer.toString(path[path.length - 1]));
             runRacos(automata,path);
         }
         else{
@@ -243,10 +248,11 @@ public class Automata {
     }
 
     void runRacos(Automata automata,int []path){
+        double currentT = System.currentTimeMillis();
         int samplesize = 30 ;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
-        int positivenum = 1;       // parameter: the number of positive instances in each iteration
+        int positivenum = 10;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
@@ -263,25 +269,38 @@ public class Automata {
             con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
             con.run();                          // call sequential Racos              // call Racos
             ins = con.getOptimal();             // obtain optimal
-            System.out.print("best function value:");
+            //System.out.print("best function value:");
+            print("best function value:");
             if(ins.getValue() == Double.MAX_VALUE)
                 System.out.print("MaxValue     ");
             else {
-                System.out.print(ins.getValue() + "    ");
+                //System.out.print(ins.getValue() + "    ");
+                print(ins.getValue() + "    ");
                 result.add(ins);
             }
-            System.out.print("[");
-            for(int j = 0;j < ins.getFeature().length;++j)
-                System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
-            System.out.println("]");
+            //System.out.print("[");
+            print("[");
+            for(int j = 0;j < ins.getFeature().length;++j) {
+                //System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
+                print(Double.toString(ins.getFeature(j) * ((ObjectFunction) t).delta) + ",");
+            }
+            //System.out.println("]");
+            println("]");
         }
+        double currentT2 = System.currentTimeMillis();
         for(int i = 0;i < result.size();++i){
-            System.out.println(result.get(i).getValue());
-            System.out.print("[");
-            for(int j = 0;j < result.get(i).getFeature().length;++j)
-                System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
-            System.out.println("]");
+            //System.out.println(result.get(i).getValue());
+            println(Double.toString(result.get(i).getValue()));
+            //System.out.print("[");
+            print("[");
+            for(int j = 0;j < result.get(i).getFeature().length;++j) {
+                //System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
+                print(Double.toString(result.get(i).getFeature(j) * ((ObjectFunction) t).delta) + ",");
+            }
+            //System.out.println("]");
+            println("]");
         }
+        println("Average time : " + Double.toString((currentT2 - currentT) / 5 / 1000));
     }
 
     void checkAutomata(){
@@ -320,14 +339,50 @@ public class Automata {
         }
         return null;
     }
+
+    public void println(String str){
+        try {
+            bufferedWriter.write(str + "\n");
+        }
+        catch (IOException e){
+            System.out.println("write to file error!");
+        }
+    }
+
+    public void print(String str){
+        try {
+            bufferedWriter.write(str);
+        }
+        catch (IOException e){
+            System.out.println("write to file error!");
+        }
+    }
+
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml","/home/cedricxing/Desktop/CPS/src/case/train.txt");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/2.xml","/home/cedricxing/Desktop/CPS/src/case/2.cfg");
         //automata.checkAutomata();
-        int maxPathSize = 10;
-        for(int i = 1 ;i <= maxPathSize;++i){
-            int []path = new int[i];
-            path[0] = automata.getInitLoc();
-            automata.DFS(automata,path,0,i);
+        automata.output = new File("output.txt");
+        try {
+            automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
+            int maxPathSize = 10;
+            for(int i = 1 ;i <= maxPathSize;++i){
+                int []path = new int[i];
+                path[0] = automata.getInitLoc();
+                automata.DFS(automata,path,0,i);
+            }
+        }
+        catch (IOException e){
+            System.out.println("Open output.txt fail!");
+        }
+        finally {
+            if(automata.bufferedWriter != null){
+                try{
+                    automata.bufferedWriter.close();
+                }
+                catch (IOException e){
+                    System.out.println("IO Exception" + '\n' + e.getMessage());
+                }
+            }
         }
     }
 }
