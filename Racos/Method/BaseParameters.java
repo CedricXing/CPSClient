@@ -13,7 +13,7 @@ public class BaseParameters {
 	protected int SampleSize;        //sample size in each iteration
 	protected int MaxIteration;      //iteration size for batch-racos
 	protected int Budget;   		 //sampling budget for sequential racos
-	protected int PositiveNum;       //the number of samples in each iteration that Racos determine as good samples
+	protected int PositiveNum;       //the number of samples in each itera tion that Racos determine as good samples
 	protected double RandProbability;//the probability that Racos sample in the region that algorithm learned
 	protected int UncertainBits;     //the number of dimension in which algorithm will randomize
 	

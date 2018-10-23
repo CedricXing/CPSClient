@@ -300,7 +300,7 @@ public class Automata {
             //System.out.println("]");
             println("]");
         }
-        println("Average time : " + Double.toString((currentT2 - currentT) / 5 / 1000));
+        println("Average time : " + Double.toString((currentT2 - currentT) / repeat / 1000));
     }
 
     void checkAutomata(){
@@ -359,13 +359,13 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/2.xml","/home/cedricxing/Desktop/CPS/src/case/2.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/3.xml","/home/cedricxing/Desktop/CPS/src/case/3.cfg");
         //automata.checkAutomata();
-        automata.output = new File("output.txt");
+        automata.output = new File("output1.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
             int maxPathSize = 10;
-            for(int i = 1 ;i <= maxPathSize;++i){
+            for(int i = 10 ;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);

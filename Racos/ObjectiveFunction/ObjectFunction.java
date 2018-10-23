@@ -43,15 +43,22 @@ public class ObjectFunction implements Task{
         ctx = fel.getContext();
     }
 
-    public boolean checkConstraints(double []args){
+    public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
+        double pen = penalty;
         boolean result = (path[path.length - 1] == automata.forbiddenLoc || automata.forbiddenLoc == -1);
-        if(!result)  return true;
-        for(Map.Entry<String,Double> entry : allParametersValues.get(allParametersValues.size() - 1).entrySet()){
+        if(!result)  {
+            return true;
+        }
+        for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
             //System.out.println(allParametersValues.size());
             ctx.set(entry.getKey(),entry.getValue());
         }
         result = (boolean)fel.eval(automata.cycleConstraint);
-        if(result) return false;
+        if(result) {
+            sat = false;
+            penalty += computePenalty(automata.cycleConstraint,true);
+            return false;
+        }
         //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
         if(automata.forbiddenConstraints.size() == 0)
             return true;
@@ -63,11 +70,19 @@ public class ObjectFunction implements Task{
                 //p3 = computePenalty(constraint);
                 //System.out.println(automata.forbiddenConstraints.get(i));
                 //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("x"));
-                sat = false;
-                penalty += computePenalty(constraint);
-                //return true;
+                //sat = false;
+                //penalty += computePenalty(constraint);
+                penalty = pen;
+                return true;
+            }
+            else{
+                penalty += computePenalty(automata.forbiddenConstraints.get(i),true);
             }
         }
+//        for(int i = 0;i < args.length;++i){
+//            System.out.println(args[i]);
+//        }
+        sat = false;
         return false;
     }
 
@@ -149,7 +164,7 @@ public class ObjectFunction implements Task{
 //                                    p4 += computePenalty(guard);
                                 //p4 = computePenalty(guard);
                                 sat = false;
-                                penalty += computePenalty(guard);
+                                penalty += computePenalty(guard,false);
                                 //System.out.println("p4 : " + p4);
                                 //return false;
                             }
@@ -192,6 +207,7 @@ public class ObjectFunction implements Task{
             }
             while(step < end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
+                //checkConstraints(args,newMap);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
                 }
@@ -200,14 +216,14 @@ public class ObjectFunction implements Task{
                     if(!result) {
                         String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
                         //p2 = computePenalty(invariant);
-                        if(computePenalty(invariant) < 0.1)
+                        if(computePenalty(invariant,false) < 0.1)
                             continue;
                         //p2 = computePenalty(invariant);
                         //p2 = end - step;
                         //System.out.println(p2);
                         //System.out.println(invariant);
                         sat = false;
-                        penalty += computePenalty(invariant);
+                        penalty += computePenalty(invariant,false);
                         //System.out.println(penalty);
                         //return false;
                     }
@@ -219,7 +235,7 @@ public class ObjectFunction implements Task{
         return true;
     }
 
-    private double computePenalty(String expression){
+    private double computePenalty(String expression,boolean isConstraint){
         String []strings;
         String bigPart = "",smallPart = "";
         if(expression.indexOf("<=") != -1){
@@ -267,7 +283,15 @@ public class ObjectFunction implements Task{
         }
         //System.out.println(big);
         //System.out.println(small);
-        double penal = big - small;
+        double penal;
+        if(isConstraint)
+            penal = small - big;
+        else penal = big - small;
+        //System.out.println(penal);
+        if(penal < 0) {
+            System.out.println(expression);
+            System.out.println(small);
+        }
         return penal;
     }
 
@@ -306,9 +330,9 @@ public class ObjectFunction implements Task{
             sum += args[i];
         }
         if(sum > automata.cycle / delta) {
-            p1 = sum - automata.cycle / delta;
-            //sat = false;
-            //penalty += sum - automata.cycle / delta;
+            //p1 = sum - automata.cycle / delta;
+            sat = false;
+            penalty += sum - automata.cycle / delta;
             return false;
         }
         return true;
@@ -346,12 +370,16 @@ public class ObjectFunction implements Task{
 //            return 100;
 //        }
         checkCycle(args);
-        checkInvarientsByODE(args);
-        checkConstraints(args);
-        checkGuards(args);
-        if(!sat)
+        if(!sat) {
+            System.out.println("over");
             return penalty;
-        //System.out.println("4");
+        }
+        checkInvarientsByODE(args);
+        checkGuards(args);
+        if(!sat) {
+            return penalty;
+        }
+        System.out.println("what");
         return computeValue(args);
     }
 

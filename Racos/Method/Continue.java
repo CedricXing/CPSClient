@@ -166,23 +166,31 @@ public class Continue extends BaseParameters{
 	protected Instance RandomInstance(Instance pos){
 		Instance ins = new Instance(dimension);
 //		model.PrintLabel();
-		for(int i=0; i<dimension.getSize(); i++){
+		while(true) {
+			for (int i = 0; i < dimension.getSize(); i++) {
 
-			if(dimension.getType(i)){//if i-th dimension type is continue
-				if(model.label[i]){//according to fixed dimension, valuate using corresponding value in pos
-					ins.setFeature(i, pos.getFeature(i));
-				}else{//according to not fixed dimension, random in region
+				if (dimension.getType(i)) {//if i-th dimension type is continue
+					if (model.label[i]) {//according to fixed dimension, valuate using corresponding value in pos
+						ins.setFeature(i, pos.getFeature(i));
+					} else {//according to not fixed dimension, random in region
 //					System.out.println("["+model.region[i][0]+", "+model.region[i][1]+"]");
-					ins.setFeature(i, ro.getDouble(model.region[i][0], model.region[i][1]));
+						ins.setFeature(i, ro.getDouble(model.region[i][0], model.region[i][1]));
+					}
+				} else {//if i-th dimension type is discrete
+					if (model.label[i]) {//according to fixed dimension, valuate using corresponding value in pos
+						ins.setFeature(i, pos.getFeature(i));
+					} else {//according to not fixed dimension, random in region
+						ins.setFeature(i, ro.getInteger((int) model.region[i][0], (int) model.region[i][1]));
+					}
 				}
-			}else{//if i-th dimension type is discrete
-				if(model.label[i]){//according to fixed dimension, valuate using corresponding value in pos
-					ins.setFeature(i, pos.getFeature(i));
-				}else{//according to not fixed dimension, random in region
-					ins.setFeature(i, ro.getInteger((int)model.region[i][0], (int)model.region[i][1]));
-				}
-			}
 
+			}
+			double sum = 0;
+			for(int j = 0;j < ins.getFeature().length;++j){
+				sum += ins.getFeature(j);
+			}
+			if(sum <= dimension.getRegion(0)[1])
+				break;
 		}
 		return ins;
 	}
@@ -485,7 +493,7 @@ public class Continue extends BaseParameters{
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
 				double bestValue = getOptimal().getValue();
-				//System.out.println(bestValue);
+				System.out.println(bestValue);
 				if(bestValue < 0)
 					++bestValueCount;
 				if(bestValueCount > 100)
