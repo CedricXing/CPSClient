@@ -1,0 +1,44 @@
+@import "./common";
+@import "@material/button/mdc-button";
+
+#VerInf,#Pos,#Status,#V_T
+{
+	border-style: solid;
+	border-width: 1px;
+}
+#Pos
+{
+	height: 5%;
+}
+#myCanvas
+{
+	height: 50%;
+	background-color: $mdc-theme-on-primary;
+}
+#ROW2
+{
+	height: 50%;
+}
+
+.FieldHeader {
+	color: $mdc-theme-primary;
+	font-size: 30px;
+	font-family: Courier, LiSu;
+}
+
+.foo-button {
+	@include mdc-button-ink-color(primary);
+	@include mdc-states(teal);
+}
+
+.main {
+  background-color: $mdc-theme-background;
+  color: $mdc-theme-on-background;
+}
+
+.StatusTable {
+	td {
+		width:300px;
+		height:20px
+	}
+}

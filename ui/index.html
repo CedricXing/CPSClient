@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>智能小车实时监控</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- CSS Doc -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.0/jquery.js"></script>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="bundle-main.css">
+    <!--JavaScript Doc -->
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <!--JavaScript Functions-->
+</head>
+
+<body class="main" onresize="Resize()" onload="Resize()" id="BD">
+    <!--<p id="DEBUG"></p>-->
+    <div class="row" id="ROW">
+        <div class="col-3" id="VerInf">
+            <div class="FieldHeader">验证信息</div>
+        </div>
+        <div class="col" id="COL2">
+            <div class="row" id="Pos">
+                <div class="FieldHeader">实时位置显示</div>
+            </div>
+            <canvas id="myCanvas"></canvas>
+            <div class="row" id="ROW2">
+                <div class="col" id="Status">
+                    <div id="StatusTitle">
+                        <div class="FieldHeader">位置与状态信息</div>
+                    </div>
+                    <div id="StatusContent"></div>
+                    <table border="1" class="StatusTable">
+                        <tr>
+                            <th>序号</th>
+                            <th>位置</th>
+                            <th>速度</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <div id="Position_1"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_1"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>
+                                <div id="Position_2"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_2"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>
+                                <div id="Position_3"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_3"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>
+                                <div id="Position_4"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_4"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>
+                                <div id="Position_5"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_5"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>
+                                <div id="Position_6"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_6"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>
+                                <div id="Position_7"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_7"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>
+                                <div id="Position_8"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_8"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>
+                                <div id="Position_9"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_9"></div>
+                            </td>
+                        </tr>                                                                                                                                                                <tr>
+                            <td>10</td>
+                            <td>
+                                <div id="Position_10"></div>
+                            </td>
+                            <td>
+                                <div id="Velocity_10"></div>
+                            </td>
+                        </tr>                              
+                    </table>
+                </div>
+                <div class="col" id="V_T">
+                    <button class="foo-button mdc-button">
+                        Button
+                    </button>
+                    <div id="GraphName">
+                        <div class="FieldHeader">
+                            v-t图像
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="main.js">
+    </script>
+</body>
+
+</html>
