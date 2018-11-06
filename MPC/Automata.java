@@ -249,14 +249,14 @@ public class Automata {
 
     void runRacos(Automata automata,int []path){
         double currentT = System.currentTimeMillis();
-        int samplesize = 30 ;       // parameter: the number of samples in each iteration
+        int samplesize = 1 ;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 10;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 5;
+        int repeat = 1;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -282,7 +282,8 @@ public class Automata {
             print("[");
             for(int j = 0;j < ins.getFeature().length;++j) {
                 //System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
-                print(Double.toString(ins.getFeature(j) * ((ObjectFunction) t).delta) + ",");
+                //print(Double.toString(ins.getFeature(j) * ((ObjectFunction) t).delta) + ",");
+                print(Double.toString(ins.getFeature(j)) + ",");
             }
             //System.out.println("]");
             println("]");
@@ -295,7 +296,10 @@ public class Automata {
             print("[");
             for(int j = 0;j < result.get(i).getFeature().length;++j) {
                 //System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
-                print(Double.toString(result.get(i).getFeature(j) * ((ObjectFunction) t).delta) + ",");
+
+
+                //print(Double.toString(result.get(i).getFeature(j) * ((ObjectFunction) t).delta) + ",");
+                print(Double.toString(result.get(i).getFeature(j)) + ",");
             }
             //System.out.println("]");
             println("]");
@@ -359,13 +363,14 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/3.xml","/home/cedricxing/Desktop/CPS/src/case/3.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
+                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         //automata.checkAutomata();
-        automata.output = new File("output1.txt");
+        automata.output = new File("train_path1-4_new.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 10;
-            for(int i = 10 ;i <= maxPathSize;++i){
+            int maxPathSize = 4;
+            for(int i = 1;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);

@@ -37,7 +37,7 @@ public class ObjectFunction implements Task{
         dim = new Dimension();
         dim.setSize(path.length);
         for(int i = 0;i < path.length;++i)
-            dim.setDimension(i,0,automata.cycle / delta,false);
+            dim.setDimension(i,0,automata.cycle,true);
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
@@ -163,8 +163,14 @@ public class ObjectFunction implements Task{
 //                                if(flag)
 //                                    p4 += computePenalty(guard);
                                 //p4 = computePenalty(guard);
-                                sat = false;
-                                penalty += computePenalty(guard,false);
+                                if(Double.isNaN(computePenalty(guard,false))){
+                                    sat = false;
+                                    penalty += 100000;
+                                }
+                                else {
+                                    sat = false;
+                                    penalty += computePenalty(guard, false);
+                                }
                                 //System.out.println("p4 : " + p4);
                                 //return false;
                             }
@@ -177,17 +183,37 @@ public class ObjectFunction implements Task{
         return true;
     }
 
-    public boolean checkInvarientsByODE(double []args){
-        //System.out.println("here");
-        double end = 0;
+    public HashMap<String,Double> computeValuesByIntegral(HashMap<String,Double> parametersValues,Location location,double arg){
+        HashMap<String,Double> tempMap = new HashMap<>();
+        double t = parametersValues.get("t") + arg;
+        tempMap.put("t",t);
+        double a;
+        if(location.getNo() == 2)   a = 5;
+        else if(location.getNo() == 3)  a = 0;
+        else if(location.getNo() == 4)  a = -10;
+        else a = 0;
+        tempMap.put("a",a);
+        double v = parametersValues.get("v") + a * arg;
+        tempMap.put("v",v);
+        double x = parametersValues.get("x") + parametersValues.get("v") * arg + 0.5 * a * arg * arg;
+        tempMap.put("x",x);
+        double vebi = Math.sqrt(2 * 10 * (100 - x));
+        if(Double.isNaN(vebi)){
+            sat = false;
+            tempMap.put("vebi",-1.0);
+        }
+        else tempMap.put("vebi",vebi);
+        tempMap.put("MA",parametersValues.get("MA"));
+        return tempMap;
+    }
+
+    public void computeParameterValues(double []args){
         HashMap<String,Double> newMap = new HashMap<>();
         for(int locIndex = 0;locIndex < path.length;++locIndex){
-            end = args[locIndex];
-            double step = 0;
             if(locIndex == 0)
                 newMap = automata.duplicateInitParametersValues();
-            else {
-                newMap = allParametersValues.get(locIndex - 1);
+            else{
+                newMap = (HashMap<String, Double>) allParametersValues.get(locIndex - 1).clone();
                 //check assignments
                 Transition transition = automata.getTransitionBySourceAndTarget(path[locIndex - 1],path[locIndex]);
                 if(transition == null){
@@ -205,9 +231,69 @@ public class ObjectFunction implements Task{
                     newMap.put(entry.getKey(),result);
                 }
             }
+            newMap = computeValuesByIntegral(newMap,automata.locations.get(path[locIndex]),args[locIndex]);
+            for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
+                ctx.set(entry.getKey(),entry.getValue());
+            }
+            for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
+                boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
+                if(!result) {
+                    String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
+                    //p2 = computePenalty(invariant);
+                    if(computePenalty(invariant,false) < 0.000001)
+                        continue;
+                    //p2 = computePenalty(invariant);
+                    //p2 = end - step;
+                    //System.out.println(p2);
+                    //System.out.println(invariant);
+                    if(Double.isNaN(computePenalty(invariant,false))){
+                        sat = false;
+                        penalty += 100000;
+                    }
+                    else {
+                        sat = false;
+                        penalty += computePenalty(invariant, false);
+                    }
+                    //System.out.println(penalty);
+                    //return false;
+                }
+            }
+            allParametersValues.add(newMap);
+        }
+    }
+
+    public boolean checkInvarientsByODE(double []args){
+        //System.out.println("here");
+        double end = 0;
+        HashMap<String,Double> newMap = new HashMap<>();
+        for(int locIndex = 0;locIndex < path.length;++locIndex){
+            end = args[locIndex];
+            double step = 0;
+            if(locIndex == 0)
+                newMap = automata.duplicateInitParametersValues();
+            else {
+                newMap = (HashMap<String, Double>) allParametersValues.get(locIndex - 1).clone();
+                //check assignments
+                Transition transition = automata.getTransitionBySourceAndTarget(path[locIndex - 1],path[locIndex]);
+                if(transition == null){
+                    System.out.println("Found no transition");
+                    System.exit(-1);
+                }
+                for(HashMap.Entry<String,String> entry : transition.assignments.entrySet()){
+                    Object obj = fel.eval(entry.getValue());
+                    double result = 0;
+                    if(obj instanceof Integer)  result = (int)obj;
+                    else if(obj instanceof Double) result = (double)obj;
+                    else{
+                        System.out.println("Not Double and Not Integer!");
+                    }
+                    newMap.put(entry.getKey(),result);
+                    //allParametersValues.get(locIndex - 1).put(entry.getKey(),result);
+                }
+            }
             while(step < end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
-                //checkConstraints(args,newMap);
+                checkConstraints(args,newMap);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
                 }
@@ -216,14 +302,20 @@ public class ObjectFunction implements Task{
                     if(!result) {
                         String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
                         //p2 = computePenalty(invariant);
-                        if(computePenalty(invariant,false) < 0.1)
+                        if(computePenalty(invariant,false) < 0.000001)
                             continue;
                         //p2 = computePenalty(invariant);
                         //p2 = end - step;
                         //System.out.println(p2);
                         //System.out.println(invariant);
-                        sat = false;
-                        penalty += computePenalty(invariant,false);
+                        if(Double.isNaN(computePenalty(invariant,false))){
+                            sat = false;
+                            penalty += 100000;
+                        }
+                        else {
+                            sat = false;
+                            penalty += computePenalty(invariant, false);
+                        }
                         //System.out.println(penalty);
                         //return false;
                     }
@@ -329,10 +421,10 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < args.length;++i){
             sum += args[i];
         }
-        if(sum > automata.cycle / delta) {
+        if(sum > automata.cycle) {
             //p1 = sum - automata.cycle / delta;
             sat = false;
-            penalty += sum - automata.cycle / delta;
+            penalty += sum - automata.cycle;
             return false;
         }
         return true;
@@ -370,23 +462,27 @@ public class ObjectFunction implements Task{
 //            return 100;
 //        }
         checkCycle(args);
-        if(!sat) {
-            System.out.println("over");
-            return penalty;
-        }
-        checkInvarientsByODE(args);
+//        if(!sat) {
+//            System.out.println("over");
+//            return penalty;
+//        }
+        //checkInvarientsByODE(args);
+        computeParameterValues(args);
+        //System.out.println("hello1");
         checkGuards(args);
+        //System.out.println("hello2");
         if(!sat) {
             return penalty;
         }
-        System.out.println("what");
+        //System.out.println("what");
         return computeValue(args);
     }
 
     public double computeValue(double []args){
 
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        return -map.get("t");
+        //System.out.println(map.get("y"));
+        return -10000 + map.get("MA") - map.get("x");
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

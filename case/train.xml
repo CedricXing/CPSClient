@@ -20,15 +20,15 @@
     </location>
 	<location id="2" name="v2" x="710" y="351" width="135.0" height="73.0">
 	  <invariant> vebi-20&gt;=v &amp;v&gt;=0  </invariant>
-      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -a * v / pow(2 * a * (MA - x),0.5)&amp;a' == 0</flow>
+      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / pow(2 * 10 * (MA - x),0.5)&amp;a' == 0</flow>
     </location>
 	<location id="3" name="v3" x="710" y="351" width="135.0" height="73.0">
-	 <invariant> vebi&gt;=v &amp;v&gt;=vebi-30  </invariant>
-      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -a * v / pow(2 * a * (MA - x),0.5)&amp;a' == 0</flow>
+	 <invariant> vebi&gt;=v &amp;v&gt;=vebi-25  </invariant>
+      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / pow(2 * 10 * (MA - x),0.5)&amp;a' == 0</flow>
     </location>
 	<location id="4" name="v4" x="710" y="351" width="135.0" height="73.0">
 	  <invariant> v&gt;=vebi  </invariant>
-      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -a * v / pow(2 * a * (MA - x),0.5)&amp;a' == 0</flow>
+      <flow>x'==v &amp; v' == a &amp; t'==1 &amp;vebi'== -10 * v / pow(2 * 10 * (MA - x),0.5)&amp;a' == 0</flow>
     </location>
     <transition source="1" target="2">
       <label>e1</label>
@@ -37,8 +37,8 @@
     </transition>
     <transition source="1" target="3">
       <label>e2</label>
-	  <guard>vebi-30&lt;=v&amp;v&lt;vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>
+	  <guard>vebi-25&lt;=v&amp;v&lt;vebi</guard>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0</assignment>
     </transition>
     <transition source="1" target="4">
       <label>e3</label>
@@ -47,8 +47,8 @@
     </transition>
     <transition source="2" target="3">
       <label>e4</label>
-	  <guard>vebi-30&lt;=v&amp;v&lt;=vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>
+	  <guard>vebi-25&lt;=v&amp;v&lt;=vebi</guard>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0</assignment>
     </transition>
     <transition source="3" target="2">
       <label>e5</label>
@@ -62,8 +62,8 @@
     </transition>
     <transition source="4" target="3">
       <label>e7</label>
-	  <guard>vebi-30&lt;=v&amp;v&lt;=vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = [-5,5]</assignment>
+	  <guard>vebi-25&lt;=v&amp;v&lt;=vebi</guard>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0</assignment>
 
     </transition>
   </component>

@@ -496,8 +496,9 @@ public class Continue extends BaseParameters{
 				System.out.println(bestValue);
 				if(bestValue < 0)
 					++bestValueCount;
-				if(bestValueCount > 100)
+				if(bestValueCount > 100) {
 					break;
+				}
 				// for each sample in a loop
 				for(int j=0; j<this.SampleSize; j++){	
 					reSample = true;
