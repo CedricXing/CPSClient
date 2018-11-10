@@ -493,10 +493,10 @@ public class Continue extends BaseParameters{
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
 				double bestValue = getOptimal().getValue();
-				System.out.println(bestValue);
+				//System.out.println(bestValue);
 				if(bestValue < 0)
 					++bestValueCount;
-				if(bestValueCount > 100) {
+				if(bestValueCount > 500) {
 					break;
 				}
 				// for each sample in a loop

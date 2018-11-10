@@ -366,7 +366,7 @@ public class Automata {
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
                 "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         //automata.checkAutomata();
-        automata.output = new File("train_path1-4_new.txt");
+        automata.output = new File("train_compare_ode.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
             int maxPathSize = 4;

@@ -54,7 +54,7 @@ public class ObjectFunction implements Task{
             ctx.set(entry.getKey(),entry.getValue());
         }
         result = (boolean)fel.eval(automata.cycleConstraint);
-        if(result) {
+        if(result && computePenalty(automata.cycleConstraint,true) > 0.00001) {
             sat = false;
             penalty += computePenalty(automata.cycleConstraint,true);
             return false;
@@ -65,13 +65,8 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < automata.forbiddenConstraints.size();++i){
             result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
             //System.out.println(automata.forbiddenConstraints.get(i));
-            if(!result){
+            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) > 0.00001)){
                 String constraint = automata.forbiddenConstraints.get(i);
-                //p3 = computePenalty(constraint);
-                //System.out.println(automata.forbiddenConstraints.get(i));
-                //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("x"));
-                //sat = false;
-                //penalty += computePenalty(constraint);
                 penalty = pen;
                 return true;
             }
@@ -160,14 +155,11 @@ public class ObjectFunction implements Task{
                             boolean result = (boolean)fel.eval(transition.guards.get(guardIndex));
                             if(!result) {
                                 String guard = transition.guards.get(guardIndex);
-//                                if(flag)
-//                                    p4 += computePenalty(guard);
-                                //p4 = computePenalty(guard);
                                 if(Double.isNaN(computePenalty(guard,false))){
                                     sat = false;
                                     penalty += 100000;
                                 }
-                                else {
+                                else if(computePenalty(guard,false) > 0.00001){
                                     sat = false;
                                     penalty += computePenalty(guard, false);
                                 }
@@ -239,8 +231,7 @@ public class ObjectFunction implements Task{
                 boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                 if(!result) {
                     String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                    //p2 = computePenalty(invariant);
-                    if(computePenalty(invariant,false) < 0.000001)
+                    if(computePenalty(invariant,false) < 0.00001)
                         continue;
                     //p2 = computePenalty(invariant);
                     //p2 = end - step;
@@ -301,13 +292,8 @@ public class ObjectFunction implements Task{
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
                         String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                        //p2 = computePenalty(invariant);
                         if(computePenalty(invariant,false) < 0.000001)
                             continue;
-                        //p2 = computePenalty(invariant);
-                        //p2 = end - step;
-                        //System.out.println(p2);
-                        //System.out.println(invariant);
                         if(Double.isNaN(computePenalty(invariant,false))){
                             sat = false;
                             penalty += 100000;
@@ -316,8 +302,6 @@ public class ObjectFunction implements Task{
                             sat = false;
                             penalty += computePenalty(invariant, false);
                         }
-                        //System.out.println(penalty);
-                        //return false;
                     }
                 }
                 step += 1;
@@ -328,30 +312,34 @@ public class ObjectFunction implements Task{
     }
 
     private double computePenalty(String expression,boolean isConstraint){
+        //System.out.println(expression);
         String []strings;
         String bigPart = "",smallPart = "";
-        if(expression.indexOf("<=") != -1){
-            strings = expression.split("<=");
-            bigPart = strings[0].trim();
-            smallPart = strings[1].trim();
-        }
-        else if(expression.indexOf("<") != -1){
-            strings = expression.split("<");
-            bigPart = strings[0].trim();
-            smallPart = strings[1].trim();
-        }
-        else if(expression.indexOf(">=") != -1){
-            strings = expression.split(">=");
-            bigPart = strings[1].trim();
-            smallPart = strings[0].trim();
-        }
-        else if(expression.indexOf(">") != -1){
-            strings = expression.split(">");
-            bigPart = strings[1].trim();
-            smallPart = strings[0].trim();
-        }
-        Object obj1 = fel.eval(bigPart);
-        Object obj2 = fel.eval(smallPart);
+        strings = expression.split("<=|<|>=|>|==");
+//        for(int i = 0;i < strings.length;++i)
+//            System.out.println(strings[i]);
+//        if(expression.indexOf("<=") != -1){
+//            strings = expression.split("<=");
+//            bigPart = strings[0].trim();
+//            smallPart = strings[1].trim();
+//        }
+//        else if(expression.indexOf("<") != -1){
+//            strings = expression.split("<");
+//            bigPart = strings[0].trim();
+//            smallPart = strings[1].trim();
+//        }
+//        else if(expression.indexOf(">=") != -1){
+//            strings = expression.split(">=");
+//            bigPart = strings[1].trim();
+//            smallPart = strings[0].trim();
+//        }
+//        else if(expression.indexOf(">") != -1){
+//            strings = expression.split(">");
+//            bigPart = strings[1].trim();
+//            smallPart = strings[0].trim();
+//        }
+        Object obj1 = fel.eval(strings[0].trim());
+        Object obj2 = fel.eval(strings[1].trim());
         double big = 0,small = 0;
         if(obj1 instanceof Double)
             big = (double)obj1;
@@ -375,16 +363,16 @@ public class ObjectFunction implements Task{
         }
         //System.out.println(big);
         //System.out.println(small);
-        double penal;
-        if(isConstraint)
-            penal = small - big;
-        else penal = big - small;
+        //double penal;
+//        if(isConstraint)
+//            penal = small - big;
+//        else penal = big - small;
         //System.out.println(penal);
-        if(penal < 0) {
-            System.out.println(expression);
-            System.out.println(small);
-        }
-        return penal;
+//        if(penal < 0) {
+//            System.out.println(expression);
+//            System.out.println(small);
+//        }
+        return Math.abs(big-small);
     }
 
     public boolean checkInvarientsByRacos(double []args){
@@ -466,8 +454,8 @@ public class ObjectFunction implements Task{
 //            System.out.println("over");
 //            return penalty;
 //        }
-        //checkInvarientsByODE(args);
-        computeParameterValues(args);
+        checkInvarientsByODE(args);
+        //computeParameterValues(args);
         //System.out.println("hello1");
         checkGuards(args);
         //System.out.println("hello2");
@@ -479,7 +467,6 @@ public class ObjectFunction implements Task{
     }
 
     public double computeValue(double []args){
-
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
         //System.out.println(map.get("y"));
         return -10000 + map.get("MA") - map.get("x");

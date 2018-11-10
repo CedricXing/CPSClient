@@ -32,7 +32,7 @@
     </location>
     <transition source="1" target="2">
       <label>e1</label>
-	  <guard>0&lt;=v&lt;vebi - 20</guard>
+	  <guard>0&lt;=v&amp;v&lt;vebi - 20</guard>
 	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
     </transition>
     <transition source="1" target="3">
