@@ -186,8 +186,8 @@ void Bridge::updatePosition() {
 	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
 	Position pos0,pos1;
 	rtls->processData(pos0, pos1);
-	this->pos[0] = pos0.distance;
-	this->pos[1] = pos1.distance;
+	this->pos[0] = (int)(pos0.distance);
+	this->pos[1] = (int)(pos1.distance);
 	
 }
 
