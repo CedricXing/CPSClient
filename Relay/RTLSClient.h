@@ -22,7 +22,7 @@ public:
 	~RTLSClient();
 	void getData(char*t0, char*t1, char*a0);
 	//void processData(int&t0,int &t1);
-	void processData(Position&p0,Position&p1);
+	void processData(Position&p0,Position&p1,int numCars);
 	void processTag(char*frame,int tag_id);
 	void processAnchor(char*frame);
 	void setPos(Tag*t,int id,int n,int offset);

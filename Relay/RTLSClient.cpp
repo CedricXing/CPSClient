@@ -220,23 +220,27 @@ void RTLSClient::processAnchor(char * frame)
 
 
 
-void RTLSClient::processData(Position&p0,Position&p1)
+void RTLSClient::processData(Position&p0,Position&p1,int numCars)
 {
 	_t0.effective = false;
-	_t0.effective = false;
+	_t1.effective = false;
 	processAnchor(_A0);
 	processTag(_T0,0);
-	processTag(_T1,1);
+	if(numCars==2){
+		processTag(_T1,1);
+	}
+
 	if (_t0.effective) {
 		p0=_t0.pos;
 	}
 	else {
 		cout << "Error:calculate t0 distance error\n";
 	}
-	if (_t1.effective) {
+	
+	if (_t1.effective&&numCars==2) {
 		p1=_t1.pos;
 	}
-	else {
+	else if(numCars==2) {
 		cout << "Error:calculate t1 distance error\n";
 	}
 
