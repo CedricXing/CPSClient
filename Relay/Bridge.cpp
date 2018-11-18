@@ -153,24 +153,35 @@ void Bridge::sendToVerify() {
 	/*
 		0: car number
 		1-5: speed
-		6-8: position
+		6-9: position
 	*/
 	int packageCnt=0;
+	int unitLen = 10;
+
+	// test ------------
+	speed[0] = 12.34;
+	pos[0] = 567;
+	speed[1] = 98.76;
+	pos[1] = 901;
+
+	// -----------------
+
+	memset(sendBuf, '0', sizeof(sendBuf));
 	for (int i = 0; i < numCars; i++) {
-		memset(sendBuf+packageCnt*9, '0', sizeof sendBuf);
-		sendBuf[0] = '0' + i;
-		sprintf(sendBuf+packageCnt*9 + 1, "%.2f", speed[i]);
-		sprintf(sendBuf+packageCnt*9 + 1 + 5, "%d", pos[i]);
-		packageCnt++;
+		char tbuf[10];
+		tbuf[0] = '0' + i;
+		sprintf(tbuf+1, "%.2f", speed[i]);
+		sprintf(tbuf+1+5, "%04d", pos[i]);
+		memcpy(sendBuf + i*unitLen, tbuf, 10);
 	}
-	udp.sendPacket(sendBuf, 1 + 5 + 3);
+	udp.sendPacket(sendBuf, 10*numCars);
 	cout << "Done sending!" << endl;
 
 	char recvBuf[100];
 	/*
 		0: car number
 		1: safe or not
-		2-4: MA
+		2-5: MA
 	*/
 	udp.recvPacket(recvBuf); 
 	char* recvBufPoint=recvBuf;
@@ -180,23 +191,23 @@ void Bridge::sendToVerify() {
 		int number = recvBufPoint[0] - '0';
 		sscanf(recvBufPoint + 1, "%d", &safe[number]);
 		sscanf(recvBufPoint + 1 + 1, "%d", &ma[number]);
-		recvBufPoint+=5;
+		recvBufPoint+=6;
 	}
 	cout << "Done receiving!" << endl;
 	sendMaToCar();
 }
 
 void Bridge::updatePosition() {
-	RTLSClient* rtls=new RTLSClient();
+	RTLSClient* rtls = new RTLSClient();
 	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
-	Position pos0,pos1;
+	Position pos0, pos1;
 	rtls->processData(pos0, pos1);
 	this->pos[0] = (int)(pos0.distance);
 	this->pos[1] = (int)(pos1.distance);
 	Position*list[2];
-	list[0]=&pos0;
-	list[1]=&pos1;
-	this->writeCarPosition(list,2);
+	list[0] = &pos0;
+	list[1] = &pos1;
+	this->writeCarPosition(list, 2);
 	return;
 }
 
@@ -236,11 +247,11 @@ void Bridge::reset() {
 	}
 }
 
-void Bridge::writeCarPosition(Position**list,int num){
-	string filename="StatusInfo";
+void Bridge::writeCarPosition(Position**list, int num) {
+	string filename = "StatusInfo";
 	ofstream out(filename);
-	for(int i=0;i<num;i++){
-		out<<list[i]->n<<" "<<list[i]->offset<<endl;
+	for (int i = 0; i<num; i++) {
+		out << list[i]->n << " " << list[i]->offset << endl;
 	}
 	return;
 }

@@ -8,8 +8,11 @@ using namespace std;
 int main()
 {
 	char ipAddr[64];
+	cout << "IP:";
 	cin >> ipAddr;
-	Bridge bridge(5, 4, ipAddr, 2);
-	bridge.listen();
+	Bridge bridge(3, 4, ipAddr, 2);
+	//bridge.listen();
+	cout << "SDFS";
+	bridge.sendToVerify();
 	return 0;
 }
