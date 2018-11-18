@@ -38,7 +38,6 @@ function init()
         dataSet.push({x:tmpX,y:null});
 
     chart.render();
-    updateData();
 }
 
 function addData(v) {

@@ -98,9 +98,24 @@
                         <div class="row">
                             <div class="col-8">
                                 <h2 class="tm-block-title d-inline-block">位置与状态信息</h2>
-
                             </div>
                         </div>
+                        <table class="table table-hover table-striped tm-table-striped-even mt-3">
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">小车总数</td>
+                                    <td class="text-center" id="CarNumber"></td>
+                                    <td class="text-center">当前编号</td>
+                                    <td class="text-center">
+                                        <select id="car_id" name="cars" onchange="changeCurrentCar();">
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        
+                        
                         <div class="table-responsive">
                             <table class="table table-hover table-striped tm-table-striped-even mt-3">
                                 <thead>
@@ -108,7 +123,6 @@
                                         <th scope="col">&nbsp;</th>
                                         <th scope="col">位置</th>
                                         <th scope="col" class="text-center">速度档位</th>
-                                        <th scope="col" class="text-center">当前状态</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -116,61 +130,51 @@
                                         <td class="text-center">1</td>
                                         <td class="tm-product-name" id="Position_1"></td>
                                         <td class="text-center" id="Velocity_1"></td>
-                                        <td class="text-center" id="Status_1"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">2</td>
                                         <td class="tm-product-name" id="Position_2"></td>
                                         <td class="text-center" id="Velocity_2"></td>
-                                        <td class="text-center" id="Status_2"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">3</td>
                                         <td class="tm-product-name" id="Position_3"></td>
                                         <td class="text-center" id="Velocity_3"></td>
-                                        <td class="text-center" id="Status_3"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">4</td>
                                         <td class="tm-product-name" id="Position_4"></td>
                                         <td class="text-center" id="Velocity_4"></td>
-                                        <td class="text-center" id="Status_4"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">5</td>
                                         <td class="tm-product-name" id="Position_5"></td>
                                         <td class="text-center" id="Velocity_5"></td>
-                                        <td class="text-center" id="Status_5"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">6</td>
                                         <td class="tm-product-name" id="Position_6"></td>
                                         <td class="text-center" id="Velocity_6"></td>
-                                        <td class="text-center" id="Status_6"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">7</td>
                                         <td class="tm-product-name" id="Position_7"></td>
                                         <td class="text-center" id="Velocity_7"></td>
-                                        <td class="text-center" id="Status_7"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">8</td>
                                         <td class="tm-product-name" id="Position_8"></td>
                                         <td class="text-center" id="Velocity_8"></td>
-                                        <td class="text-center" id="Status_8"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">9</td>
                                         <td class="tm-product-name" id="Position_9"></td>
                                         <td class="text-center" id="Velocity_9"></td>
-                                        <td class="text-center" id="Status_9"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-center">10</td>
                                         <td class="tm-product-name" id="Position_10"></td>
                                         <td class="text-center" id="Velocity_10"></td>
-                                        <td class="text-center" id="Status_10"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -220,17 +224,12 @@
             track; 
         // DOM is ready
         $(function () {
-            updateChartOptions();
-            drawLineChart(); // Line Chart
             drawTrack(); // Bar Chart
-            drawPieChart(); // Pie Chart
 
-            $(window).resize(function () {
-                updateChartOptions();
-                updateLineChart();
-                updateTrack();
-                reloadPage();
-            });
+            // $(window).resize(function () {
+            //     updateTrack();
+            //     reloadPage();
+            // });
         })
     </script>
 </body>

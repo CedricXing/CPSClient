@@ -3,52 +3,64 @@ var div = document.getElementById('StatusContent');
 var cnt = 0;
 const kMaxStatus = 10;
 
+var position;
+var velocity;
+
 source.onopen = function(event) {
-    div.innerHTML = '<p>Connection open ...</p>';
+    // div.innerHTML = '<p>Connection open ...</p>';
 };
 
 source.onerror = function(event) {
-    div.innerHTML += '<p>Connection close.</p>';
+    // div.innerHTML += '<p>Connection close.</p>';
 };
 
-source.addEventListener('connecttime', function(event) {
-    div.innerHTML += ('<p>Start time: ' + event.data + '</p>');
+source.addEventListener('initialization', function(event) {
+    //  Get car number
+    var div_car_number = document.getElementById('CarNumber');
+
+    car_number = parseInt(event.data);
+
+    //  Draw the dropdown box
+    drawDropdownBox(car_number);
+
+    //  Create arrays which hold status information
+    position = new Array(car_number + 1);
+    velocity = new Array(car_number + 1);
+
+    div_car_number.innerHTML = car_number.toString();
 }, false);
 
-source.addEventListener('position', function(event) {
+source.addEventListener('start', function(event) {
     if (cnt == kMaxStatus) {
         cnt = 0;
         clearTable();
     }
     ++cnt;
-    var div_cur = document.getElementById('Position_' + cnt);
-    var position = event.data.toString();
-    var position_list = position.split(" ");
+}, false);
+
+var cur_cnt = 1;
+
+source.addEventListener('carid', function(event) {
+    car_id_update = parseInt(event.data);
+}, false);
+
+source.addEventListener('position', function(event) {
+    position[car_id_update] = event.data.toString();
+
+    var position_list = position[car_id_update].split(" ");
     var 
         period = position_list[0],
         offset = position_list[2];
-    div_cur.innerHTML = "(" + period + "," + offset + ")";
-    updateCarPosition(parseInt(period), parseInt(offset));
+    updateCarPosition(car_id_update, parseInt(period), parseInt(offset));
 }, false);
 
 source.addEventListener('velocity', function(event) {
-    var div_cur = document.getElementById('Velocity_' + cnt);
-    div_cur.innerHTML = event.data;
+    velocity[car_id_update] = event.data.toString();
     updateData(parseInt(event.data));
 }, false);
 
-/*source.addEventListener('status', function(event) {
-    var div_cur = document.getElementById('Status_' + cnt);
-    div_cur.innerHTML = event.data;
-}, false);*/
-
-// source.onmessage = function(event) {
-// 	if (cnt == kMaxStatus) {
-// 		cnt = 0;
-// 	}
-// 	++cnt;
-//     var div_cur = document.getElementById('Position_'+cnt);
-//     div_cur.innerHTML = event.data;
-//     updateCarPosition();
-// };
-
+source.addEventListener('finish', function(event) {
+    //  update table info of current car after
+    //  having received one whole round of information
+    updateTableValue();
+}, false);

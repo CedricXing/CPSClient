@@ -20,6 +20,10 @@ var
 y_lvl_1[0] = x_lvl_1[0] = 0;
 y_lvl_1[1] = x_lvl_1[1] = width;
 
+var
+    car_id_update = 1,
+    car_id_display = 1;
+
 for (var i = 0; i < 2; ++i) {
     y_lvl_2[i] = y_lvl_1[i] + radius[i];
     x_lvl_2[i] = x_lvl_1[i] + radius[i];
@@ -35,67 +39,10 @@ var
     y_up = (y_lvl_1[0] + y_lvl_1[1]) / 2,
     y_down = (y_lvl_4[0] + y_lvl_4[1]) / 2;
 
-function drawLineChart() {
-    if ($("#lineChart").length) {
-        ctxLine = document.getElementById("lineChart").getContext("2d");
-        optionsLine = {
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: "Hits"
-                    }
-                }]
-            }
-        };
-
-        // Set aspect ratio based on window width
-        optionsLine.maintainAspectRatio =
-            $(window).width() < width_threshold ? false : true;
-
-        configLine = {
-            type: "line",
-            data: {
-                labels: [
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July"
-                ],
-                datasets: [{
-                        label: "Latest Hits",
-                        data: [88, 68, 79, 57, 56, 55, 70],
-                        fill: false,
-                        borderColor: "rgb(75, 192, 192)",
-                        lineTension: 0.1
-                    },
-                    {
-                        label: "Popular Hits",
-                        data: [33, 45, 37, 21, 55, 74, 69],
-                        fill: false,
-                        borderColor: "rgba(255,99,132,1)",
-                        lineTension: 0.1
-                    },
-                    {
-                        label: "Featured",
-                        data: [44, 19, 38, 46, 85, 66, 79],
-                        fill: false,
-                        borderColor: "rgba(153, 102, 255, 1)",
-                        lineTension: 0.1
-                    }
-                ]
-            },
-            options: optionsLine
-        };
-
-        lineChart = new Chart(ctxLine, configLine);
-    }
-}
-
 function drawTrack() {
+    pos = new Array(2 * car_number);
+    for (var i = 0; i < 2 * car_number; ++i) pos[i] = 0;
+
     var context = document.getElementById("track").getContext("2d");
 
     context.strokeStyle = "rgb(250,0,0)";
@@ -124,59 +71,6 @@ function drawTrack() {
     context.stroke();
 }
 
-function drawPieChart() {
-    if ($("#pieChart").length) {
-        ctxPie = document.getElementById("pieChart").getContext("2d");
-        optionsPie = {
-            responsive: true,
-            maintainAspectRatio: false
-        };
-
-        configPie = {
-            type: "pie",
-            data: {
-                datasets: [{
-                    data: [4600, 5400],
-                    backgroundColor: [
-                        window.chartColors.purple,
-                        window.chartColors.green
-                    ],
-                    label: "Storage"
-                }],
-                labels: ["Used: 4,600 GB", "Available: 5,400 GB"]
-            },
-            options: optionsPie
-        };
-
-        pieChart = new Chart(ctxPie, configPie);
-    }
-}
-
-function updateChartOptions() {
-    if ($(window).width() < width_threshold) {
-        if (optionsLine) {
-            optionsLine.maintainAspectRatio = false;
-        }
-        if (optionsBar) {
-            optionsBar.maintainAspectRatio = false;
-        }
-    } else {
-        if (optionsLine) {
-            optionsLine.maintainAspectRatio = true;
-        }
-        if (optionsBar) {
-            optionsBar.maintainAspectRatio = true;
-        }
-    }
-}
-
-function updateLineChart() {
-    if (lineChart) {
-        lineChart.options = optionsLine;
-        lineChart.update();
-    }
-}
-
 function updateTrack() {
     if (track) {
         track.options = optionsBar;
@@ -190,55 +84,19 @@ function reloadPage() {
     }); // Reload the page so that charts will display correctly
 }
 
-function drawCalendar() {
-    if ($("#calendar").length) {
-        $("#calendar").fullCalendar({
-            height: 400,
-            events: [{
-                    title: "Meeting",
-                    start: "2018-09-1",
-                    end: "2018-09-2"
-                },
-                {
-                    title: "Marketing trip",
-                    start: "2018-09-6",
-                    end: "2018-09-8"
-                },
-                {
-                    title: "Follow up",
-                    start: "2018-10-12"
-                },
-                {
-                    title: "Team",
-                    start: "2018-10-17"
-                },
-                {
-                    title: "Company Trip",
-                    start: "2018-10-25",
-                    end: "2018-10-27"
-                },
-                {
-                    title: "Review",
-                    start: "2018-11-12"
-                },
-                {
-                    title: "Plan",
-                    start: "2018-11-18"
-                }
-            ],
-            eventColor: "rgba(54, 162, 235, 0.4)"
-        });
-    }
-}
+var pos;
 
-var pos = [6, 55, 4, 4];
+var color = ["", "Blue", "Green", "Red", "Black", "Yellow",
+            "Navy", "Violet", "Olive", "Lime", "PaleGodenrod"];
 
-function updateCarPosition(period, offset) {
+function updateCarPosition(car_id, period, offset) {
     var context = document.getElementById("track").getContext("2d");
+
+    var position = pos.slice(car_id * 2 - 2, car_id * 2);
 
     context.fillStyle = "white";
     context.strokeStyle = "white";
-    context.fillRect(pos[0]-2, pos[1]-2, pos[2]+4, pos[3]+4);
+    context.fillRect(position[0]-2, position[1]-2, 8, 8);
 
     var ratio, sita;
     if (period & 1) {
@@ -250,51 +108,80 @@ function updateCarPosition(period, offset) {
 
     switch (period) {
         case 0:
-            pos[0] = x_lvl_2[0] + offset;
-            pos[1] = y_down;
+            position[0] = x_lvl_2[0] + offset;
+            position[1] = y_down;
             break;
         case 1:
-            pos[0] = x_lvl_3[0] + offset_sin;
-            pos[1] = y_lvl_3[0] + offset_cos;
+            position[0] = x_lvl_3[0] + offset_sin;
+            position[1] = y_lvl_3[0] + offset_cos;
             break;
         case 2:
-            pos[0] = x_right;
-            pos[1] = y_lvl_3[0] - offset;
+            position[0] = x_right;
+            position[1] = y_lvl_3[0] - offset;
             break;
         case 3:
-            pos[0] = x_lvl_3[0] + offset_cos;
-            pos[1] = y_lvl_2[0] - offset_sin;
+            position[0] = x_lvl_3[0] + offset_cos;
+            position[1] = y_lvl_2[0] - offset_sin;
             break;
         case 4:
-            pos[0] = x_lvl_3[0] - offset;
-            pos[1] = y_up;
+            position[0] = x_lvl_3[0] - offset;
+            position[1] = y_up;
             break;
         case 5:
-            pos[0] = x_lvl_2[0] - offset_sin;
-            pos[1] = y_lvl_2[0] - offset_cos;
+            position[0] = x_lvl_2[0] - offset_sin;
+            position[1] = y_lvl_2[0] - offset_cos;
             break;
         case 6:
-            pos[0] = x_left;
-            pos[1] = y_lvl_2[0] + offset;
+            position[0] = x_left;
+            position[1] = y_lvl_2[0] + offset;
             break;
         case 7:
-            pos[0] = x_lvl_2[0] - offset_cos;
-            pos[1] = y_lvl_3[0] + offset_sin;
+            position[0] = x_lvl_2[0] - offset_cos;
+            position[1] = y_lvl_3[0] + offset_sin;
             break;
     }
 
-    context.fillStyle = "blue";
-    context.strokeStyle = "blue";
-    context.fillRect(pos[0], pos[1], pos[2], pos[3]);
+    context.fillStyle = color[car_id];
+    context.strokeStyle = color[car_id];
+    context.fillRect(position[0], position[1], 4, 4);
+
+    for (var i = 0; i < 2; ++i) pos[car_id * 2 - (2 - i)] = position[i];
 }
 
 function clearTable() {
     for (var i = 1; i <= 10; ++i) {
         var div_position = document.getElementById('Position_' + i);
         var div_velocity = document.getElementById('Velocity_' + i);
-        var div_status = document.getElementById('Status_' + i);
         div_position.innerHTML = '';
         div_velocity.innerHTML = '';
-        div_status.innerHTML = '';
     }
+}
+
+function changeCurrentCar() {
+    clearTable();
+    drawDropdownBox();
+    console.log("hello " + document.getElementById("car_id").value);
+    car_id_display = parseInt(document.getElementById("car_id").value);
+}
+
+function drawDropdownBox(car_number) {
+    for (var car_id = 1; car_id <= car_number; ++car_id) {
+        var option = document.createElement("option");
+        option.text = car_id.toString();
+        option.value = car_id.toString();
+        var div_dropdown_box = document.getElementById("car_id");
+        div_dropdown_box.options.add(option);
+    }
+}
+
+function updateTableValue() {
+    var div_position = document.getElementById('Position_' + cnt);
+    var position_list = position[car_id_display].split(" ");
+    var 
+        period = position_list[0],
+        offset = position_list[2];
+    div_position.innerHTML = "(" + period + "," + offset + ")";
+
+    var div_velocity = document.getElementById('Velocity_' + cnt);
+    div_velocity.innerHTML = velocity[car_id_display];
 }
