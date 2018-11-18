@@ -34,12 +34,13 @@ source.addEventListener('position', function(event) {
 source.addEventListener('velocity', function(event) {
     var div_cur = document.getElementById('Velocity_' + cnt);
     div_cur.innerHTML = event.data;
+    updateData(parseInt(event.data));
 }, false);
 
-source.addEventListener('status', function(event) {
+/*source.addEventListener('status', function(event) {
     var div_cur = document.getElementById('Status_' + cnt);
     div_cur.innerHTML = event.data;
-}, false);
+}, false);*/
 
 // source.onmessage = function(event) {
 // 	if (cnt == kMaxStatus) {

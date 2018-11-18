@@ -5,26 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dashboard Admin Template by Tooplate.com</title>
-    <!--
+    <title>智能小车实时监控</title>
 
-    Template 2108 Dashboard
-
-	http://www.tooplate.com/view/2108-dashboard
-
-    -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600">
-    <!-- https://fonts.google.com/specimen/Open+Sans -->
     <link rel="stylesheet" href="css/fontawesome.min.css">
-    <!-- https://fontawesome.com/ -->
-    <link rel="stylesheet" href="css/fullcalendar.min.css">
-    <!-- https://fullcalendar.io/ -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- https://getbootstrap.com/ -->
     <link rel="stylesheet" href="css/tooplate.css">
 </head>
 
-<body id="reportsPage">
+<body id="reportsPage" onload="init()">
     <div class="" id="home">
         <div class="container">
             <div class="row">
@@ -92,31 +81,24 @@
             <div class="row tm-content-row tm-mt-big">
                 <div class="tm-col tm-col-big">
                     <div class="bg-white tm-block h-100">
-                        <h2 class="tm-block-title">Latest Hits</h2>
-                        <canvas id="lineChart"></canvas>
+                        <h2 class="tm-block-title">验证信息</h2>
+                        <!--<canvas id="lineChart"></canvas>-->
+                        <p>TODO: Verify Message</p>
                     </div>
                 </div>
-                <div class="tm-col tm-col-big">
+                <div class="tm-col tm-col-large">
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">实时位置显示</h2>
-                        <canvas id="track" width="500" height="350"></canvas>
+                        <canvas id="track"  width="500" height="350"></canvas>
                     </div>
                 </div>
-                <div class="tm-col tm-col-small">
-                    <div class="bg-white tm-block h-100">
-                        <canvas id="pieChart" class="chartjs-render-monitor"></canvas>
-                    </div>
-                </div>
-
+                <!--位置与状态信息-->
                 <div class="tm-col tm-col-big">
                     <div class="bg-white tm-block h-100">
                         <div class="row">
                             <div class="col-8">
                                 <h2 class="tm-block-title d-inline-block">位置与状态信息</h2>
 
-                            </div>
-                            <div class="col-4 text-right">
-                                <a href="products.html" class="tm-link-black">View All</a>
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -195,35 +177,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="tm-col tm-col-big">
+                <!--V-T-->
+                <div class="tm-col tm-col-large">
                     <div class="bg-white tm-block h-100">
-                        <h2 class="tm-block-title">Calendar</h2>
-                        <div id="calendar"></div>
-                        <div class="row mt-4">
-                            <div class="col-12 text-right">
-                                <a href="#" class="tm-link-black">View Schedules</a>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="tm-col tm-col-small">
-                    <div class="bg-white tm-block h-100">
-                        <h2 class="tm-block-title">Upcoming Tasks</h2>
-                        <ol class="tm-list-group">
-                            <li class="tm-list-group-item">List of tasks</li>
-                            <li class="tm-list-group-item">Lorem ipsum doloe</li>
-                            <li class="tm-list-group-item">Read reports</li>
-                            <li class="tm-list-group-item">Write email</li>
-                            
-                            <li class="tm-list-group-item">Call customers</li>
-                            <li class="tm-list-group-item">Go to meeting</li>
-                            <li class="tm-list-group-item">Weekly plan</li>
-                            <li class="tm-list-group-item">Ask for feedback</li>
-                            
-                            <li class="tm-list-group-item">Meet Supervisor</li>
-                            <li class="tm-list-group-item">Company trip</li>
-                        </ol>
+                        <h2 class="tm-block-title">V-T图像</h2>
+                        <div id="chartContainer" style="height: 50%; width: 100%;"></div>  
                     </div>
                 </div>
             </div>
@@ -238,18 +196,16 @@
         </div>
     </div>
     <script src="js/jquery-3.3.1.min.js"></script>
-    <!-- https://jquery.com/download/ -->
     <script src="js/moment.min.js"></script>
-    <!-- https://momentjs.com/ -->
     <script src="js/utils.js"></script>
     <script src="js/Chart.min.js"></script>
-    <!-- http://www.chartjs.org/docs/latest/ -->
-    <script src="js/fullcalendar.min.js"></script>
-    <!-- https://fullcalendar.io/ -->
     <script src="js/bootstrap.min.js"></script>
-    <!-- https://getbootstrap.com/ -->
     <script src="js/tooplate-scripts.js"></script>
     <script src="js/StatusInfo.js"></script>
+    <!--Chart Part-->
+    <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+    <script type="text/javascript" src="js/chart.js"></script>
     <script>
         let ctxLine,
             ctxBar,
@@ -261,14 +217,13 @@
             configBar,
             configPie,
             lineChart;
-        track, pieChart;
+            track; 
         // DOM is ready
         $(function () {
             updateChartOptions();
             drawLineChart(); // Line Chart
             drawTrack(); // Bar Chart
             drawPieChart(); // Pie Chart
-            drawCalendar(); // Calendar
 
             $(window).resize(function () {
                 updateChartOptions();
