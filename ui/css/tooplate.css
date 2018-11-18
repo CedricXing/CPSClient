@@ -144,6 +144,10 @@ a:focus {
   width: 21.95%;
 }
 
+.tm-col-large{
+  width: 55%;
+}
+
 .tm-link-black {
   color: black;
 }

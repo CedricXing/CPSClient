@@ -21,7 +21,7 @@ http.createServer(function(req, res) {
                 var i = 0;
                 console.log("no");
                 interval = setInterval(function() {
-                    res.write("data: not conneted\n\n");
+                    res.write("data: not connected\n\n");
                 }, 1000);
             } else {
                 console.log("yes");
@@ -35,8 +35,8 @@ http.createServer(function(req, res) {
                             res.write("data: " + status_list[0] + "  " + status_list[1] + "\n\n");
                             res.write("event: velocity\n");
                             res.write("data: " + status_list[2] + "\n\n");
-                            res.write("event: status\n");
-                            res.write("data: " + status_list[3] + "\n\n");
+                            //res.write("event: status\n");
+                            //res.write("data: " + status_list[3] + "\n\n");
                         }
                     });
                 }, 1000);

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cstdio>
 #include "RTLSClient.h"
+#include <fstream>
+#include <string>
 using namespace std;
 
 #define MAX_SPEED 100.00
@@ -44,6 +46,7 @@ private:
 	void printBuffer(Buf& buffer);
 	bool ableToVerify();
 	bool checkCarData();
+	void writeCarPosition(Position**list,int num);
 	CSerialPort zigbeePort;
 	CSerialPort uwbPort;
 	UDP udp;
