@@ -201,13 +201,13 @@ void Bridge::updatePosition() {
 	RTLSClient* rtls = new RTLSClient();
 	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
 	Position pos0, pos1;
-	rtls->processData(pos0, pos1);
+	rtls->processData(pos0, pos1,this->numCars);
 	this->pos[0] = (int)(pos0.distance);
 	this->pos[1] = (int)(pos1.distance);
 	Position*list[2];
 	list[0] = &pos0;
 	list[1] = &pos1;
-	this->writeCarPosition(list, 2);
+	this->writeCarPosition(list, this->numCars);
 	return;
 }
 
