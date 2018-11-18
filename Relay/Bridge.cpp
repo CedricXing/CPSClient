@@ -135,7 +135,7 @@ void Bridge::sendMaToCar() {
 		0-4: "BBBBB"
 		5: car number
 		6: safe or not
-		7-10: MA
+		7-10: MA  (in binary)
 	*/
 	memset(buffer, 'B', 5);
 	for (int i = 0; i < numCars; i++) {
@@ -155,13 +155,15 @@ void Bridge::sendToVerify() {
 		1-5: speed
 		6-8: position
 	*/
+	int packageCnt=0;
 	for (int i = 0; i < numCars; i++) {
-		memset(sendBuf, '0', sizeof sendBuf);
+		memset(sendBuf+packageCnt*9, '0', sizeof sendBuf);
 		sendBuf[0] = '0' + i;
-		sprintf(sendBuf + 1, "%.2f", speed[i]);
-		sprintf(sendBuf + 1 + 5, "%d", pos[i]);
-		udp.sendPacket(sendBuf, 1 + 5 + 3);
+		sprintf(sendBuf+packageCnt*9 + 1, "%.2f", speed[i]);
+		sprintf(sendBuf+packageCnt*9 + 1 + 5, "%d", pos[i]);
+		packageCnt++;
 	}
+	udp.sendPacket(sendBuf, 1 + 5 + 3);
 	cout << "Done sending!" << endl;
 
 	char recvBuf[100];
@@ -170,12 +172,15 @@ void Bridge::sendToVerify() {
 		1: safe or not
 		2-4: MA
 	*/
+	udp.recvPacket(recvBuf); 
+	char* recvBufPoint=recvBuf;
 	for (int i = 0; i < numCars; i++) {
-		udp.recvPacket(recvBuf); 
-		zigbeePort.WriteData(recvBuf, 1 + 1 + 3);
-		int number = recvBuf[0] - '0';
-		sscanf(recvBuf + 1, "%d", &safe[number]);
-		sscanf(recvBuf + 1 + 1, "%d", &ma[number]);
+		//udp.recvPacket(recvBuf); 
+		// zigbeePort.WriteData(recvBuf, 1 + 1 + 3);
+		int number = recvBufPoint[0] - '0';
+		sscanf(recvBufPoint + 1, "%d", &safe[number]);
+		sscanf(recvBufPoint + 1 + 1, "%d", &ma[number]);
+		recvBufPoint+=5;
 	}
 	cout << "Done receiving!" << endl;
 	sendMaToCar();
