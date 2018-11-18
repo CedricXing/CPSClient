@@ -4,8 +4,8 @@
 
 RTLSClient::RTLSClient()
 {
-	_width=280-40*2-15;
-	_length=320-40*2-15;
+	_width=280-40*2-15;//185
+	_length=320-40*2-15;//225
 	_radius=40;
 	_devia=10;
 	double arc=PI/2*_radius;

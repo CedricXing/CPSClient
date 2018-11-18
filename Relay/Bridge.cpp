@@ -188,7 +188,11 @@ void Bridge::updatePosition() {
 	rtls->processData(pos0, pos1);
 	this->pos[0] = (int)(pos0.distance);
 	this->pos[1] = (int)(pos1.distance);
-	
+	Position*list[2];
+	list[0]=&pos0;
+	list[1]=&pos1;
+	this->writeCarPosition(list,2);
+	return;
 }
 
 void Bridge::printBuffer(Buf& buffer) {
@@ -225,4 +229,13 @@ void Bridge::reset() {
 	for (int i = 0; i < numCars; i++) {
 		speed[i] = -1;
 	}
+}
+
+void Bridge::writeCarPosition(Position**list,int num){
+	string filename="StatusInfo";
+	ofstream out(filename);
+	for(int i=0;i<num;i++){
+		out<<list[i]->n<<" "<<list[i]->offset<<endl;
+	}
+	return;
 }
