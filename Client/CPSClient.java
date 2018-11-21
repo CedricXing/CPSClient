@@ -32,7 +32,7 @@ public class CPSClient {
     /**
      * 小车参数信息
      */
-    private int carNum = 1;
+    private int carNum = 2;
     private int[] loc = new int[carNum];
     private String[] velocity = new String[carNum];
     public int cycle;
@@ -55,27 +55,6 @@ public class CPSClient {
         catch (SocketException exception){
             System.out.println(exception.getMessage());
         }
-//        try {
-//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("/Users/cedricxing/Documents/大四/毕业设计/Client/src/loc.txt"))));
-//            rfidInfo = new HashMap<Long,Integer>();
-//            String line = "";
-//            line = bufferedReader.readLine();
-//            int no = 0;
-//            while (line != null){
-//                Long t = Long.parseLong(line);
-//                //System.out.println(t);
-//                rfidInfo.put(t,no);
-//                ++no;
-//                line = bufferedReader.readLine();
-//            }
-//            bufferedReader.close();
-//        }
-//        catch (FileNotFoundException e){
-//            System.err.println("File not found!");
-//        }
-//        catch (IOException e){
-//            System.err.println("IO exception!");
-//        }
     }
 
 
@@ -203,6 +182,7 @@ public class CPSClient {
             outXml.close();
         }
         catch (Exception e){
+            e.printStackTrace();
             System.err.println("Error occured when the xmlfile was created!");
         }
     }
@@ -400,7 +380,7 @@ public class CPSClient {
             int previousCarLoc = loc[(carID + 1) % carNum];
 //            int previousCarLoc = 25;
             int selfCarloc = loc[carID];
-            int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc * 10 - selfCarloc * 10) : ((previousCarLoc + 120) * 10 - selfCarloc *10);
+            int ma = (previousCarLoc >= selfCarloc) ? (previousCarLoc - selfCarloc) : ((previousCarLoc + 1071) - selfCarloc);
             if(ma > 200) ma = 200;
             double vebi = Math.sqrt(2 * 10 * ma);//compute vebi
             String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model_" + this.cycle + "_" + Integer.toString(carID) + ".xml";
@@ -414,8 +394,9 @@ public class CPSClient {
             String result = transmission.verification(session,modelFilePath,cfgFilePath);
             System.out.println(carID + "号车的验证结果为" + result);
             String preCarLocString = Integer.toString(previousCarLoc);
-            if(preCarLocString.length() == 1) preCarLocString = "00" + preCarLocString;
-            else if(preCarLocString.length() == 2) preCarLocString = "0" + preCarLocString;
+            if(preCarLocString.length() == 1) preCarLocString = "000" + preCarLocString;
+            else if(preCarLocString.length() == 2) preCarLocString = "00" + preCarLocString;
+            else if(preCarLocString.length() == 3) preCarLocString = "0" + preCarLocString;
             String returnMessage = String.valueOf(carID) + result + preCarLocString;
             System.out.println(returnMessage);
             try {
@@ -433,16 +414,16 @@ public class CPSClient {
      * @throws Exception
      */
     public static void main(String []args) throws Exception{
-        String localHost = "192.168.1.104";
+        String localHost = "172.25.189.228";
         int localPort = 4455;
         CPSClient cpsClient = new CPSClient(localHost,localPort);
 
         String modelFilePath = "/Users/cedricxing/Desktop/GraduationProject/model.xml";
         String cfgFilePath = "/Users/cedricxing/Desktop/GraduationProject/cfg.txt";
-        int x = 100;
-        double vebi = Math.sqrt(2 * 20 * x);
-        cpsClient.generateModelFile(modelFilePath,Integer.toString(x));
-        cpsClient.generateCFGFile(Integer.toString(30),Double.toString(vebi),Integer.toString(x),cfgFilePath);
+//        int x = 100;
+//        double vebi = Math.sqrt(2 * 20 * x);
+//        cpsClient.generateModelFile(modelFilePath,Integer.toString(x));
+//        cpsClient.generateCFGFile(Integer.toString(30),Double.toString(vebi),Integer.toString(x),cfgFilePath);
         
 
         //Todo:JSch Connection
@@ -450,57 +431,71 @@ public class CPSClient {
         Session session = transmission.connect();
 
         while(true){
-            Set<Integer> set = new HashSet<Integer>();
+//            Set<Integer> set = new HashSet<Integer>();
+//            for(int i = 0;i < cpsClient.carNum;++i){
+//                set.add(i);
+//            }
+            String message = cpsClient.receive();
+            int start = 0;
             for(int i = 0;i < cpsClient.carNum;++i){
-                set.add(i);
+                String carMessage = message.substring(start,start + 10);
+                char carID = carMessage.charAt(0);
+                String v = carMessage.substring(1,6),rfid = carMessage.substring(6);
+                cpsClient.velocity[carID - '0'] = v;
+                cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+                System.out.println(carID);
+                System.out.println(v);
+                System.out.println(rfid);
+                start += 10;
+                //cpsClient.response(String.valueOf(carID));
             }
-            while(!set.isEmpty()){
-                String message = cpsClient.receive();
-                if(message.equals("11111") || message.equals("00000"))
-                    continue;
-                System.out.println("接收到的数据包为： " + message);
-                char carID = message.charAt(0);
-//                String returnText = "10123";
-//                cpsClient.response(returnText);
-                if(set.contains(carID - '0')){
-                    String v = "",rfid = "";
-                    for(int i = 1;i <= 5;++i) {
-                        //System.out.println(message.charAt(i));
-                        v += String.valueOf(message.charAt(i));
-                    }
-                    if(v.charAt(0) == '-')
-                        v = "1";
-                    //if(Double.parseDouble(v) > 40)
-                      //  v = "20";
-                    for(int i = 6;i <= 15;++i){
-                        rfid += String.valueOf(message.charAt(i));
-                    }
-                    cpsClient.velocity[carID - '0'] = v;
-//                    Long rfidTemp = Long.parseLong(rfid);
-//                    if(rfidTemp == 0)
-//                        continue;
-                    cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
-                    //int temp = Integer.parseInt(rfid);
-                    //if(temp >= 0 && temp <= 120)
-                    //cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
-                    //else cpsClient.loc[carID - '0'] = 5;
-                    //System.out.println("loc:" + cpsClient.loc[carID - '0']);
-                    //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
-                    //System.out.println("get here");
-                    //cpsClient.new VerificationTask(transmission,session,carID - '0').start();
-                    set.remove(carID-'0');
-                    if(!set.isEmpty()){
-                        String ackMessage = "11111";
-                        //System.out.println("Send Ack Message!");
-                        cpsClient.response(ackMessage);
-                    }
-                }
-                else{//Packet Loss or other problems
-                    System.err.println("Waiting for other car!");
-                }
-            }
-            String ackMessage = "00000";
-            cpsClient.response(ackMessage);
+//            while(!set.isEmpty()){
+//                String message = cpsClient.receive();
+////                if(message.equals("11111") || message.equals("00000"))
+////                    continue;
+//                System.out.println("接收到的数据包为： " + message);
+//                char carID = message.charAt(0);
+////                String returnText = "10123";
+////                cpsClient.response(returnText);
+//                if(set.contains(carID - '0')){
+//                    String v = "",rfid = "";
+//                    for(int i = 1;i <= 5;++i) {
+//                        //System.out.println(message.charAt(i));
+//                        v += String.valueOf(message.charAt(i));
+//                    }
+//                    if(v.charAt(0) == '-')
+//                        v = "1";
+//                    //if(Double.parseDouble(v) > 40)
+//                      //  v = "20";
+//                    for(int i = 6;i <= 15;++i){
+//                        rfid += String.valueOf(message.charAt(i));
+//                    }
+//                    cpsClient.velocity[carID - '0'] = v;
+////                    Long rfidTemp = Long.parseLong(rfid);
+////                    if(rfidTemp == 0)
+////                        continue;
+//                    cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+//                    //int temp = Integer.parseInt(rfid);
+//                    //if(temp >= 0 && temp <= 120)
+//                    //cpsClient.loc[carID - '0'] = Integer.parseInt(rfid);
+//                    //else cpsClient.loc[carID - '0'] = 5;
+//                    //System.out.println("loc:" + cpsClient.loc[carID - '0']);
+//                    //System.out.println("NO:" + carID + "   ,v:" + v + "loc :" + cpsClient.rfidInfo.get(cpsClient.loc[carID - '0']));
+//                    //System.out.println("get here");
+//                    //cpsClient.new VerificationTask(transmission,session,carID - '0').start();
+//                    set.remove(carID-'0');
+//                    if(!set.isEmpty()){
+//                        String ackMessage = "11111";
+//                        //System.out.println("Send Ack Message!");
+//                        cpsClient.response(ackMessage);
+//                    }
+//                }
+//                else{//Packet Loss or other problems
+//                    System.err.println("Waiting for other car!");
+//                }
+//            }
+//            String ackMessage = "00000";
+//            cpsClient.response(ackMessage);
             System.out.println("Start Verification!");
             System.out.println("******************************周期" + cpsClient.cycle + "******************************************");
 //            for(int i = 0;i < cpsClient.carNum;++i) {
