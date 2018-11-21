@@ -366,10 +366,10 @@ public class Automata {
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
                 "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         //automata.checkAutomata();
-        automata.output = new File("train_compare_ode.txt");
+        automata.output = new File("train_rounds=500_path=1.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 4;
+            int maxPathSize = 1;
             for(int i = 1;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();

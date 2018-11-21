@@ -454,8 +454,8 @@ public class ObjectFunction implements Task{
 //            System.out.println("over");
 //            return penalty;
 //        }
-        checkInvarientsByODE(args);
-        //computeParameterValues(args);
+        //checkInvarientsByODE(args);
+        computeParameterValues(args);
         //System.out.println("hello1");
         checkGuards(args);
         //System.out.println("hello2");
