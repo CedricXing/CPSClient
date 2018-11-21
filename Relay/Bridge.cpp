@@ -135,7 +135,7 @@ void Bridge::sendMaToCar() {
 		0-4: "BBBBB"
 		5: car number
 		6: safe or not
-		7-10: MA
+		7-10: MA  (in binary)
 	*/
 	memset(buffer, 'B', 5);
 	for (int i = 0; i < numCars; i++) {
@@ -153,42 +153,62 @@ void Bridge::sendToVerify() {
 	/*
 		0: car number
 		1-5: speed
-		6-8: position
+		6-9: position
 	*/
+	int packageCnt=0;
+	int unitLen = 10;
+
+	// test ------------
+	speed[0] = 12.34;
+	pos[0] = 567;
+	speed[1] = 98.76;
+	pos[1] = 901;
+
+	// -----------------
+
+	memset(sendBuf, '0', sizeof(sendBuf));
 	for (int i = 0; i < numCars; i++) {
-		memset(sendBuf, '0', sizeof sendBuf);
-		sendBuf[0] = '0' + i;
-		sprintf(sendBuf + 1, "%.2f", speed[i]);
-		sprintf(sendBuf + 1 + 5, "%d", pos[i]);
-		udp.sendPacket(sendBuf, 1 + 5 + 3);
+		char tbuf[10];
+		tbuf[0] = '0' + i;
+		sprintf(tbuf+1, "%.2f", speed[i]);
+		sprintf(tbuf+1+5, "%04d", pos[i]);
+		memcpy(sendBuf + i*unitLen, tbuf, 10);
 	}
+	udp.sendPacket(sendBuf, 10*numCars);
 	cout << "Done sending!" << endl;
 
 	char recvBuf[100];
 	/*
 		0: car number
 		1: safe or not
-		2-4: MA
+		2-5: MA
 	*/
+	udp.recvPacket(recvBuf); 
+	char* recvBufPoint=recvBuf;
 	for (int i = 0; i < numCars; i++) {
-		udp.recvPacket(recvBuf); 
-		zigbeePort.WriteData(recvBuf, 1 + 1 + 3);
-		int number = recvBuf[0] - '0';
-		sscanf(recvBuf + 1, "%d", &safe[number]);
-		sscanf(recvBuf + 1 + 1, "%d", &ma[number]);
+		//udp.recvPacket(recvBuf); 
+		// zigbeePort.WriteData(recvBuf, 1 + 1 + 3);
+		int number = recvBufPoint[0] - '0';
+		sscanf(recvBufPoint + 1, "%d", &safe[number]);
+		sscanf(recvBufPoint + 1 + 1, "%d", &ma[number]);
+		recvBufPoint+=6;
 	}
 	cout << "Done receiving!" << endl;
 	sendMaToCar();
 }
 
 void Bridge::updatePosition() {
-	RTLSClient* rtls=new RTLSClient();
+	RTLSClient* rtls = new RTLSClient();
 	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
-	int pos0, pos1;
-	rtls->processData(pos0, pos1);
-	this->pos[0] = pos0;
-	this->pos[1] = pos1;
-	
+	Position pos0, pos1;
+	rtls->processData(pos0, pos1,this->numCars);
+	this->pos[0] = (int)(pos0.distance);
+	this->pos[1] = (int)(pos1.distance);
+	Position*list[2];
+	list[0] = &pos0;
+	list[1] = &pos1;
+	this->writeCarPosition(list, this->numCars);
+	return;
 }
 
 void Bridge::printBuffer(Buf& buffer) {
@@ -225,4 +245,13 @@ void Bridge::reset() {
 	for (int i = 0; i < numCars; i++) {
 		speed[i] = -1;
 	}
+}
+
+void Bridge::writeCarPosition(Position**list, int num) {
+	string filename = "StatusInfo";
+	ofstream out(filename);
+	for (int i = 0; i<num; i++) {
+		out << list[i]->n << " " << list[i]->offset << endl;
+	}
+	return;
 }

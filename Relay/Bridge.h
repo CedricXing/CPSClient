@@ -5,10 +5,12 @@
 #include <iostream>
 #include <cstdio>
 #include "RTLSClient.h"
+#include <fstream>
+#include <string>
 using namespace std;
 
 #define MAX_SPEED 100.00
-#define MAX_POSITION 119
+#define MAX_POSITION 1200
 
 class Bridge {
 
@@ -35,7 +37,7 @@ public:
 	Bridge(int zigbeePortNum, int uwbPortNum, char* ipAddr, int numCars=2);
 	~Bridge();
 	void listen();
-private:
+public:
 	void reset();
 	void sendPosToCar();
 	void sendMaToCar();
@@ -44,6 +46,7 @@ private:
 	void printBuffer(Buf& buffer);
 	bool ableToVerify();
 	bool checkCarData();
+	void writeCarPosition(Position**list, int num);
 	CSerialPort zigbeePort;
 	CSerialPort uwbPort;
 	UDP udp;
