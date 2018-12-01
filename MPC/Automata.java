@@ -364,13 +364,13 @@ public class Automata {
 
     public static void main(String []args){
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train1.cfg");
+                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         //automata.checkAutomata();
-        automata.output = new File("test.txt");
+        automata.output = new File("test3.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 2;
-            for(int i = 2;i <= maxPathSize;++i){
+            int maxPathSize = 4;
+            for(int i = 4;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);

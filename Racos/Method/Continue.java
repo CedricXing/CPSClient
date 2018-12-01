@@ -497,7 +497,7 @@ public class Continue extends BaseParameters{
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>200)
+						if(bestValueCount>1000)
 							break;
 					}
 					else{

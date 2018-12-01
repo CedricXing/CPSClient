@@ -425,14 +425,16 @@ public class ObjectFunction implements Task{
         sat = true;
         allParametersValues = new ArrayList<>();
         double []args = new double[ins.getFeature().length];
-//        args[0] = 0.43365960533422065;
-//        args[1] = 4.515871866459669;
-        for(int i = 0;i < args.length;++i){
-            args[i] = ins.getFeature(i);
-            //args[i] = 0.478405658973357;
-//            if(args[i] >= 4000)
-            //System.out.println(args[i] + " ");
-        }
+        args[0] = 1.982274390155287;
+        args[1] = 0.08040559495567146;
+        args[2] = 0.4114378466736712;
+        args[3] = 2.4956861528806833;
+//        for(int i = 0;i < args.length;++i){
+//            args[i] = ins.getFeature(i);
+//            //args[i] = 0.478405658973357;
+////            if(args[i] >= 4000)
+//            //System.out.println(args[i] + " ");
+//        }
         //System.out.println("");
 //        if(!checkCycle(args)){
 //            //System.out.println("not");
@@ -468,12 +470,12 @@ public class ObjectFunction implements Task{
             return penalty;
         }
         //System.out.println("what");
-//        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-//        System.out.println("x  " + map.get("x"));
-//        System.out.println("fuel    " + map.get("fuel"));
-//        double value = -10000 + map.get("MA") - map.get("x") + map.get("fuel");
-//        System.out.println(value);
-//        System.exit(0);
+        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
+        System.out.println("x  " + map.get("x"));
+        System.out.println("fuel    " + map.get("fuel"));
+        double value = -10000 + map.get("MA") - map.get("x") + map.get("fuel");
+        System.out.println(value);
+        System.exit(0);
         return computeValue(args);
     }
 
