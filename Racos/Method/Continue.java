@@ -490,15 +490,27 @@ public class Continue extends BaseParameters{
 		int bestValueCount = 0;
 		// batch Racos
 		if (!this.on_off){
+			double preBestValue = 0;
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
 				double bestValue = getOptimal().getValue();
-				//System.out.println(bestValue);
-				if(bestValue < 0)
-					++bestValueCount;
-				if(bestValueCount > 500) {
-					break;
+				if(bestValue < 0 && i != 1){
+					if(Math.abs(bestValue-preBestValue) < 0.00001){
+						bestValueCount++;
+						if(bestValueCount>200)
+							break;
+					}
+					else{
+						bestValueCount = 0;
+					}
 				}
+				preBestValue = bestValue;
+				//System.out.println(bestValue);
+//				if(bestValue < 0)
+//					++bestValueCount;
+//				if(bestValueCount > 500) {
+//					break;
+//				}
 				// for each sample in a loop
 				for(int j=0; j<this.SampleSize; j++){	
 					reSample = true;

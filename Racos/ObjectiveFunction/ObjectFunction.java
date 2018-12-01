@@ -187,9 +187,11 @@ public class ObjectFunction implements Task{
         tempMap.put("a",a);
         double v = parametersValues.get("v") + a * arg;
         tempMap.put("v",v);
+        double fuel = parametersValues.get("fuel") + (parametersValues.get("v") + v) / 2 / 19 * 7;
+        tempMap.put("fuel",fuel);
         double x = parametersValues.get("x") + parametersValues.get("v") * arg + 0.5 * a * arg * arg;
         tempMap.put("x",x);
-        double vebi = Math.sqrt(2 * 10 * (100 - x));
+        double vebi = Math.sqrt(2 * 10 * (parametersValues.get("MA") - x));
         if(Double.isNaN(vebi)){
             sat = false;
             tempMap.put("vebi",-1.0);
@@ -423,8 +425,11 @@ public class ObjectFunction implements Task{
         sat = true;
         allParametersValues = new ArrayList<>();
         double []args = new double[ins.getFeature().length];
+//        args[0] = 0.43365960533422065;
+//        args[1] = 4.515871866459669;
         for(int i = 0;i < args.length;++i){
             args[i] = ins.getFeature(i);
+            //args[i] = 0.478405658973357;
 //            if(args[i] >= 4000)
             //System.out.println(args[i] + " ");
         }
@@ -463,13 +468,21 @@ public class ObjectFunction implements Task{
             return penalty;
         }
         //System.out.println("what");
+//        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
+//        System.out.println("x  " + map.get("x"));
+//        System.out.println("fuel    " + map.get("fuel"));
+//        double value = -10000 + map.get("MA") - map.get("x") + map.get("fuel");
+//        System.out.println(value);
+//        System.exit(0);
         return computeValue(args);
     }
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
         //System.out.println(map.get("y"));
-        return -10000 + map.get("MA") - map.get("x");
+//        System.out.println("x  " + map.get("x"));
+//        System.out.println("fuel    " + map.get("fuel"));
+        return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

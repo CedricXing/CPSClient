@@ -256,7 +256,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 1;
+        int repeat = 5;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -364,13 +364,13 @@ public class Automata {
 
     public static void main(String []args){
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
+                "/home/cedricxing/Desktop/CPS/src/case/train1.cfg");
         //automata.checkAutomata();
-        automata.output = new File("train_rounds=500_path=1.txt");
+        automata.output = new File("test.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 1;
-            for(int i = 1;i <= maxPathSize;++i){
+            int maxPathSize = 2;
+            for(int i = 2;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);
