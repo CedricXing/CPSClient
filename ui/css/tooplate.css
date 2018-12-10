@@ -543,3 +543,10 @@ footer {
     top: 107px;
   }
 }
+
+#maContainer {
+  text-align: center;
+}
+#maContainer > div {
+  display: inline-block;
+}

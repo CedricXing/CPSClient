@@ -21,59 +21,12 @@
                     <nav class="navbar navbar-expand-xl navbar-light bg-light">
                         <a class="navbar-brand" href="#">
                             <i class="fas fa-3x fa-tachometer-alt tm-site-icon"></i>
-                            <h1 class="tm-site-title mb-0">Dashboard</h1>
+                            <h1 class="tm-site-title mb-0">智能小车实时监控界面</h1>
                         </a>
                         <button class="navbar-toggler ml-auto mr-0" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                             aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
-
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav mx-auto">
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="#">Dashboard
-                                        <span class="sr-only">(current)</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        Reports
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="#">Daily Report</a>
-                                        <a class="dropdown-item" href="#">Weekly Report</a>
-                                        <a class="dropdown-item" href="#">Yearly Report</a>
-                                    </div>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="products.html">Products</a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="accounts.html">Accounts</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true"
-                                        aria-expanded="false">
-                                        Settings
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="#">Profile</a>
-                                        <a class="dropdown-item" href="#">Billing</a>
-                                        <a class="dropdown-item" href="#">Customize</a>
-                                    </div>
-                                </li>
-                            </ul>
-                            <ul class="navbar-nav">
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex" href="login.html">
-                                        <i class="far fa-user mr-2 tm-logout-icon"></i>
-                                        <span>Logout</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
                     </nav>
                 </div>
             </div>
@@ -82,14 +35,37 @@
                 <div class="tm-col tm-col-big">
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">验证信息</h2>
-                        <!--<canvas id="lineChart"></canvas>-->
-                        <p>TODO: Verify Message</p>
+                        <table class="table table-hover table-striped tm-table-striped-even mt-3">
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">安全状态</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="text-align: center; width: 500px;">
+                            <img id="PSAFE" src="img/blank.png" style="margin: 0 auto;" />
+                        </div>
+                        <table class="table table-hover table-striped tm-table-striped-even mt-3">
+                            <tbody>
+                                <tr>
+                                    <td class="text-center">移动授权</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div id="maContainer">
+                                <div id="name_ma">ma=</div>
+                                <div id="PMA">unknown</div>
+                                <div id="suffix_ma">(cm)</div>
+                        </div>
                     </div>
                 </div>
                 <div class="tm-col tm-col-large">
                     <div class="bg-white tm-block h-100">
                         <h2 class="tm-block-title">实时位置显示</h2>
-                        <canvas id="track"  width="500" height="350"></canvas>
+                        <div class="canvas_container">
+                            <canvas id="track" width="550" height="385"></canvas>
+                        </div>
+                        <!-- <canvas id="track"  width="550" height="385"></canvas> -->
                     </div>
                 </div>
                 <!--位置与状态信息-->
@@ -113,16 +89,13 @@
                                 </tr>
                             </tbody>
                         </table>
-
-                        
-                        
                         <div class="table-responsive">
                             <table class="table table-hover table-striped tm-table-striped-even mt-3">
                                 <thead>
                                     <tr class="tm-bg-gray">
                                         <th scope="col">&nbsp;</th>
-                                        <th scope="col">位置</th>
-                                        <th scope="col" class="text-center">速度档位</th>
+                                        <th scope="col">位置 (段号, 偏移量)</th>
+                                        <th scope="col" class="text-center">速度 (cm/s)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -181,10 +154,11 @@
                         </div>
                     </div>
                 </div>
-                <!--V-T-->
+                <!--v-t-->
                 <div class="tm-col tm-col-large">
                     <div class="bg-white tm-block h-100">
-                        <h2 class="tm-block-title">V-T图像</h2>
+                        <h2 class="tm-block-title">速度-时间图像</h2>
+                        <p id="DEBUG"></p>
                         <div id="chartContainer" style="height: 50%; width: 100%;"></div>  
                     </div>
                 </div>
@@ -192,8 +166,8 @@
             <footer class="row tm-mt-small">
                 <div class="col-12 font-weight-light">
                     <p class="d-inline-block tm-bg-black text-white py-2 px-4">
-                        Copyright &copy; 2018 Admin Dashboard . Created by
-                        <a href="http://www.tooplate.com" class="text-white tm-footer-link">Tooplate</a>
+                        Copyright &copy; 2018 Intelligent Car Monitor. Created by
+                        <a href="https://github.com/CedricXing/CPSClient" class="text-white tm-footer-link">Intelligent Car Innovative Group.</a>
                     </p>
                 </div>
             </footer>
@@ -206,6 +180,7 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/tooplate-scripts.js"></script>
     <script src="js/StatusInfo.js"></script>
+    <script src="js/VerifyInfo.js"></script>
     <!--Chart Part-->
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>

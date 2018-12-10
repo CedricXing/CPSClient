@@ -8,8 +8,8 @@ FILE* stream;
 void output(int id, int dist) {
 	Sleep(1000);
 	stream = fopen("StatusInfo.txt", "w");
-	fprintf(stream, "%d %d %d\n", id, dist, rand()%10);
-	fprintf(stream, "%d %d %d\n",(id+4)%8,dist,rand()%10);
+	fprintf(stream, "%d %d %d\n", id, dist, 40+rand()%10);
+	fprintf(stream, "%d %d %d\n",(id+2)%8,dist,40+rand()%10);
 	fclose(stream);
 }
 int main() {
@@ -20,7 +20,7 @@ int main() {
 	
 	for (; ;) {
 		int id, dist;
-		for (id = 0, dist = 0; dist <= x; dist += moving) output(id, dist);
+		for (id = 0, dist = 0; dist <= x; moving = moving + (rand() % 2 ? 1 : -1) * rand() % 5, dist += moving) output(id, dist);
 		for (id = 1, dist = 0; dist <= arc; dist += moving) output(id, dist);
 		for (id = 2, dist = 0; dist <= y; dist += moving) output(id, dist);			
 		for (id = 3, dist = 0; dist <= arc; dist += moving) output(id, dist);			
