@@ -1,52 +1,128 @@
 #include "include/common.h"
 #include "include/telecom.h"
-
+#include <stdlib.h>
 int fd_zigbee=-1;
 int fd_grating=-1;
 static int cnt;
+extern int CUR_POSITION;
+
+int CUR_MA=201;
+int CUR_SAFE=1;
+
 int is_me(char buf[],int car_ID){
-	int i;
-	for(i=0;i<100;i++){
-		if(buf[i]=='a'&&buf[i+1]==car_ID+'0'){
-			//printf("IS ME.\n");
-			return 1;
+	int i=0;
+	for(i=0;i<6;i++){
+		if(isdigit(buf[i])){
+			if(buf[i]-'0'==car_ID)return 1;
 		}
 	}
-	//printf("NOT ME\n");
 	return 0;
 }
-int telecom_main(int car_ID,int *safe) {
-	char buf[100];
+int is_type_B(char buf[]){
+	int i=0;
+	for(i=0;i<5;i++){
+		if(buf[i]!='B')break;
+	} 
+	return i;
+}
+int is_type_A(char buf[]){
+	int i=0;
+	for(i=0;i<5;i++){
+		if(buf[i]!='A')break;
+	}
+	return i;
+}
+
+int CUR_TURN=-1;
+
+void send_speed(int car_ID){
+	char buf[10];
 	float speed = get_speed();
-	//printf("speed=%f\n",speed);
-	unsigned card = get_card();
-	//int car_ID = get_ID();
 	memset(buf, '\0', sizeof(buf));
-	buf[0] = car_ID + '0';
-	memcpy(buf + 1, &speed, 4);
-	memcpy(buf + 5, &card, 4);
-	//	printf("%s\n", buf);
-	printf("ID: %d speed: %f location: %d\n", car_ID, speed, card);
-	zigbee_send_cmd(buf, 1 + 4 + 4);
-	int i,j;
-	while (read(fd_zigbee, buf, 99) == 0||!is_me(buf,car_ID)){
-	}
-	char tbuf[32];
-	for(i=0;i<100;i++){
-		if(buf[i]=='a'){
-			memcpy(tbuf,buf+i,7);
+	int i;
+	for(i=0;i<5;i++)buf[i]='X';
+	buf[5] = car_ID + '0';
+	memcpy(buf + 5 + 1, &speed, 4);
+	printf("\033[1;33;40m send speed ID: %d speed: %f\033[0m\n", car_ID, speed);
+	zigbee_send_cmd(buf, 5 + 1 + 4);
+}
+
+int telecom_main(int car_ID,int *safe) {
+	static int TURN_IN_MAIN=-1;
+	TURN_IN_MAIN++;
+	
+	send_speed(car_ID);
+
+	char buf[6];
+	int i;
+	for(i=0;i<5;i++)buf[i]='S';
+	buf[5]=car_ID+'0';
+
+	zigbee_send_cmd(buf,5+1);
+
+	while(TURN_IN_MAIN>CUR_TURN);
+
+	*safe=CUR_SAFE;
+	printf("\033[1;32;40m fetch SAFE=%d MA=%d\033[0m\n",CUR_SAFE,CUR_MA);
+	
+	return CUR_MA;
+}
+
+int get_position(int car_ID){
+	char buf[100];
+	int cntA=0;
+	int cntB=0;
+	while(1){
+	    if(read(fd_zigbee,buf,1)==0)continue;
+	    if(buf[0]=='A'){
+		cntB=0;
+		cntA++;
+	    }else if(buf[0]=='B'){
+		cntA=0;
+		cntB++;
+	    }
+            else if(cntA>=5){
+		cntA=0;
+		cntB=0;
+                if(buf[0]==car_ID+'0'){
+		    read(fd_zigbee,buf,11-5-1);
+		    break;
+		}else{
+		    read(fd_zigbee,buf,11-5-1);
 		}
+	    }else if(cntB>=5){
+		cntB=0;
+		cntA=0;
+                if(buf[0]==car_ID+'0'){
+		    read(fd_zigbee,buf,11-5-1);
+		    CUR_SAFE=buf[0]-'0';
+		    memcpy(&CUR_MA,buf+1,4);
+		    CUR_TURN++;
+		    printf("\033[1;34;40m cur_turn=%d recv SAFE=%d MA=%d\033[0m\n",CUR_TURN,CUR_SAFE,CUR_MA);
+		}else{
+		    read(fd_zigbee,buf,11-5-1);
+		}
+	    }
 	}
-	int rtn = (tbuf[3]-'0')*100+(tbuf[4]-'0')*10+(tbuf[5]-'0');
+	
+	int rtn;
+	memcpy(&rtn,buf+1,4);
+	printf("received position = %d\n",rtn);
 	while(read(fd_zigbee,buf,99));
-	//printf("RECV!!!!!!   %d\n",cnt);
-	cnt++;
-	//	int i;
-	//	for (i = 0; i < 5; i++)printf("%c", buf[i]);
-	//	printf("\n");
-	*safe=tbuf[2]-'0';
-	printf("\033[1;31;40m safe=%d \033[0m\n",*safe);
+	
 	return rtn;
+}
+
+void update_position(int car_ID){
+    CUR_POSITION=get_position(car_ID);
+}
+
+void update_position_loop(void* p){
+    int car_ID=*((int*)p);
+    while(1){
+	printf("in position\n");
+	update_position(car_ID);
+    }
 }
 
 void init_telecom_device()

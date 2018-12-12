@@ -36,7 +36,4 @@
 #define MAX_SPEED 65
 #define N_LEVEL 9     
 
-int CUR_POSITION;
-
-
 #endif
