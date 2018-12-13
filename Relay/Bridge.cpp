@@ -11,7 +11,7 @@ Bridge::Bridge(int zigbeePortNum, int uwbPortNum, char* ipAddr, int numCars) {
 	ma = new int[numCars];
 	safe = new int[numCars];
 	speed = new float[numCars];
-	requestVerification = new bool[numCars];
+	requestVerification = new int[numCars];
 	reset();
 	this->numCars = numCars;
 }
@@ -26,6 +26,14 @@ Bridge::~Bridge() {
 
 void Bridge::listen() {
 	char preCharZigbee = '0';
+	char cRecved = 0x00;
+	int alertCnt = 0;
+	int verifyCnt = 0;
+	bool prepared = false;
+	bool preparedToVerify = false;
+
+	Buf cycleBuf;
+	
 	while (1) {
 		/*
 			speed message:
@@ -36,18 +44,15 @@ void Bridge::listen() {
 			verification request message:
 			0-4: SSSSS
 			5:   carNum
+			6-9: current verification cycle number
 		*/
 		int BytesInQueZigbee = zigbeePort.GetBytesInCOM();
-		char cRecved = 0x00;
-		int alertCnt = 0;
-		int verifyCnt = 0;
-		bool prepared = false;
-		bool preparedToVerify = false;
+		
+
 		while (BytesInQueZigbee > 0) {
 			if (zigbeePort.ReadChar(cRecved)) {
 				// printf("%02x ", ((((unsigned)cRecved) << 24) >> 24));
-				cout << endl;
-				if (cRecved == 'X') {
+				if (cRecved == 'X'&&!prepared&&!preparedToVerify) {
 					alertCnt = (preCharZigbee == 'X') ? alertCnt + 1 : 1;
 					preCharZigbee = 'X';
 					prepared = false;
@@ -57,13 +62,15 @@ void Bridge::listen() {
 						carBuffer.cnt = 0;
 					}
 				}
-				else if (cRecved == 'S') {
+				else if (cRecved == 'S'&&!preparedToVerify&&!prepared) {
+					cout << "!!!!!!!!!!!!!!!!!SSSSSSSSSSSSSSSSSSSS" << endl;
 					verifyCnt = (preCharZigbee == 'S') ? verifyCnt + 1 : 1;
 					preCharZigbee = 'S';
 					preparedToVerify = false;
 					if (verifyCnt >= 5) {
 						preparedToVerify = true;
 						verifyCnt = 0;
+						cycleBuf.cnt = 0;
 					}
 				}
 				else if(prepared){
@@ -73,7 +80,8 @@ void Bridge::listen() {
 						int number;
 						number = carBuffer.buffer[0] - '0';
 						memcpy(speed + number, carBuffer.buffer + 1, 4);
-						if (speed[number] >= 0 && speed[number] <= MAX_SPEED) {
+						if (speed[number] >= 0 && speed[number] <= MAX_SPEED) 
+						{
 							cout << "carNum = " << number << " speed = " << speed[number] << endl;
 						}
 						else {
@@ -85,14 +93,30 @@ void Bridge::listen() {
 				}
 				else if (preparedToVerify) {
 					preCharZigbee = '0';
-					int number = cRecved - '0';
-					if (number >= 0 && number < numCars) {
-						requestVerification[number] = true;
+					cycleBuf.buffer[cycleBuf.cnt++] = cRecved;
+					if (cycleBuf.cnt == 1 + 4) {
+						int number = cycleBuf.buffer[0] - '0';
+						int cycle;
+						memcpy(&cycle, cycleBuf.buffer + 1, 4);
+						cout << "recv cycle = " << cycle << endl;
+						if (number >= 0 && number < numCars){
+							if (cycle == curCycle) {
+								requestVerification[number] = cycle;
+							}
+							else if(cycle<curCycle) {
+								cout << "recv cycleNum already verified! resend results!" << endl;
+								//sendMaToCar(cycle);
+								sendMaToCarTest(cycle);
+							}
+							else {
+								cout << "error! recv cycleNum larger than curCycle!" << endl;
+							}
+						}
+						else {
+							cout << "wrong carNum in verification request message: " << number << endl;
+						}
+						preparedToVerify = false;
 					}
-					else {
-						cout << "wrong carNum in verification request message: " << number << endl;
-					}
-					preparedToVerify = false;
 				}
 				BytesInQueZigbee--;
 			}
@@ -116,20 +140,20 @@ void Bridge::listen() {
 					memcpy(uwbBuffer.A0, buffer.buffer, 14);
 					uwbBuffer.hasA0 = true;
 					//cout << "has A0" << endl;
-					printBuffer(buffer);
+					//printBuffer(buffer);
 				}
 				else if (buffer.buffer[2] == (char)0x02) {
 					if (buffer.buffer[3] == (char)0x00) {
 						memcpy(uwbBuffer.T0, buffer.buffer, 14);
 						uwbBuffer.hasT0 = true;
 						//cout << "has T0" << endl;
-						printBuffer(buffer);
+						//printBuffer(buffer);
 					}
 					else if (buffer.buffer[3] == (char)0x01) {
 						memcpy(uwbBuffer.T1, buffer.buffer, 14);
 						uwbBuffer.hasT1 = true;
 						//cout << "hasT1" << endl;
-						printBuffer(buffer);
+						//printBuffer(buffer);
 					}
 					else {
 						cout << "error when receiving uwb message1." << endl;
@@ -142,7 +166,10 @@ void Bridge::listen() {
 						for (int i = 0; i < numCars; i++) {
 							cout << "pos"<<i<<"="<<pos[i] << endl;
 						}
-						sendPosToCar();
+						// reduce pressure on zigbee buffer in car
+						if (sendPosOrNot()) {
+							sendPosToCar();
+						}
 						uwbBuffer.reset();
 					}
 				}
@@ -156,16 +183,26 @@ void Bridge::listen() {
 			//sendToVerify();
 			//recvVerifyInfo();
 			
-			//sendMaToCar();
-			sendMaToCarTest();
-			writeVerifyInfo();
+			pushVerifyInfo();
+
+			//sendMaToCar(curCycle);
+			sendMaToCarTest(curCycle);
 			cout << "OK" << endl;
+
+			writeVerifyInfo();
+			curCycle++;
 		//	system("pause");
 			reset();
 			uwbPort.ClearBuffer(); // whether to clear zigbeePort depends on time interval
 		}
 
 	}
+}
+
+bool Bridge::sendPosOrNot() {
+	static int cnt = 0;
+	if (cnt++ % 5 == 0)return true;
+	return false;
 }
 
 void Bridge::sendPosToCar() {
@@ -185,53 +222,53 @@ void Bridge::sendPosToCar() {
 	zigbeePort.WriteData(buffer, unitLen*numCars);
 }
 
-void Bridge::sendMaToCar() {
-	const int unitLen = 11;
+void Bridge::sendMaToCar(int cycleNum) {
+	const int unitLen = 15;
 	char buffer[MAX_NUM_CARS*unitLen];
 	/*
 		0-4: "BBBBB"
 		5: car number
 		6: safe or not
 		7-10: MA  (in binary)
+		11-14: cycleNum (in binary)
 	*/
 	for (int i = 0; i < numCars; i++) {
 		memset(buffer+i*unitLen, 'B', 5);
 		buffer[i*unitLen+5] = '0' + i;
-		buffer[i*unitLen+6] = '0' + safe[i];
-		memcpy(buffer+i*unitLen + 7, ma + i, 4);
+		buffer[i*unitLen+6] = '0' + verifyMsgs[cycleNum].safe[i];
+		memcpy(buffer+i*unitLen + 7, verifyMsgs[cycleNum].ma + i, 4);
+		memcpy(buffer + i*unitLen + 11, &cycleNum, 4);
 		/*cout << "BUFFER:" << endl;
 		for (int i = 0; i < 14; i++) {
 			printf("%02x ", ((((unsigned)buffer[i]) << 24) >> 24));
 		}
 		cout << endl;*/
-		cout << "send to car: carNum = " << i << " safe = " << safe[i] << " ma = " << ma[i] << endl;
+		cout << "cycleNum = "<<cycleNum<<" send to car: carNum = " << i << " safe = " << 
+			verifyMsgs[cycleNum].safe[i] << " ma = " << verifyMsgs[cycleNum].ma[i] << endl;
 	}
 	zigbeePort.WriteData(buffer, unitLen*numCars);
 }
 
-void Bridge::sendMaToCarTest() {
+void Bridge::sendMaToCarTest(int cycleNum) {
 	cout << "testing ..." << endl;
-	const int unitLen = 11;
+	const int unitLen = 15;
 	char buffer[MAX_NUM_CARS*unitLen];
 	/*
 	0-4: "BBBBB"
 	5: car number
 	6: safe or not
 	7-10: MA  (in binary)
+	11-14: cycleNum (in binary)
 	*/
 	for (int i = 0; i < numCars; i++) {
-		safe[i] = 1;
-		ma[i] = 987;
+		verifyMsgs[cycleNum].safe[i] = 1;
+		verifyMsgs[cycleNum].ma[i] = 900+cycleNum;
 		memset(buffer + i*unitLen, 'B', 5);
 		buffer[i*unitLen + 5] = '0' + i;
-		buffer[i*unitLen + 6] = '0' + safe[i];
-		memcpy(buffer + i*unitLen + 7, ma + i, 4);
-		cout << "BUFFER:" << endl;
-		for (int i = 0; i < 14; i++) {
-			printf("%02x ", ((((unsigned)buffer[i]) << 24) >> 24));
-		}
-		cout << endl;
-		cout << "send to car: carNum = " << i << " safe = " << safe[i] << " ma = " << ma[i] << endl;
+		buffer[i*unitLen + 6] = '0' + verifyMsgs[cycleNum].safe[i];
+		memcpy(buffer + i*unitLen + 7, verifyMsgs[cycleNum].ma + i, 4);
+		memcpy(buffer + i*unitLen + 11, &cycleNum, 4);
+		cout << "test: cycleNum = "<<cycleNum<<" send to car: carNum = " << i << " safe = " << safe[i] << " ma = " << ma[i] << endl;
 	}
 	zigbeePort.WriteData(buffer, unitLen*numCars);
 }
@@ -295,13 +332,13 @@ void Bridge::recvVerifyInfo()
 }
 
 void Bridge::updatePosition() {
-	cout << "in position" << endl;
+//	cout << "in position" << endl;
 	RTLSClient* rtls = new RTLSClient();
 	rtls->getData(uwbBuffer.T0, uwbBuffer.T1, uwbBuffer.A0);
 	Position pos0, pos1;
 	rtls->processData(pos0, pos1,this->numCars);
 	this->pos[0] = (int)(pos0.distance);
-	cout << "pos0=" << pos[0] << endl;
+//	cout << "pos0=" << pos[0] << endl;
 
 	if(numCars==2)(this->pos[1] = (int)(pos1.distance));
 	Position*list[2];
@@ -323,7 +360,7 @@ void Bridge::printBuffer(Buf& buffer) {
 
 bool Bridge::ableToVerify() {
 	for (int i = 0; i < numCars; i++) {
-		if (pos[i] < 0 || speed[i] < 0 || (!requestVerification[i]))return false;
+		if (pos[i] < 0 || speed[i] < 0 || curCycle!=requestVerification[i])return false;
 	}
 	return true;
 }
@@ -353,7 +390,7 @@ void Bridge::reset() {
 	memset(pos, -1, sizeof(int)*numCars);
 	memset(ma, -1, sizeof(int)*numCars);
 	memset(safe, -1, sizeof(int)*numCars);
-	memset(requestVerification, 0, sizeof(bool)*numCars);
+	memset(requestVerification, 0, sizeof(int)*numCars);
 	for (int i = 0; i < numCars; i++) {
 		speed[i] = -1;
 	}
@@ -375,4 +412,13 @@ void Bridge::writeVerifyInfo() {
 		out << (safe[i]?0:1) << " " << ma[i] << endl;
 	}
 	out.close();
+}
+
+void Bridge::pushVerifyInfo() {
+	verifyMsg node(numCars);
+	for (int i = 0; i < numCars; i++) {
+		node.ma[i] = ma[i];
+		node.safe[i] = safe[i];
+	}
+	verifyMsgs.push_back(node);
 }
