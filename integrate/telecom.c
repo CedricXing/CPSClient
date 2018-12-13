@@ -34,12 +34,21 @@ int is_type_A(char buf[]){
 }
 
 int CUR_TURN=-1;
+int TURN_IN_MAIN=-1;
 
 void send_speed(int car_ID){
 	char buf[10];
 	float speed = get_speed();
+	int i=0;
+	int cnt=0;
+	while(speed<0){
+	  usleep(10000);
+	  speed=get_speed();
+	  cnt++;
+	  if(cnt>10)speed=0;
+	}
 	memset(buf, '\0', sizeof(buf));
-	int i;
+	
 	for(i=0;i<5;i++)buf[i]='X';
 	buf[5] = car_ID + '0';
 	memcpy(buf + 5 + 1, &speed, 4);
@@ -47,20 +56,44 @@ void send_speed(int car_ID){
 	zigbee_send_cmd(buf, 5 + 1 + 4);
 }
 
-int telecom_main(int car_ID,int *safe) {
-	static int TURN_IN_MAIN=-1;
-	TURN_IN_MAIN++;
-	
-	send_speed(car_ID);
-
-	char buf[6];
+void request_verification(int car_ID){
+	char buf[20];
 	int i;
+	send_speed(car_ID);
 	for(i=0;i<5;i++)buf[i]='S';
 	buf[5]=car_ID+'0';
+	memcpy(buf+6,&TURN_IN_MAIN,sizeof(int));
+	zigbee_send_cmd(buf,5+1+4);
+}
 
-	zigbee_send_cmd(buf,5+1);
+int telecom_main(int car_ID,int *safe) {
+	printf("\033[1;35;40m request verification\033[0m\n");
+	TURN_IN_MAIN++;
+	int i,j;
+	
+	/*float speed=get_speed();
+	while(speed<0){
+	  usleep(1000);
+	  speed=get_speed();
+	}
+	char buf[20];
 
-	while(TURN_IN_MAIN>CUR_TURN);
+	for(j=0;j<5;j++)buf[j]='X';
+	buf[5] = car_ID + '0';
+	memcpy(buf + 5 + 1, &speed, 4);
+	for(i=0;i<3;i++){
+	    printf("\033[1;33;40m send speed ID: %d speed: %f\033[0m\n", car_ID, speed);
+	    zigbee_send_cmd(buf, 5 + 1 + 4);
+	};*/
+	int cnt=0;
+	while(TURN_IN_MAIN>CUR_TURN){
+	    if(cnt>0){
+		printf("\033[1;37;40m recv verification failed! resend.\033[0m\n");
+	    }
+	    cnt++;
+	    request_verification(car_ID);
+	    usleep(100000);
+	}
 
 	*safe=CUR_SAFE;
 	printf("\033[1;32;40m fetch SAFE=%d MA=%d\033[0m\n",CUR_SAFE,CUR_MA);
@@ -72,6 +105,8 @@ int get_position(int car_ID){
 	char buf[100];
 	int cntA=0;
 	int cntB=0;
+	int ableToBreak=0;
+	int rtn=-1;
 	while(1){
 	    if(read(fd_zigbee,buf,1)==0)continue;
 	    if(buf[0]=='A'){
@@ -86,7 +121,12 @@ int get_position(int car_ID){
 		cntB=0;
                 if(buf[0]==car_ID+'0'){
 		    read(fd_zigbee,buf,11-5-1);
-		    break;
+		    memcpy(&rtn,buf+1,4);
+		    if(CUR_TURN==TURN_IN_MAIN)
+			break;
+		    else{
+			ableToBreak=1;
+		    }
 		}else{
 		    read(fd_zigbee,buf,11-5-1);
 		}
@@ -94,21 +134,28 @@ int get_position(int car_ID){
 		cntB=0;
 		cntA=0;
                 if(buf[0]==car_ID+'0'){
-		    read(fd_zigbee,buf,11-5-1);
-		    CUR_SAFE=buf[0]-'0';
-		    memcpy(&CUR_MA,buf+1,4);
-		    CUR_TURN++;
-		    printf("\033[1;34;40m cur_turn=%d recv SAFE=%d MA=%d\033[0m\n",CUR_TURN,CUR_SAFE,CUR_MA);
+		    read(fd_zigbee,buf,15-5-1);
+		    int safe=buf[0]-'0';
+		    int ma=-1;
+		    memcpy(&ma,buf+1,4);
+		    int cycleNum=-1;
+		    memcpy(&cycleNum,buf+1+4,4);
+		    if(TURN_IN_MAIN==cycleNum){
+			CUR_SAFE=safe;
+			CUR_MA=ma;
+			printf("\033[1;34;40m recv cycleNum=%d recv SAFE=%d MA=%d\033[0m\n",cycleNum,CUR_SAFE,CUR_MA);
+			CUR_TURN=TURN_IN_MAIN;
+			if(ableToBreak)break;
+		    }
+		    
 		}else{
-		    read(fd_zigbee,buf,11-5-1);
+		    read(fd_zigbee,buf,15-5-1);
 		}
 	    }
 	}
 	
-	int rtn;
-	memcpy(&rtn,buf+1,4);
+	while(read(fd_zigbee,buf,90));
 	printf("received position = %d\n",rtn);
-	while(read(fd_zigbee,buf,99));
 	
 	return rtn;
 }
