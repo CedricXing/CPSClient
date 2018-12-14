@@ -103,6 +103,7 @@ void car_control(void)
     
     while(1)
     {
+		send_speed(car_ID);
 		if (level != SPEED_LEVEL)
 		{
 			level = SPEED_LEVEL;
