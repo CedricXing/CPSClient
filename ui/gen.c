@@ -15,7 +15,7 @@ void output(int id, int dist) {
 int main() {
 	srand(time(NULL));
 	int i = 0;
-	int y = 210, x = 170, r_1 = 55, r_2 = 40, r = (r_1+r_2)>>1, arc = (int)(PI/2*r);
+	int y = 92, x = 50, r_1 = 100, r_2 = 70, r = (r_1+r_2)>>1, arc = (int)(PI/2*r);
 	int moving = 20;
 	
 	for (; ;) {

@@ -1,8 +1,8 @@
 const width_threshold = 480;
 const
-    y = 231,
-    x = 187,
-    radius = [60.5, 44],
+    y = 92,
+    x = 50,
+    radius = [70, 100],
     width = radius[0] - radius[1];
     r = (radius[0] + radius[1]) / 2,
     arclen = Math.PI / 2 * r;
@@ -17,10 +17,10 @@ var
     x_lvl_3 = [0, 0],
     x_lvl_4 = [0, 0];
 
-x_lvl_1[0] = 200;
-x_lvl_1[1] = 200+width;
-y_lvl_1[0] = 0;
-y_lvl_1[1] = 0+width;
+x_lvl_1[0] = 265;
+x_lvl_1[1] = x_lvl_1[0]+width;
+y_lvl_1[0] = 60;
+y_lvl_1[1] = y_lvl_1[0]+width;
 
 var
     car_id_update = 1,

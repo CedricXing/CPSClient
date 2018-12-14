@@ -1,6 +1,6 @@
 var POINT_NUM=10;
 var TIME_INTERVAL=100;
-var MAX_V=70,MIN_V=0;
+var MAX_V=70,MIN_V=-1;
 var xValue = 0;
 var yValue = 10;
 var chart;
@@ -22,14 +22,14 @@ function init()
         animationEnabled: true, 
         animationDuration: 2000,
         axisY:{
-            //suffix:"cm/s",
+            suffix:"cm/s",
             maximum:MAX_V,
             mimimum:MIN_V,
             interval:10
         },
         axisX:{
             suffix:"s",
-            interval:0.1
+            interval:1
         },
         data: [
             {
@@ -47,7 +47,7 @@ function init()
         ]
     });
     
-    for(var i=0,tmpX=0;i<POINT_NUM;i++,tmpX+=0.1){
+    for(var i=0,tmpX=0;i<POINT_NUM;i++,tmpX+=1){
         dataSet1.push({x:tmpX,y:null});
         dataSet2.push({x:tmpX,y:null});
         dataSet3.push({x:tmpX,y:null});
@@ -67,17 +67,17 @@ function addData(car_id,v) {
         dataSet3[(pointCount3++)%POINT_NUM].y=v;
 
     if(numCars==1)
-        xValue+=0.1;
+        xValue+=1;
     else if(numCars==2&&pointCount1==pointCount2)
-        xValue+=0.1;
+        xValue+=1;
     else if(numCars==3&&pointCount1==pointCount2&&pointCount1==pointCount3)
-        xValue+=0.1;
+        xValue+=1;
 
     chart.render();
     if((numCars==1&&pointCount1%POINT_NUM==0)||(numCars==2&&pointCount1==pointCount2&&pointCount1%POINT_NUM==0)
         ||(numCars==3&&pointCount1==pointCount2&&pointCount1==pointCount3&&pointCount1%POINT_NUM==0)){
         for(var i=0;i<POINT_NUM;i++){
-            dataSet1[i].x=dataSet2[i].x=dataSet3[i].x=xValue+i*0.1;
+            dataSet1[i].x=dataSet2[i].x=dataSet3[i].x=xValue+i;
             dataSet1[i].y=dataSet2[i].y=dataSet3[i].y=null;
             pointCount1=pointCount2=0;
         }
