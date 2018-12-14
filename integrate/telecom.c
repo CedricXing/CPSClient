@@ -109,10 +109,10 @@ int get_position(int car_ID){
 	int rtn=-1;
 	while(1){
 	    if(read(fd_zigbee,buf,1)==0)continue;
-	    if(buf[0]=='A'){
+	    if(buf[0]=='A'&&cntA<5&&cntB<5){
 		cntB=0;
 		cntA++;
-	    }else if(buf[0]=='B'){
+	    }else if(buf[0]=='B'&&cntA<5&&cntB<5){
 		cntA=0;
 		cntB++;
 	    }
