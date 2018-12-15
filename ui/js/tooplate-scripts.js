@@ -98,7 +98,7 @@ function updateCarPosition(car_id, period, offset) {
 
     context.fillStyle = "white";
     context.strokeStyle = "white";
-    context.fillRect(position[0]-2, position[1]-2, 8, 8);
+    context.fillRect(position[0]-1, position[1]-1, 13, 13);
 
     var ratio, sita;
     if (period & 1) {
@@ -145,7 +145,13 @@ function updateCarPosition(car_id, period, offset) {
 
     context.fillStyle = color[car_id];
     context.strokeStyle = color[car_id];
-    context.fillRect(position[0], position[1], 4, 4);
+    if (period == 0 || period == 4) {
+        context.fillRect(position[0], position[1], 12, 6);
+    } else if (period == 2 || period == 6) {
+        context.fillRect(position[0], position[1], 6, 12);
+    } else {
+        context.fillRect(position[0], position[1], 8, 8);
+    }
 
     for (var i = 0; i < 2; ++i) pos[car_id * 2 - (2 - i)] = position[i];
 }

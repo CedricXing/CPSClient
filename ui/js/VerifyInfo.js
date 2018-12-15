@@ -1,5 +1,5 @@
 var source_verify = new EventSource('http://127.0.0.2:8844/stream');
-var danger;
+var danger = -1;
 var ma;
 
 source_verify.onopen = function(event) {
@@ -16,7 +16,7 @@ source_verify.addEventListener('danger', function(event) {
     console.log(danger);
     if(danger==1)
    		document.getElementById("PSAFE").src="img/danger.png";
-    else
+    else if (danger==0)
    		document.getElementById("PSAFE").src="img/safety.png";
 }, false);
 
