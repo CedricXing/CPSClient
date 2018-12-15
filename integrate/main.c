@@ -1,6 +1,5 @@
 #include "include/common.h"
 #include "include/car.h"
-#include "include/rfid.h"
      
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};
 
@@ -94,9 +93,9 @@ int main() {
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 
-	sleep(10);
+	//sleep(10);
 	cur_lvl = SPEED_LEVEL = 2;
-	sleep(5);
+	//sleep(5);
 
 	while (1) {
 		//	communicate and get updated MA	
@@ -120,7 +119,7 @@ int main() {
 			int cur_id = CUR_POSITION;//get_position(car_ID);
 			
 			printf("\033[1;31;40m cur_id=%d \033[0m\n",cur_id ); 
-			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
+			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM ;
             dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
 			double ebi = calc_ebi(dis);
 
@@ -147,6 +146,8 @@ int main() {
 		
 			SPEED_LEVEL = cur_lvl;
 
+			// testing ...
+			// send_speed(car_ID);
 
 			sleep(ADJUST_INTERVAL);
 		}

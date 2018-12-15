@@ -1,7 +1,6 @@
 #ifndef __TELECOM_H__
 #define __TELECOM_H__
 
-#include "rfid.h"
 
 #define      TRUE   1
 #define      FALSE  0

@@ -7,6 +7,8 @@
 #include "RTLSClient.h"
 #include <fstream>
 #include <string>
+#include <vector>
+
 using namespace std;
 
 #define MAX_SPEED 100.00
@@ -14,6 +16,17 @@ using namespace std;
 #define MAX_NUM_CARS 10
 
 class Bridge {
+
+	struct verifyMsg {
+		int *safe;
+		int *ma;
+		verifyMsg(int numCars) {
+			safe = new int[numCars];
+			ma = new int[numCars];
+			memset(safe, 0, sizeof(int)*numCars);
+			memset(ma, -1, sizeof(int)*numCars);
+		}
+	};
 
 	struct Buf {
 		char buffer[1024];
@@ -44,15 +57,17 @@ public:
 public:
 	void reset();
 	void sendPosToCar();
-	void sendMaToCar();
-	void sendMaToCarTest();
+	void sendMaToCar(int cycleNum);
+	void sendMaToCarTest(int cycleNum);
 	void sendToVerify();
 	void recvVerifyInfo();
 	void writeVerifyInfo();
 	void updatePosition();
 	void printBuffer(Buf& buffer);
+	void pushVerifyInfo();
 	bool ableToVerify();
 	bool hasAllCarInfo();
+	bool sendPosOrNot();
 	//bool checkCarData();
 	void writeCarInfo(Position**list, int num);
 	CSerialPort zigbeePort;
@@ -60,8 +75,10 @@ public:
 	UDP udp;
 	Buf carBuffer;
 	uwbBuf uwbBuffer;
+	int curCycle = 0;
 	int numCars = 2;
 	int *pos, *ma, *safe;
 	float *speed;
-	bool *requestVerification;
+	int *requestVerification;
+	vector<verifyMsg> verifyMsgs;
 };

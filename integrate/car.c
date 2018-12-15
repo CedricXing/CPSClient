@@ -3,6 +3,8 @@
 
 static int fd_magtic=-1,fd_motor=-1;
 
+extern int car_ID;
+
 int car_open(void)
 {
   fd_magtic = open("/dev/mini210-mgtics", 0);
@@ -103,7 +105,7 @@ void car_control(void)
     
     while(1)
     {
-		send_speed(car_ID);
+		//send_speed(car_ID);
 		if (level != SPEED_LEVEL)
 		{
 			level = SPEED_LEVEL;
@@ -124,6 +126,7 @@ void car_control(void)
 		if (j % 24 <= k+15 )    //
 		{      //前行
 		    ioctl(fd_motor, 0, motor_state);
+		    send_speed(car_ID);
 		}
 		else
 		{ 

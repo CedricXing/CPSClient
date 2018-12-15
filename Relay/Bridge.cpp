@@ -98,15 +98,15 @@ void Bridge::listen() {
 						int number = cycleBuf.buffer[0] - '0';
 						int cycle;
 						memcpy(&cycle, cycleBuf.buffer + 1, 4);
-						cout << "recv cycle = " << cycle << endl;
+						cout << "recv num = "<<number<<" cycle = " << cycle << endl;
 						if (number >= 0 && number < numCars){
 							if (cycle == curCycle) {
 								requestVerification[number] = cycle;
 							}
 							else if(cycle<curCycle) {
 								cout << "recv cycleNum already verified! resend results!" << endl;
-								//sendMaToCar(cycle);
-								sendMaToCarTest(cycle);
+								sendMaToCar(cycle);
+								//sendMaToCarTest(cycle);
 							}
 							else {
 								cout << "error! recv cycleNum larger than curCycle!" << endl;
@@ -180,13 +180,13 @@ void Bridge::listen() {
 			}
 		}
 		if (ableToVerify()){
-			//sendToVerify();
-			//recvVerifyInfo();
+			sendToVerify();
+			recvVerifyInfo();
 			
 			pushVerifyInfo();
 
-			//sendMaToCar(curCycle);
-			sendMaToCarTest(curCycle);
+			sendMaToCar(curCycle);
+			//sendMaToCarTest(curCycle);
 			cout << "OK" << endl;
 
 			writeVerifyInfo();
@@ -294,9 +294,15 @@ void Bridge::sendToVerify() {
 	
 	memset(sendBuf, '0', sizeof(sendBuf));
 	for (int i = 0; i < numCars; i++) {
-		char tbuf[10];
+		char tbuf[100];
 		tbuf[0] = '0' + i;
-		sprintf(tbuf+1, "%02.2f", speed[i]);
+		if (speed[i] >= 10) {
+			sprintf(tbuf + 1, "%02.2f", speed[i]);
+		}
+		else {
+			tbuf[1] = '0';
+			sprintf(tbuf + 2, "%02.2f", speed[i]);
+		}
 		sprintf(tbuf+1+5, "%04d", pos[i]);
 		memcpy(sendBuf + i*unitLen, tbuf, unitLen);
 	}
@@ -390,7 +396,7 @@ void Bridge::reset() {
 	memset(pos, -1, sizeof(int)*numCars);
 	memset(ma, -1, sizeof(int)*numCars);
 	memset(safe, -1, sizeof(int)*numCars);
-	memset(requestVerification, 0, sizeof(int)*numCars);
+	memset(requestVerification, -1, sizeof(int)*numCars);
 	for (int i = 0; i < numCars; i++) {
 		speed[i] = -1;
 	}
@@ -401,6 +407,7 @@ void Bridge::writeCarInfo(Position**list, int num) {
 	ofstream out(filename);
 	for (int i = 0; i<num; i++) {
 		out << list[i]->n << " " << (int)list[i]->offset << " " << (speed[i]>=0?(int)speed[i]:0) << endl;
+		cout << "statusInfo: "<<(speed[i] >= 0 ? (int)speed[i] : 0) << endl;
 	}
 	out.close();
 }

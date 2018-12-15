@@ -1,4 +1,4 @@
-src = rfid.c telecom.c car.c main.c trie.c
+src = zigbee.c telecom.c car.c main.c
 target = control
 
 CC = arm-linux-gcc

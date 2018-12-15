@@ -99,7 +99,7 @@ void RTLSClient::setPosSimplified(Tag*t, int id, double distance)
 			break;
 		}
 	}
-	cout << "distance:" << t->pos.distance << endl;
+	//cout << "distance:" << t->pos.distance << endl;
 }
 void RTLSClient::setPos(Tag*t,int id,int n,int offset)
 {
@@ -108,7 +108,7 @@ void RTLSClient::setPos(Tag*t,int id,int n,int offset)
 	t->pos.n=n;
 	t->pos.offset=offset;
 	t->pos.distance=_cumulate_dis[n]+offset;
-	cout <<"distance:"<< t->pos.distance << endl;
+	//cout <<"distance:"<< t->pos.distance << endl;
 }
 
 bool RTLSClient:: between(double x,double a,double b){
@@ -161,7 +161,7 @@ void RTLSClient:: check_offset(int n,double offset,double dis0,double dis1,doubl
 
 void RTLSClient:: cal_circle(double a1,double b1,double a2,double b2,double r1,double r2){
 	//y=kx+b
-	cout <<"&&"<< a1 <<" "<< b1<<" " << a2 << " "<< b2 <<" "<< r1 <<" " << r2 << endl;
+	//cout <<"&&"<< a1 <<" "<< b1<<" " << a2 << " "<< b2 <<" "<< r1 <<" " << r2 << endl;
 	if (b1 - b2<1e-6&&b1 - b2>-(1e-6)) {
 		cal_circle(b1, a1, b2, a2, r1, r2);
 		double temp = _x1;

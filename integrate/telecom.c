@@ -179,8 +179,6 @@ void init_telecom_device()
 		printf("open grating failed!\n");
 		assert(0);
 	}
-	rfid_init();
-	rfid_open();
 	zigbee_init();
 }
 
@@ -205,7 +203,7 @@ float get_speed(void)
 	    iSpeed = -1;
 	   // printf("fail to get the correct speed\n");
 	}
-	printf("Speed %.2fcm/s\n", iSpeed);
+	//printf("Speed %.2fcm/s\n", iSpeed);
 	return iSpeed;
 }
 

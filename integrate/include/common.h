@@ -28,7 +28,7 @@
 #define ADJUST_INTERVAL		1
 #define CNT					((TOT_INTERVAL - CONTACT_INTERVAL) / ADJUST_INTERVAL)
 
-#define RFID_NUM        120
+#define RFID_NUM        938
 #define MAX_DISTANCE    200
 
 //	acceleration and speed
