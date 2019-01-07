@@ -1,4 +1,5 @@
-var source = new EventSource('http://127.0.0.1:8844/stream');
+var source_status = new EventSource('http://127.0.0.1:8844/stream');
+
 var div = document.getElementById('StatusContent');
 var cnt = 0;
 const kMaxStatus = 10;
@@ -6,15 +7,15 @@ const kMaxStatus = 10;
 var position;
 var velocity;
 
-source.onopen = function(event) {
-    // div.innerHTML = '<p>Connection open ...</p>';
+source_status.onopen = function(event) {
+    console.log("status source open");
 };
 
-source.onerror = function(event) {
-    // div.innerHTML += '<p>Connection close.</p>';
+source_status.onerror = function(event) {
+    console.log("status source error");
 };
 
-source.addEventListener('initialization', function(event) {
+source_status.addEventListener('initialization', function(event) {
     //  Get car number
     var div_car_number = document.getElementById('CarNumber');
 
@@ -30,7 +31,7 @@ source.addEventListener('initialization', function(event) {
     div_car_number.innerHTML = car_number.toString();
 }, false);
 
-source.addEventListener('start', function(event) {
+source_status.addEventListener('start', function(event) {
     if (cnt == kMaxStatus) {
         cnt = 0;
         clearTable();
@@ -40,11 +41,11 @@ source.addEventListener('start', function(event) {
 
 var cur_cnt = 1;
 
-source.addEventListener('carid', function(event) {
+source_status.addEventListener('carid', function(event) {
     car_id_update = parseInt(event.data);
 }, false);
 
-source.addEventListener('position', function(event) {
+source_status.addEventListener('position', function(event) {
     position[car_id_update] = event.data.toString();
 
     var position_list = position[car_id_update].split(" ");
@@ -54,12 +55,12 @@ source.addEventListener('position', function(event) {
     updateCarPosition(car_id_update, parseInt(period), parseInt(offset));
 }, false);
 
-source.addEventListener('velocity', function(event) {
+source_status.addEventListener('velocity', function(event) {
     velocity[car_id_update] = event.data.toString();
-    updateData(parseInt(event.data));
+    updateData(car_id_update,parseInt(event.data));
 }, false);
 
-source.addEventListener('finish', function(event) {
+source_status.addEventListener('finish', function(event) {
     //  update table info of current car after
     //  having received one whole round of information
     updateTableValue();

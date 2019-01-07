@@ -1,12 +1,12 @@
 #include "include/common.h"
 #include "include/car.h"
-#include "include/rfid.h"
      
 const double V_LEVEL[N_LEVEL]={0, 19, 22, 25, 29, 36, 42, 49, 55};
 
 //	for car driver function
 int SPEED_LEVEL = 0;
 pthread_mutex_t mutex;
+int CUR_POSITION=0;
 
 //	calculate ebi
 //	input: dis, output: ebi
@@ -72,6 +72,8 @@ int ebi2level(double ebi)
 
 int car_ID;
 
+void update_position_loop(void* p);
+
 int main() {
 	printf("input car ID:");
 	scanf("%d", &car_ID);
@@ -82,12 +84,18 @@ int main() {
     pthread_mutex_init(&mutex,NULL);
     pthread_create(&read_speed,NULL,(void*)&car_driver,NULL);
 //	pthread_create(&read_card,NULL,(void*)&car_rfid,NULL);
+
+	pthread_t pth_position;
+	printf("%d",(pthread_create(&pth_position,NULL,(void*)&update_position_loop,&car_ID)));
+
+	
+
 	int ebi_lvl = 0, cur_lvl = 0;
 	
 
-	sleep(10);
+	//sleep(10);
 	cur_lvl = SPEED_LEVEL = 2;
-	sleep(5);
+	//sleep(5);
 
 	while (1) {
 		//	communicate and get updated MA	
@@ -106,9 +114,12 @@ int main() {
         
         int i = 0;
 		for (; i < CNT; ++i) {
-			int cur_id = get_card();
+			// int cur_id = get_card();
+			// substitude rfid with uwb 
+			int cur_id = CUR_POSITION;//get_position(car_ID);
+			
 			printf("\033[1;31;40m cur_id=%d \033[0m\n",cur_id ); 
-			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM * 10;
+			double dis = (dest_id + RFID_NUM - cur_id) % RFID_NUM ;
             dis = (dis < MAX_DISTANCE ? dis : MAX_DISTANCE);
 			double ebi = calc_ebi(dis);
 
@@ -134,6 +145,10 @@ int main() {
 			}
 		
 			SPEED_LEVEL = cur_lvl;
+
+			// testing ...
+			// send_speed(car_ID);
+
 			sleep(ADJUST_INTERVAL);
 		}
 	}

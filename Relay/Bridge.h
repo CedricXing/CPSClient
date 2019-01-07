@@ -7,12 +7,26 @@
 #include "RTLSClient.h"
 #include <fstream>
 #include <string>
+#include <vector>
+
 using namespace std;
 
 #define MAX_SPEED 100.00
 #define MAX_POSITION 1200
+#define MAX_NUM_CARS 10
 
 class Bridge {
+
+	struct verifyMsg {
+		int *safe;
+		int *ma;
+		verifyMsg(int numCars) {
+			safe = new int[numCars];
+			ma = new int[numCars];
+			memset(safe, 0, sizeof(int)*numCars);
+			memset(ma, -1, sizeof(int)*numCars);
+		}
+	};
 
 	struct Buf {
 		char buffer[1024];
@@ -26,8 +40,11 @@ class Bridge {
 		char T1[256];
 		bool hasA0, hasT0, hasT1;
 		uwbBuf() :hasA0(false), hasT0(false), hasT1(false) {}
-		bool hasAll() {
-			return hasA0 && hasT0 && hasT1;
+		bool hasAll(int num) {
+			cout << num << endl;
+			if (num == 1)return hasA0&&hasT0;
+			if(num==2)return hasA0 && hasT0 && hasT1;
+			return false;
 		}
 		void reset() {
 			hasA0 = hasT0 = hasT1 = false;
@@ -40,19 +57,28 @@ public:
 public:
 	void reset();
 	void sendPosToCar();
-	void sendMaToCar();
+	void sendMaToCar(int cycleNum);
+	void sendMaToCarTest(int cycleNum);
 	void sendToVerify();
+	void recvVerifyInfo();
+	void writeVerifyInfo();
 	void updatePosition();
 	void printBuffer(Buf& buffer);
+	void pushVerifyInfo();
 	bool ableToVerify();
-	bool checkCarData();
-	void writeCarPosition(Position**list, int num);
+	bool hasAllCarInfo();
+	bool sendPosOrNot();
+	//bool checkCarData();
+	void writeCarInfo(Position**list, int num);
 	CSerialPort zigbeePort;
 	CSerialPort uwbPort;
 	UDP udp;
 	Buf carBuffer;
 	uwbBuf uwbBuffer;
+	int curCycle = 0;
 	int numCars = 2;
 	int *pos, *ma, *safe;
 	float *speed;
+	int *requestVerification;
+	vector<verifyMsg> verifyMsgs;
 };

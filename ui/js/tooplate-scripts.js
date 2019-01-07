@@ -1,8 +1,8 @@
 const width_threshold = 480;
 const
-    y = 210,
-    x = 170,
-    radius = [55, 40],
+    y = 92,
+    x = 50,
+    radius = [70, 100],
     width = radius[0] - radius[1];
     r = (radius[0] + radius[1]) / 2,
     arclen = Math.PI / 2 * r;
@@ -17,8 +17,10 @@ var
     x_lvl_3 = [0, 0],
     x_lvl_4 = [0, 0];
 
-y_lvl_1[0] = x_lvl_1[0] = 0;
-y_lvl_1[1] = x_lvl_1[1] = width;
+x_lvl_1[0] = 265;
+x_lvl_1[1] = x_lvl_1[0]+width;
+y_lvl_1[0] = 60;
+y_lvl_1[1] = y_lvl_1[0]+width;
 
 var
     car_id_update = 1,
@@ -96,7 +98,7 @@ function updateCarPosition(car_id, period, offset) {
 
     context.fillStyle = "white";
     context.strokeStyle = "white";
-    context.fillRect(position[0]-2, position[1]-2, 8, 8);
+    context.fillRect(position[0]-1, position[1]-1, 13, 13);
 
     var ratio, sita;
     if (period & 1) {
@@ -143,7 +145,13 @@ function updateCarPosition(car_id, period, offset) {
 
     context.fillStyle = color[car_id];
     context.strokeStyle = color[car_id];
-    context.fillRect(position[0], position[1], 4, 4);
+    if (period == 0 || period == 4) {
+        context.fillRect(position[0], position[1], 12, 6);
+    } else if (period == 2 || period == 6) {
+        context.fillRect(position[0], position[1], 6, 12);
+    } else {
+        context.fillRect(position[0], position[1], 8, 8);
+    }
 
     for (var i = 0; i < 2; ++i) pos[car_id * 2 - (2 - i)] = position[i];
 }

@@ -23,7 +23,7 @@ body {
 }
 
 body {
-  background-image: url(../img/dash-bg-01.jpg);
+  background-image: url(../img/bg_1.jpg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -542,4 +542,11 @@ footer {
   .navbar-collapse {
     top: 107px;
   }
+}
+
+#maContainer {
+  text-align: center;
+}
+#maContainer > div {
+  display: inline-block;
 }
