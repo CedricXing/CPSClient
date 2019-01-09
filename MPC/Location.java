@@ -46,9 +46,6 @@ public class Location {
         variant = variant.replace("&gt;",">");
         variant = variant.replace("&lt;","<");
 
-//        for(int i = parameters.size() - 1;i >= 0;--i ){
-//            variant = variant.replace(parameters.get(i),"$" + i);
-//        }
         invariants.add(variant);
         if(variant.indexOf(">=") != -1){
             invarientsExpression.add(variant.substring(0,variant.indexOf(">=")) + "-(" + variant.substring(variant.indexOf(">=") + 2) + ")");

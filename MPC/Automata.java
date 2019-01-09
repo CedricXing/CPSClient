@@ -37,6 +37,7 @@ public class Automata {
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLoc = -1;
+        initLoc = -1;
         cycle = -1;
         processModelFile(modelFileName);
         processCFGFile(cfgFileName);
@@ -75,23 +76,21 @@ public class Automata {
                 }
                 if(tempLine.indexOf("<location") != -1){ // location definition
                     String []strings = tempLine.split("\"");
-                    //System.out.println(strings[1]);
+                    //ID stores in strings[1]
                     Location location = new Location(Integer.parseInt(strings[1]));
                     tempLine = reader.readLine();
-                    while(tempLine.indexOf("</location>") == -1){
+                    while(tempLine.indexOf("</location>") == -1){//the end of this location
                         int beginIndex,endIndex;
                         if(tempLine.indexOf("<invar") != -1){
                             beginIndex = tempLine.indexOf("<invariant>") + 11;
                             endIndex = tempLine.indexOf("</invariant>");
                             String variant = tempLine.substring(beginIndex,endIndex).trim();
-                            //System.out.println(variant);
                             location.setVariant(variant,parameters);
                         }
                         if(tempLine.indexOf("<flow>") != -1){
                             beginIndex = tempLine.indexOf("<flow>") + 6;
                             endIndex = tempLine.indexOf("</flow>");
                             String flow = tempLine.substring(beginIndex,endIndex).trim();
-                            //System.out.println(flow);
                             location.setFlow(flow,parameters);
                         }
                         tempLine = reader.readLine();
@@ -112,8 +111,6 @@ public class Automata {
                             beginIndex = tempLine.indexOf("<guard>") + 7;
                             endIndex = tempLine.indexOf("</guard>");
                             String guard = tempLine.substring(beginIndex,endIndex).trim();
-//                    System.out.println(source + "->" + target);
-//                    System.out.println(guard);
                             transition.setGuard(guard,parameters);
                         }
                         if(tempLine.indexOf("<assignment>") != -1){
@@ -197,6 +194,10 @@ public class Automata {
                 initParameterValues.put(temp[0].trim(),Double.parseDouble(temp[1].trim()));
             }
         }
+        if(initLoc == -1){
+            System.out.println("Error ==> It is mandatory to set init loc.");
+            System.exit(-1);
+        }
     }
 
     public void setForbiddenValues(String forbiddenValues){
@@ -217,9 +218,6 @@ public class Automata {
                 continue;
             }
             forbiddenConstraints.add(strings[i].trim());
-//            for(int j = parameters.size() - 1;j >= 0;--j ){
-//                String tempString = strings[i].replace(parameters.get(j),"$" + j);
-//            }
         }
     }
 
@@ -365,9 +363,9 @@ public class Automata {
 
     public static void main(String []args){
         Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train1.cfg");
+                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         //automata.checkAutomata();
-        automata.output = new File("test4.txt");
+        automata.output = new File("test_n.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
             int maxPathSize = 4;
