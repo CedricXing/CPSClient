@@ -42,43 +42,6 @@ public class Automata {
         processCFGFile(cfgFileName);
     }
 
-    void processCFGFile(String cfgFileName){
-        File cfgFile = new File(cfgFileName);
-        BufferedReader reader = null;
-        initParameterValues = new HashMap<>();
-        forbiddenConstraints = new ArrayList<>();
-        try{
-            reader = new BufferedReader(new FileReader(cfgFile));
-            String tempLine = null;
-            while((tempLine = reader.readLine()) != null){
-                if(tempLine.indexOf("initially") != -1){
-                    String []strings = tempLine.split("\"");
-                    setInitParameterValues(strings[1]);
-                }
-                if(tempLine.indexOf("forbidden") != -1){
-                    String []strings = tempLine.split("\"");
-                    setForbiddenValues(strings[1]);
-                }
-            }
-
-        }
-        catch (FileNotFoundException e){
-            System.out.println("File not found" + '\n' + e.getMessage());
-        }
-        catch (IOException e){
-            System.out.println("IO Exception" + '\n' + e.getMessage());
-        }
-        finally {
-            if(reader != null){
-                try{
-                    reader.close();
-                }
-                catch (IOException e){
-                    System.out.println("IO Exception" + '\n' + e.getMessage());
-                }
-            }
-        }
-    }
     void processModelFile(String modelFileName){
         File modelFile = new File(modelFileName);
         BufferedReader reader = null;
@@ -89,7 +52,7 @@ public class Automata {
             reader = new BufferedReader(new FileReader(modelFile));
             String tempLine = null;
             while((tempLine = reader.readLine()) != null){
-                if(tempLine.indexOf("<para") != -1){ // paramater definition
+                if(tempLine.indexOf("<param") != -1){ // paramater definition
                     while(true){
                         String []strings = tempLine.split("\"");
                         if(strings[3].equals("real"))
@@ -165,6 +128,44 @@ public class Automata {
                 }
             }
 
+
+        }
+        catch (FileNotFoundException e){
+            System.out.println("File not found" + '\n' + e.getMessage());
+        }
+        catch (IOException e){
+            System.out.println("IO Exception" + '\n' + e.getMessage());
+        }
+        finally {
+            if(reader != null){
+                try{
+                    reader.close();
+                }
+                catch (IOException e){
+                    System.out.println("IO Exception" + '\n' + e.getMessage());
+                }
+            }
+        }
+    }
+
+    void processCFGFile(String cfgFileName){
+        File cfgFile = new File(cfgFileName);
+        BufferedReader reader = null;
+        initParameterValues = new HashMap<>();
+        forbiddenConstraints = new ArrayList<>();
+        try{
+            reader = new BufferedReader(new FileReader(cfgFile));
+            String tempLine = null;
+            while((tempLine = reader.readLine()) != null){
+                if(tempLine.indexOf("initially") != -1){
+                    String []strings = tempLine.split("\"");
+                    setInitParameterValues(strings[1]);
+                }
+                if(tempLine.indexOf("forbidden") != -1){
+                    String []strings = tempLine.split("\"");
+                    setForbiddenValues(strings[1]);
+                }
+            }
 
         }
         catch (FileNotFoundException e){
