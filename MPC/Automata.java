@@ -190,6 +190,17 @@ public class Automata {
             if(temp[0].trim().equals("loc()")){
                 initLoc = Integer.parseInt(temp[1].trim().substring(1));
             }
+            else if(temp[1].indexOf('[') != -1){ // range value
+                int firstIndex = temp[1].indexOf("[");
+                int lastIndex = temp[1].indexOf("]");
+                String []bounds = temp[1].substring(firstIndex + 1,lastIndex).trim().split(",");
+                double lowerbound = Double.parseDouble(bounds[0].trim());
+                double upperbound = Double.parseDouble(bounds[1].trim());
+                double randomValue = (upperbound + lowerbound) / 2 + (Math.random() - 0.5) * (upperbound - lowerbound);
+                initParameterValues.put(temp[0].trim(),randomValue);
+                //System.out.println(temp[0] + Double.toString(randomValue));
+                //System.exit(0);
+            }
             else{
                 initParameterValues.put(temp[0].trim(),Double.parseDouble(temp[1].trim()));
             }
@@ -362,14 +373,14 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-        //automata.checkAutomata();
-        automata.output = new File("test_n.txt");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train_expanded.xml",
+                "/home/cedricxing/Desktop/CPS/src/case/train_expanded.cfg");
+        automata.checkAutomata();
+        automata.output = new File("output/test_3.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 4;
-            for(int i = 4;i <= maxPathSize;++i){
+            int maxPathSize = 3;
+            for(int i = 3;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);

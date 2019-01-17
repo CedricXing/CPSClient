@@ -17,5 +17,6 @@
 ##### forbidden does not support "=" now
 
 ##### It is mandatory that"loc()==v$" appears in initially.
+##### Init value only support [a,b] now, not support [] +...
 
 
