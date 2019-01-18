@@ -373,14 +373,16 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.xml",
-                "/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.cfg");
+        //Automata automata = new Automata("/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.xml",
+        //        "/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
+                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
         automata.checkAutomata();
-        automata.output = new File("output/test_boucing.txt");
+        automata.output = new File("output/test.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 3;
-            for(int i = 3;i <= maxPathSize;++i){
+            int maxPathSize = 4;
+            for(int i = 1;i <= maxPathSize;++i){
                 int []path = new int[i];
                 path[0] = automata.getInitLoc();
                 automata.DFS(automata,path,0,i);

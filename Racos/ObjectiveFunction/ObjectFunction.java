@@ -226,6 +226,7 @@ public class ObjectFunction implements Task{
                 }
             }
             newMap = computeValuesByIntegral(newMap,automata.locations.get(path[locIndex]),args[locIndex]);
+            checkConstraints(args,newMap);
             for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                 ctx.set(entry.getKey(),entry.getValue());
             }
