@@ -14,13 +14,15 @@ import java.util.HashMap;
 
 public class Location {
     private int no;
+    public String name;
     public ArrayList<String> invariants;
     public ArrayList<String> invarientsExpression;
     private ArrayList<Integer> neibours;
     public HashMap<String,String> flows;
 
-    public Location(int no){
+    public Location(int no,String name){
         this.no = no;
+        this.name = name;
         invariants = new ArrayList<>();
         invarientsExpression = new ArrayList<>();
         neibours = new ArrayList<>();
@@ -107,6 +109,7 @@ public class Location {
     }
 
     public void printLocation(){
+        System.out.println("no : " + no + " name : " + name + "\n");
         for(int i = 0;i < invariants.size();++i){
             System.out.println(invariants.get(i));
         }

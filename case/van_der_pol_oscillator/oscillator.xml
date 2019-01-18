@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" math="SpaceEx">
+  <component id="system">
+    <param name="x" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="1" name="v1">
+      <flow>x:=x+0.01*y &amp; y:=y+0.01*(y-x-x*x*y)</flow>
+    </location>
+  </component>
+</sspaceex>

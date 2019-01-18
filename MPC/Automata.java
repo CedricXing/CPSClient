@@ -27,6 +27,8 @@ public class Automata {
     public ArrayList<Transition> transitions;
     public ArrayList<String> parameters;
     public int initLoc;
+    public String initLocName;
+    public String forbiddenLocName;
     public int forbiddenLoc;
     public Map<String,Double> initParameterValues;
     public ArrayList<String> forbiddenConstraints;
@@ -36,7 +38,9 @@ public class Automata {
     BufferedWriter bufferedWriter;
 
     public Automata(String modelFileName,String cfgFileName){
+        forbiddenLocName = null;
         forbiddenLoc = -1;
+        initLocName = null;
         initLoc = -1;
         cycle = -1;
         processModelFile(modelFileName);
@@ -77,7 +81,8 @@ public class Automata {
                 if(tempLine.indexOf("<location") != -1){ // location definition
                     String []strings = tempLine.split("\"");
                     //ID stores in strings[1]
-                    Location location = new Location(Integer.parseInt(strings[1]));
+                    Location location = new Location(Integer.parseInt(strings[1]),strings[3]);
+                    System.out.println(strings[3]);
                     tempLine = reader.readLine();
                     while(tempLine.indexOf("</location>") == -1){//the end of this location
                         int beginIndex,endIndex;
@@ -90,6 +95,7 @@ public class Automata {
                         if(tempLine.indexOf("<flow>") != -1){
                             beginIndex = tempLine.indexOf("<flow>") + 6;
                             endIndex = tempLine.indexOf("</flow>");
+                            //System.out.println(tempLine);
                             String flow = tempLine.substring(beginIndex,endIndex).trim();
                             location.setFlow(flow,parameters);
                         }
@@ -188,7 +194,14 @@ public class Automata {
         for(int i = 0;i < strings.length;++i){
             String []temp = strings[i].split("==");
             if(temp[0].trim().equals("loc()")){
-                initLoc = Integer.parseInt(temp[1].trim().substring(1));
+                initLocName = temp[1].trim();
+                for(Map.Entry<Integer,Location> entry : locations.entrySet()){
+                    //System.out.println(allParametersValues.size());
+                    if(entry.getValue().name.equals(initLocName)){
+                        initLoc = entry.getKey();
+                        break;
+                    }
+                }
             }
             else if(temp[1].indexOf('[') != -1){ // range value
                 int firstIndex = temp[1].indexOf("[");
@@ -215,7 +228,15 @@ public class Automata {
         String []strings = forbiddenValues.split("&");
         for(int i = 0;i < strings.length;++i){
             if(strings[i].indexOf("loc()") != -1){
-                forbiddenLoc = Integer.parseInt(strings[i].substring(strings[i].indexOf("v") + 1).trim());
+                String []temps = strings[i].split("=");
+                forbiddenLocName = temps[temps.length - 1].trim();
+                for(Map.Entry<Integer,Location> entry : locations.entrySet()){
+                    //System.out.println(allParametersValues.size());
+                    if(entry.getValue().name.equals(forbiddenLocName)){
+                        forbiddenLoc = entry.getKey();
+                        break;
+                    }
+                }
                 continue;
             }
             if(strings[i].trim().indexOf("t<=") != -1){
@@ -318,19 +339,22 @@ public class Automata {
     }
 
     void checkAutomata(){
-        System.out.println("Init loc is " + initLoc);
+        println("Init loc is " + initLocName);
+        println("Init loc is " + initLoc);
         for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
+            println("The init value of " + entry.getKey() + " is " + entry.getValue());
             System.out.println("The init value of " + entry.getKey() + " is " + entry.getValue());
         }
-        System.out.println("Forbidden loc is " + forbiddenLoc);
-        System.out.println("Forbidden constraints is ");
+        println("Forbidden loc is " + forbiddenLocName);
+        println("Forbidden loc is " + forbiddenLoc);
+        println("Forbidden constraints is ");
         for(int i = 0;i < forbiddenConstraints.size();++i){
-            System.out.println(forbiddenConstraints.get(i));
+            println(forbiddenConstraints.get(i));
         }
         for(Map.Entry<Integer,Location> entry : locations.entrySet()){
-            System.out.println(entry.getKey());
+            println(Integer.toString(entry.getKey()));
             entry.getValue().printLocation();
-            System.out.println("**************");
+            println("**************");
         }
 
         for(int i = 0;i < transitions.size();++i){
@@ -373,33 +397,40 @@ public class Automata {
     }
 
     public static void main(String []args){
-        //Automata automata = new Automata("/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.xml",
-        //        "/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.cfg");
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-        automata.checkAutomata();
-        automata.output = new File("output/test.txt");
-        try {
-            automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-            int maxPathSize = 4;
-            for(int i = 1;i <= maxPathSize;++i){
-                int []path = new int[i];
-                path[0] = automata.getInitLoc();
-                automata.DFS(automata,path,0,i);
-            }
-        }
-        catch (IOException e){
-            System.out.println("Open output.txt fail!");
-        }
-        finally {
-            if(automata.bufferedWriter != null){
-                try{
-                    automata.bufferedWriter.close();
+//        Automata automata = new Automata("/home/cedricxing/Desktop/cases/arch2017/arch2017_nonlinear_dynamics/quadrotor/quadrotor.xml",
+//                "/home/cedricxing/Desktop/cases/arch2017/arch2017_nonlinear_dynamics/quadrotor/quadrotor.cfg");
+//        //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
+//         //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
+//        automata.checkAutomata();
+        //automata.output = new File("output/test_boucing_ball3.txt");
+        int repeat = 0;
+        while(repeat < 5) {
+            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/model_passive_4d.xml",
+                    "/home/cedricxing/Desktop/CPS/src/case/COLLISION.cfg");
+            //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
+            //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
+            automata.output = new File("output/4D_new_" + repeat + ".txt");
+            try {
+                automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
+                automata.checkAutomata();
+                int maxPathSize = 3;
+                for (int i = 1; i <= maxPathSize; ++i) {
+                    int[] path = new int[i];
+                    path[0] = automata.getInitLoc();
+                    automata.DFS(automata, path, 0, i);
                 }
-                catch (IOException e){
-                    System.out.println("IO Exception" + '\n' + e.getMessage());
+            } catch (IOException e) {
+                System.out.println("Open output.txt fail!");
+            } finally {
+                if (automata.bufferedWriter != null) {
+                    try {
+                        automata.bufferedWriter.close();
+                    } catch (IOException e) {
+                        System.out.println("IO Exception" + '\n' + e.getMessage());
+                    }
                 }
             }
+            ++repeat;
         }
     }
 }

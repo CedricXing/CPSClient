@@ -31,13 +31,14 @@ public class ObjectFunction implements Task{
     private boolean flag = false;
     private double penalty = 0;
     private boolean sat = true;
+    private double cerr = 0.02;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
         dim = new Dimension();
         dim.setSize(path.length);
         for(int i = 0;i < path.length;++i)
-            dim.setDimension(i,0,automata.cycle,true);
+            dim.setDimension(i,0,automata.cycle / delta,false);
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
@@ -54,7 +55,7 @@ public class ObjectFunction implements Task{
             ctx.set(entry.getKey(),entry.getValue());
         }
         result = (boolean)fel.eval(automata.cycleConstraint);
-        if(result && computePenalty(automata.cycleConstraint,true) > 0.00001) {
+        if(result && computePenalty(automata.cycleConstraint,true) > cerr) {
             sat = false;
             penalty += computePenalty(automata.cycleConstraint,true);
             return false;
@@ -89,6 +90,7 @@ public class ObjectFunction implements Task{
         }
         for(HashMap.Entry<String,Double> entry : parametersValues.entrySet()){
             if(location.flows.containsKey(entry.getKey())){
+                //System.out.println(location.flows.get(entry.getKey()));
                 Object obj = fel.eval(location.flows.get(entry.getKey()));
                 double result;
                 if(obj instanceof Double)
@@ -159,7 +161,7 @@ public class ObjectFunction implements Task{
                                     sat = false;
                                     penalty += 100000;
                                 }
-                                else if(computePenalty(guard,false) > 0.00001){
+                                else if(computePenalty(guard,false) > cerr){
                                     sat = false;
                                     penalty += computePenalty(guard, false);
                                 }
@@ -234,7 +236,7 @@ public class ObjectFunction implements Task{
                 boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                 if(!result) {
                     String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                    if(computePenalty(invariant,false) < 0.00001)
+                    if(computePenalty(invariant,false) < cerr)
                         continue;
                     //p2 = computePenalty(invariant);
                     //p2 = end - step;
@@ -295,7 +297,7 @@ public class ObjectFunction implements Task{
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
                         String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                        if(computePenalty(invariant,false) < 0.000001)
+                        if(computePenalty(invariant,false) < cerr)
                             continue;
                         if(Double.isNaN(computePenalty(invariant,false))){
                             sat = false;
@@ -409,10 +411,10 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < args.length;++i){
             sum += args[i];
         }
-        if(sum > automata.cycle) {
+        if(sum > automata.cycle / delta) {
             //p1 = sum - automata.cycle / delta;
             sat = false;
-            penalty += sum - automata.cycle;
+            penalty += sum - automata.cycle /delta;
             return false;
         }
         return true;
@@ -459,8 +461,8 @@ public class ObjectFunction implements Task{
 //            System.out.println("over");
 //            return penalty;
 //        }
-        //checkInvarientsByODE(args);
-        computeParameterValues(args);
+        checkInvarientsByODE(args);
+        //computeParameterValues(args);
         //System.out.println("hello1");
         checkGuards(args);
         //System.out.println("hello2");
@@ -482,7 +484,8 @@ public class ObjectFunction implements Task{
         //System.out.println(map.get("y"));
 //        System.out.println("x  " + map.get("x"));
 //        System.out.println("fuel    " + map.get("fuel"));
-        return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
+        //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
+        return -Math.pow(map.get("x"),2);
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];
