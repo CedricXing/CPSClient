@@ -373,10 +373,10 @@ public class Automata {
     }
 
     public static void main(String []args){
-        Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train_expanded.xml",
-                "/home/cedricxing/Desktop/CPS/src/case/train_expanded.cfg");
+        Automata automata = new Automata("/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.xml",
+                "/home/cedricxing/Desktop/cases/boucing_ball/boucing_ball.cfg");
         automata.checkAutomata();
-        automata.output = new File("output/test_3.txt");
+        automata.output = new File("output/test_boucing.txt");
         try {
             automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
             int maxPathSize = 3;
