@@ -287,7 +287,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 5;
+        int repeat = 1;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -404,16 +404,16 @@ public class Automata {
 //        automata.checkAutomata();
         //automata.output = new File("output/test_boucing_ball3.txt");
         int repeat = 0;
-        while(repeat < 5) {
-            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/model_passive_4d.xml",
-                    "/home/cedricxing/Desktop/CPS/src/case/COLLISION.cfg");
+        while(repeat < 3) {
+            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/platoon_hybrid.xml",
+                    "/home/cedricxing/Desktop/CPS/src/case/platoon.cfg");
             //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
             //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-            automata.output = new File("output/4D_new_" + repeat + ".txt");
+            automata.output = new File("output/platoon" + repeat + ".txt");
             try {
                 automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                 automata.checkAutomata();
-                int maxPathSize = 3;
+                int maxPathSize = 2;
                 for (int i = 1; i <= maxPathSize; ++i) {
                     int[] path = new int[i];
                     path[0] = automata.getInitLoc();

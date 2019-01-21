@@ -66,7 +66,7 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < automata.forbiddenConstraints.size();++i){
             result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
             //System.out.println(automata.forbiddenConstraints.get(i));
-            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) > 0.00001)){
+            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) > cerr)){
                 String constraint = automata.forbiddenConstraints.get(i);
                 penalty = pen;
                 return true;
@@ -102,6 +102,9 @@ public class ObjectFunction implements Task{
                 else {
                     result = 0;
                     System.out.println("Not Double and Not Integer!");
+                    System.out.println();
+                    System.out.println(location.flows.get(entry.getKey()));
+                    System.exit(0);
                 }
                 double delta = result * arg;
                 //System.out.println(delta);
@@ -223,6 +226,8 @@ public class ObjectFunction implements Task{
                     else if(obj instanceof Double) result = (double)obj;
                     else{
                         System.out.println("Not Double and Not Integer!");
+                        System.out.println(entry.getValue());
+                        System.exit(0);
                     }
                     newMap.put(entry.getKey(),result);
                 }
@@ -282,6 +287,8 @@ public class ObjectFunction implements Task{
                     else if(obj instanceof Double) result = (double)obj;
                     else{
                         System.out.println("Not Double and Not Integer!");
+                        System.out.println(entry.getValue());
+                        System.exit(0);
                     }
                     newMap.put(entry.getKey(),result);
                     //allParametersValues.get(locIndex - 1).put(entry.getKey(),result);
@@ -355,6 +362,10 @@ public class ObjectFunction implements Task{
         else {
             obj1 = 0;
             System.out.println("Not Double and Not Integer!");
+            System.out.println(expression);
+            System.out.println(obj1);
+            System.out.println("here");
+            System.exit(0);
         }
         if(obj2 instanceof Double)
             small = (double)obj2;
@@ -485,7 +496,9 @@ public class ObjectFunction implements Task{
 //        System.out.println("x  " + map.get("x"));
 //        System.out.println("fuel    " + map.get("fuel"));
         //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
-        return -Math.pow(map.get("x"),2);
+        //System.out.println("x : " + map.get("x"));
+        //System.out.println("y : " + map.get("y"));
+        return -Math.pow(map.get("x1"),2);
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];
