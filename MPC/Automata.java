@@ -249,6 +249,9 @@ public class Automata {
                 cycleConstraint = new String("t>" + cycle);
                 continue;
             }
+            if(strings[i].trim().indexOf('(') != -1){
+                strings[i] = strings[i].substring(strings[i].indexOf('(')+1,strings[i].indexOf(')')).trim();
+            }
             forbiddenConstraints.add(strings[i].trim());
         }
     }
@@ -350,6 +353,7 @@ public class Automata {
         println("Forbidden constraints is ");
         for(int i = 0;i < forbiddenConstraints.size();++i){
             println(forbiddenConstraints.get(i));
+            System.out.println(forbiddenConstraints.get(i));
         }
         for(Map.Entry<Integer,Location> entry : locations.entrySet()){
             println(Integer.toString(entry.getKey()));

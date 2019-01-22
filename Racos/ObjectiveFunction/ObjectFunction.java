@@ -66,13 +66,14 @@ public class ObjectFunction implements Task{
         for(int i = 0;i < automata.forbiddenConstraints.size();++i){
             result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
             //System.out.println(automata.forbiddenConstraints.get(i));
-            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) > cerr)){
+            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) < cerr)){
                 String constraint = automata.forbiddenConstraints.get(i);
                 penalty = pen;
                 return true;
             }
             else{
                 penalty += computePenalty(automata.forbiddenConstraints.get(i),true);
+                sat = false;
             }
         }
 //        for(int i = 0;i < args.length;++i){
@@ -294,12 +295,15 @@ public class ObjectFunction implements Task{
                     //allParametersValues.get(locIndex - 1).put(entry.getKey(),result);
                 }
             }
+            if(end==0){
+                checkConstraints(args,newMap);
+            }
             while(step < end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
-                checkConstraints(args,newMap);
                 for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
                     ctx.set(entry.getKey(),entry.getValue());
                 }
+                checkConstraints(args,newMap);
                 for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
@@ -323,8 +327,23 @@ public class ObjectFunction implements Task{
         return true;
     }
 
+    private double computePenaltyOfConstraint(String expression){//just one level
+        String []expressions = expression.split("\\|");
+        //System.out.println(expressions.length);
+        double result = Double.MAX_VALUE;
+        for(String string:expressions){
+            if(string.length()<=0)  continue;
+            double temp = computePenalty(string,false);
+            result = (temp < result) ? temp : result;
+        }
+        return result;
+    }
+
     private double computePenalty(String expression,boolean isConstraint){
+        if(isConstraint && expression.indexOf("|") != -1)
+            return computePenaltyOfConstraint(expression);
         //System.out.println(expression);
+
         String []strings;
         String bigPart = "",smallPart = "";
         strings = expression.split("<=|<|>=|>|==");
@@ -350,6 +369,7 @@ public class ObjectFunction implements Task{
 //            bigPart = strings[1].trim();
 //            smallPart = strings[0].trim();
 //        }
+        //System.out.println(strings[0].trim());
         Object obj1 = fel.eval(strings[0].trim());
         Object obj2 = fel.eval(strings[1].trim());
         double big = 0,small = 0;
