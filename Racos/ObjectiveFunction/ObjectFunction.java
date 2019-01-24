@@ -46,6 +46,7 @@ public class ObjectFunction implements Task{
 
     public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
         double pen = penalty;
+        boolean satOrigin = sat;
         boolean result = (path[path.length - 1] == automata.forbiddenLoc || automata.forbiddenLoc == -1);
         if(!result)  {
             return true;
@@ -69,6 +70,8 @@ public class ObjectFunction implements Task{
             if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) < cerr)){
                 String constraint = automata.forbiddenConstraints.get(i);
                 penalty = pen;
+                if(sat != satOrigin)
+                    sat = satOrigin;
                 return true;
             }
             else{
@@ -103,9 +106,10 @@ public class ObjectFunction implements Task{
                 else {
                     result = 0;
                     System.out.println("Not Double and Not Integer!");
-                    System.out.println();
+                    System.out.println(obj.getClass().getName());
+                    System.out.println(obj);
                     System.out.println(location.flows.get(entry.getKey()));
-                    System.exit(0);
+                    //System.exit(0);
                 }
                 double delta = result * arg;
                 //System.out.println(delta);
@@ -498,6 +502,9 @@ public class ObjectFunction implements Task{
         checkGuards(args);
         //System.out.println("hello2");
         if(!sat) {
+            if(penalty == 0){
+                System.out.println("here");
+            }
             return penalty;
         }
         //System.out.println("what");
@@ -518,7 +525,7 @@ public class ObjectFunction implements Task{
         //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
         //System.out.println("x : " + map.get("x"));
         //System.out.println("y : " + map.get("y"));
-        return -Math.pow(map.get("x1"),2);
+        return -Math.pow(map.get("x"),2);
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

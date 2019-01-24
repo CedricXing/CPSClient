@@ -3,6 +3,7 @@ package MPC;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Location
@@ -33,7 +34,7 @@ public class Location {
         int index = variant.indexOf("&amp;");
         while(index != -1){
             String temp = variant.substring(0,index).trim();
-            processVariant(temp,parameters);
+            if(temp.length() > 0)   processVariant(temp,parameters);
             variant = variant.substring(index + 5).trim();
             index = variant.indexOf("&amp;");
         }
@@ -86,7 +87,7 @@ public class Location {
         int index = flow.indexOf("&amp;");
         while(index != -1){
             String temp = flow.substring(0,index).trim();
-            processFlow(temp,parameters);
+            if(temp.length() > 0) processFlow(temp,parameters);
             flow = flow.substring(index + 5).trim();
             index = flow.indexOf("&amp;");
         }
@@ -112,6 +113,10 @@ public class Location {
         System.out.println("no : " + no + " name : " + name + "\n");
         for(int i = 0;i < invariants.size();++i){
             System.out.println(invariants.get(i));
+        }
+        for(Map.Entry<String,String> entry : flows.entrySet()){
+            System.out.print(entry.getKey() + "'==");
+            System.out.println(entry.getValue());
         }
         System.out.println("Neibours");
         for(int i = 0;i < neibours.size();++i){

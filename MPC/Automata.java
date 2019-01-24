@@ -82,22 +82,50 @@ public class Automata {
                     String []strings = tempLine.split("\"");
                     //ID stores in strings[1]
                     Location location = new Location(Integer.parseInt(strings[1]),strings[3]);
-                    System.out.println(strings[3]);
+                    //System.out.println(strings[3]);
                     tempLine = reader.readLine();
                     while(tempLine.indexOf("</location>") == -1){//the end of this location
                         int beginIndex,endIndex;
                         if(tempLine.indexOf("<invar") != -1){
-                            beginIndex = tempLine.indexOf("<invariant>") + 11;
-                            endIndex = tempLine.indexOf("</invariant>");
-                            String variant = tempLine.substring(beginIndex,endIndex).trim();
-                            location.setVariant(variant,parameters);
+                            while(tempLine.indexOf("</invar") == -1){
+                                if(tempLine.indexOf("<invar") != -1){
+                                    beginIndex = tempLine.indexOf("<invar") + 11;
+                                    tempLine = tempLine.substring(beginIndex).trim();
+                                }
+                                location.setVariant(tempLine,parameters);
+                                tempLine = reader.readLine();
+                            }
+                            if(tempLine.indexOf("<invar") != -1){
+                                beginIndex = tempLine.indexOf("<invar") + 11;
+                                endIndex = tempLine.indexOf("</invar");
+                                tempLine = tempLine.substring(beginIndex,endIndex).trim();
+                            }
+                            else{
+                                endIndex = tempLine.indexOf("</invar");
+                                tempLine = tempLine.substring(0,endIndex).trim();
+                            }
+                            location.setVariant(tempLine,parameters);
                         }
                         if(tempLine.indexOf("<flow>") != -1){
-                            beginIndex = tempLine.indexOf("<flow>") + 6;
-                            endIndex = tempLine.indexOf("</flow>");
+                            while(tempLine.indexOf("</flow>") == -1){
+                                if(tempLine.indexOf("<flow>") != -1){
+                                    beginIndex = tempLine.indexOf("<flow>") + 6;
+                                    tempLine = tempLine.substring(beginIndex).trim();
+                                }
+                                location.setFlow(tempLine,parameters);
+                                tempLine = reader.readLine();
+                            }
+                            if(tempLine.indexOf("<flow>") != -1) {
+                                beginIndex = tempLine.indexOf("<flow>") + 6;
+                                endIndex = tempLine.indexOf("</flow>");
+                                tempLine = tempLine.substring(beginIndex,endIndex).trim();
+                            }
+                            else{
+                                endIndex = tempLine.indexOf("</flow>");
+                                tempLine = tempLine.substring(0,endIndex).trim();
+                            }
                             //System.out.println(tempLine);
-                            String flow = tempLine.substring(beginIndex,endIndex).trim();
-                            location.setFlow(flow,parameters);
+                            location.setFlow(tempLine,parameters);
                         }
                         tempLine = reader.readLine();
                     }
@@ -290,7 +318,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 1;
+        int repeat = 5;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -409,15 +437,15 @@ public class Automata {
         //automata.output = new File("output/test_boucing_ball3.txt");
         int repeat = 0;
         while(repeat < 3) {
-            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/platoon_hybrid.xml",
-                    "/home/cedricxing/Desktop/CPS/src/case/platoon.cfg");
+            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/model_passive_4d.xml",
+                    "/home/cedricxing/Desktop/CPS/src/case/COLLISION.cfg");
             //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
             //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-            automata.output = new File("output/platoon" + repeat + ".txt");
+            automata.output = new File("output/4D_" + repeat + ".txt");
             try {
                 automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                 automata.checkAutomata();
-                int maxPathSize = 2;
+                int maxPathSize = 3;
                 for (int i = 1; i <= maxPathSize; ++i) {
                     int[] path = new int[i];
                     path[0] = automata.getInitLoc();
