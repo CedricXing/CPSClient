@@ -511,7 +511,7 @@ public class Continue extends BaseParameters{
 					}
 				}
 				preBestValue = bestValue;
-//				System.out.println(bestValue);
+				System.out.println(bestValue);
 //				if(bestValue < 0)
 //					++bestValueCount;
 //				if(bestValueCount > 500) {

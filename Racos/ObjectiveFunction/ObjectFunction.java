@@ -32,13 +32,18 @@ public class ObjectFunction implements Task{
     private double penalty = 0;
     private boolean sat = true;
     private double cerr = 0.02;
+    int rangeParaSize;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
         dim = new Dimension();
-        dim.setSize(path.length);
+        rangeParaSize = (automata.rangeParameters == null) ? 0 : automata.rangeParameters.size();
+        dim.setSize(path.length + rangeParaSize);
         for(int i = 0;i < path.length;++i)
             dim.setDimension(i,0,automata.cycle / delta,false);
+        for(int i = 0;i < rangeParaSize;++i){
+            dim.setDimension(path.length + i,automata.rangeParameters.get(i).lowerBound,automata.rangeParameters.get(i).upperBound,true);
+        }
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
@@ -103,13 +108,16 @@ public class ObjectFunction implements Task{
                     result = (int) obj;
                     //System.out.println(entry.getKey() + " " + entry.getValue());
                 }
+                else if(obj instanceof Long){
+                    result = ((Long)obj).doubleValue();
+                }
                 else {
                     result = 0;
                     System.out.println("Not Double and Not Integer!");
                     System.out.println(obj.getClass().getName());
                     System.out.println(obj);
                     System.out.println(location.flows.get(entry.getKey()));
-                    //System.exit(0);
+                    System.exit(0);
                 }
                 double delta = result * arg;
                 //System.out.println(delta);
@@ -122,21 +130,6 @@ public class ObjectFunction implements Task{
         }
         return tempMap;
 
-//        double t = parametersValues.get("t") + arg;
-//        tempMap.put("t",t);
-//        double a;
-//        if(location.getNo() == 2)   a = 5;
-//        else if(location.getNo() == 3)  a = 0 + (Math.random() - 0.5) * 10;
-//        //else if(location.getNo() == 3)  a = -10;
-//        else if(location.getNo() == 4)  a = -10;
-//        else a = 0;
-//        tempMap.put("a",a);
-//        double v = parametersValues.get("v") + a * arg;
-//        tempMap.put("v",v);
-//        double x = parametersValues.get("x") + parametersValues.get("v") * arg + 0.5 * a * arg * arg;
-//        tempMap.put("x",x);
-//        double vebi = Math.sqrt(2 * 10 * (200 - x));
-//        tempMap.put("vebi",vebi);
     }
 
     public boolean checkGuards(double []args){
@@ -351,6 +344,7 @@ public class ObjectFunction implements Task{
         String []strings;
         String bigPart = "",smallPart = "";
         strings = expression.split("<=|<|>=|>|==");
+        //ctx.set("x3",1.02);
 //        for(int i = 0;i < strings.length;++i)
 //            System.out.println(strings[i]);
 //        if(expression.indexOf("<=") != -1){
@@ -384,10 +378,10 @@ public class ObjectFunction implements Task{
             //System.out.println(entry.getKey() + " " + entry.getValue());
         }
         else {
-            obj1 = 0;
             System.out.println("Not Double and Not Integer!");
             System.out.println(expression);
             System.out.println(obj1);
+            System.out.println(obj1.getClass().getName());
             System.out.println("here");
             System.exit(0);
         }
@@ -400,6 +394,7 @@ public class ObjectFunction implements Task{
         else {
             small = 0;
             System.out.println("Not Double and Not Integer!");
+            System.exit(0);
         }
 //        if(isConstraint)
 //            penal = small - big;
@@ -459,16 +454,22 @@ public class ObjectFunction implements Task{
         penalty = 0;
         sat = true;
         allParametersValues = new ArrayList<>();
-        double []args = new double[ins.getFeature().length];
+        double []args = new double[path.length];
 //        args[0] = 1.984442452584224;
 //        args[1] = 0.1293550138895525;
 //        args[2] = 0.3706788439511385;
 //        args[3] = 1.4731068040009903;
-        for(int i = 0;i < args.length;++i){
+//        for(int i = 0;i < ins.getFeature().length;++i){
+//            System.out.println(ins.getFeature(i));
+//        }
+        for(int i = 0;i < path.length;++i){
             args[i] = ins.getFeature(i);
             //args[i] = 0.478405658973357;
 //            if(args[i] >= 4000)
             //System.out.println(args[i] + " ");
+        }
+        for(int i = path.length;i < ins.getFeature().length;++i){
+            automata.initParameterValues.put(automata.rangeParameters.get(i-path.length).name,ins.getFeature(i));
         }
         //System.out.println("");
 //        if(!checkCycle(args)){
@@ -525,7 +526,7 @@ public class ObjectFunction implements Task{
         //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
         //System.out.println("x : " + map.get("x"));
         //System.out.println("y : " + map.get("y"));
-        return -Math.pow(map.get("x"),2);
+        return -Math.pow(map.get("x1"),2);
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

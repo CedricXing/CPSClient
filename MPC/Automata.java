@@ -2,8 +2,6 @@ package MPC;
 
 import Racos.Componet.Instance;
 import Racos.Method.Continue;
-import Racos.Method.Discrete;
-import Racos.ObjectiveFunction.MIN_L;
 import Racos.ObjectiveFunction.ObjectFunction;
 import Racos.ObjectiveFunction.Task;
 
@@ -12,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Automata
@@ -36,6 +33,7 @@ public class Automata {
     public String cycleConstraint;
     File output;
     BufferedWriter bufferedWriter;
+    public ArrayList<RangeParameter> rangeParameters;
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLocName = null;
@@ -231,14 +229,16 @@ public class Automata {
                     }
                 }
             }
-            else if(temp[1].indexOf('[') != -1){ // range value
+            else if(temp[1].indexOf('[') != -1){ // range value,put into Racos
                 int firstIndex = temp[1].indexOf("[");
                 int lastIndex = temp[1].indexOf("]");
                 String []bounds = temp[1].substring(firstIndex + 1,lastIndex).trim().split(",");
                 double lowerbound = Double.parseDouble(bounds[0].trim());
                 double upperbound = Double.parseDouble(bounds[1].trim());
-                double randomValue = (upperbound + lowerbound) / 2 + (Math.random() - 0.5) * (upperbound - lowerbound);
-                initParameterValues.put(temp[0].trim(),randomValue);
+//                double randomValue = (upperbound + lowerbound) / 2 + (Math.random() - 0.5) * (upperbound - lowerbound);
+//                initParameterValues.put(temp[0].trim(),randomValue);
+                if(rangeParameters == null) rangeParameters = new ArrayList<>();
+                rangeParameters.add(new RangeParameter(temp[0].trim(),lowerbound,upperbound));
                 //System.out.println(temp[0] + Double.toString(randomValue));
                 //System.exit(0);
             }
@@ -318,7 +318,7 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 5;
+        int repeat = 1;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         for (int i = 0; i < repeat; i++) {
@@ -437,11 +437,11 @@ public class Automata {
         //automata.output = new File("output/test_boucing_ball3.txt");
         int repeat = 0;
         while(repeat < 3) {
-            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/model_passive_4d.xml",
-                    "/home/cedricxing/Desktop/CPS/src/case/COLLISION.cfg");
+            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/quadrotor.xml",
+                    "/home/cedricxing/Desktop/CPS/src/case/quadrotor.cfg");
             //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
             //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-            automata.output = new File("output/4D_" + repeat + ".txt");
+            automata.output = new File("output/quadrotor_" + repeat + ".txt");
             try {
                 automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                 automata.checkAutomata();
