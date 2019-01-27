@@ -310,7 +310,6 @@ public class Automata {
     }
 
     void runRacos(Automata automata,int []path){
-        double currentT = System.currentTimeMillis();
         int samplesize = 1 ;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
@@ -318,10 +317,13 @@ public class Automata {
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 1;
+        int repeat = 10;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
+        ArrayList<Instance> feasibleResult = new ArrayList<>();
+        double feasibleResultAllTime = 0;
         for (int i = 0; i < repeat; i++) {
+            double currentT = System.currentTimeMillis();
             Continue con = new Continue(t);
             con.setMaxIteration(iteration);
             con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
@@ -330,16 +332,16 @@ public class Automata {
             con.setRandProbability(probability);// parameter: the probability of sampling from the model
             con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
             con.run();                          // call sequential Racos              // call Racos
+            double currentT2 = System.currentTimeMillis();
             ins = con.getOptimal();             // obtain optimal
             //System.out.print("best function value:");
-            print("best function value:");
-            if(ins.getValue() == Double.MAX_VALUE)
-                System.out.print("MaxValue     ");
-            else {
-                //System.out.print(ins.getValue() + "    ");
-                print(ins.getValue() + "    ");
-                result.add(ins);
+            if(ins.getValue() < 0){
+                feasibleResult.add(ins);
+                feasibleResultAllTime += (currentT2-currentT) / 1000;
             }
+            print("best function value:");
+            print(ins.getValue() + "     ");
+            result.add(ins);
             //System.out.print("[");
             print("[");
             for(int j = 0;j < ins.getFeature().length;++j) {
@@ -350,7 +352,7 @@ public class Automata {
             //System.out.println("]");
             println("]");
         }
-        double currentT2 = System.currentTimeMillis();
+
         for(int i = 0;i < result.size();++i){
             //System.out.println(result.get(i).getValue());
             println(Double.toString(result.get(i).getValue()));
@@ -358,15 +360,22 @@ public class Automata {
             print("[");
             for(int j = 0;j < result.get(i).getFeature().length;++j) {
                 //System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
-
-
                 //print(Double.toString(result.get(i).getFeature(j) * ((ObjectFunction) t).delta) + ",");
                 print(Double.toString(result.get(i).getFeature(j)) + ",");
             }
             //System.out.println("]");
             println("]");
         }
-        println("Average time : " + Double.toString((currentT2 - currentT) / repeat / 1000));
+        println("Feasible Result:");
+        for(int i = 0;i < feasibleResult.size();++i){
+            println(Double.toString(feasibleResult.get(i).getValue()));
+            print("[");
+            for(int j = 0;j < feasibleResult.get(i).getFeature().length;++j) {
+                print(Double.toString(feasibleResult.get(i).getFeature(j)) + ",");
+            }
+            println("]");
+        }
+        println("Average time : " + Double.toString(feasibleResultAllTime / feasibleResult.size()));
     }
 
     void checkAutomata(){
@@ -435,13 +444,22 @@ public class Automata {
 //         //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
 //        automata.checkAutomata();
         //automata.output = new File("output/test_boucing_ball3.txt");
+        String []modelFiles = new String[]{"src/case/boucing_ball.xml",
+                                           "src/case/quadrotor.xml",
+                                           "src/case/model_passive_4d.xml",
+                                           "src/case/platoon_hybrid.xml",
+                                           "src/case/helir_10.xml"};
+        String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
+                                         "src/case/quadrotor.cfg",
+                                         "src/case/COLLISION.cfg",
+                                         "src/case/platoon.cfg",
+                                         "src/case/helir_10.cfg"};
         int repeat = 0;
-        while(repeat < 3) {
-            Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/quadrotor.xml",
-                    "/home/cedricxing/Desktop/CPS/src/case/quadrotor.cfg");
+        while(repeat < 1) {
+            Automata automata = new Automata(modelFiles[4],cfgFiles[4]);
             //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
             //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-            automata.output = new File("output/quadrotor_" + repeat + ".txt");
+            automata.output = new File("output/helir_10_racos_" + repeat + ".txt");
             try {
                 automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                 automata.checkAutomata();

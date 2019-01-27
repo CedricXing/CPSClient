@@ -391,6 +391,9 @@ public class ObjectFunction implements Task{
             small = (int) obj2;
             //System.out.println(entry.getKey() + " " + entry.getValue());
         }
+        else if(obj2 instanceof Long){
+            small = ((Long)obj2).doubleValue();
+        }
         else {
             small = 0;
             System.out.println("Not Double and Not Integer!");
