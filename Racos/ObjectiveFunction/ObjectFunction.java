@@ -7,7 +7,7 @@ import Racos.Componet.*;
 import Racos.Method.*;
 import MPC.Automata;
 import MPC.Location;
-
+import Racos.Tools.ValueArc;
 import com.greenpineyu.fel.*;
 import com.greenpineyu.fel.context.FelContext;
 
@@ -23,16 +23,13 @@ public class ObjectFunction implements Task{
     private FelContext ctx;
     private ArrayList<HashMap<String,Double>> allParametersValues;
     public double delta = 0.05;
-    private int c = 0;
-    private double p1 = 0;
-    private double p2 = 0;
-    private double p3 = 0;
-    private double p4 = 0;
-    private boolean flag = false;
     private double penalty = 0;
+    private double globalPenalty = 0;
     private boolean sat = true;
-    private double cerr = 0.02;
+    private double cerr = 0.01;
     int rangeParaSize;
+
+    public ValueArc valueArc;
 
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
@@ -47,49 +44,172 @@ public class ObjectFunction implements Task{
         this.path = path;
         fel = new FelEngineImpl();
         ctx = fel.getContext();
+        valueArc = new ValueArc();
     }
 
-    public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
-        double pen = penalty;
-        boolean satOrigin = sat;
-        boolean result = (path[path.length - 1] == automata.forbiddenLoc || automata.forbiddenLoc == -1);
-        if(!result)  {
-            return true;
-        }
+    public void checkConstraints(double []args,HashMap<String,Double> parametersValues){
         for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
             //System.out.println(allParametersValues.size());
             ctx.set(entry.getKey(),entry.getValue());
+            //System.out.println(entry.getKey() + "  "  + entry.getValue());
         }
-        result = (boolean)fel.eval(automata.cycleConstraint);
-        if(result && computePenalty(automata.cycleConstraint,true) > cerr) {
-            sat = false;
-            penalty += computePenalty(automata.cycleConstraint,true);
-            return false;
-        }
-        //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
-        if(automata.forbiddenConstraints.size() == 0)
-            return true;
-        for(int i = 0;i < automata.forbiddenConstraints.size();++i){
-            result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
-            //System.out.println(automata.forbiddenConstraints.get(i));
-            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) < cerr)){
-                String constraint = automata.forbiddenConstraints.get(i);
-                penalty = pen;
-                if(sat != satOrigin)
-                    sat = satOrigin;
-                return true;
-            }
-            else{
-                penalty += computePenalty(automata.forbiddenConstraints.get(i),true);
-                sat = false;
-            }
-        }
-//        for(int i = 0;i < args.length;++i){
-//            System.out.println(args[i]);
-//        }
+        //System.out.println(automata.forbiddenConstraints);
+        boolean result = (boolean)fel.eval(automata.forbiddenConstraints);
+        computeConstraintValue(automata.forbiddenConstraints);
+        if(!result) return;
+        //System.out.println(result);
         sat = false;
-        return false;
+        globalPenalty += computeConstraintValue(automata.forbiddenConstraints);
     }
+
+    public double computeConstraintValue(String constraint){
+        int firstRightBracket = constraint.trim().indexOf(")");
+        if(firstRightBracket != -1 && constraint.indexOf('&') == -1 && constraint.indexOf('|') == -1)
+            return computePenalty(constraint.substring(constraint.indexOf('(')+1,constraint.lastIndexOf(")")),false);
+        if(firstRightBracket != -1 && firstRightBracket != constraint.length()-1){
+            for(int i = firstRightBracket;i < constraint.length();++i){
+                if(constraint.charAt(i) == '&'){
+                    int index = 0;
+                    int numOfBrackets = 0;
+                    int partBegin = 0;
+                    double pen = 0;
+                    while(index < constraint.length()){
+                        if(constraint.indexOf(index) == '(')
+                            ++numOfBrackets;
+                        else if(constraint.indexOf(index) == ')')
+                            --numOfBrackets;
+                        else if(constraint.indexOf(index) == '&' && numOfBrackets==0){
+                            String temp = constraint.substring(partBegin,index);
+                            boolean result = (boolean)fel.eval(temp);
+                            if(!result) return 0;
+                            else pen+= computeConstraintValue(temp);
+                            index = index + 2;
+                            partBegin = index;
+                            constraint = constraint.substring(index);
+                            continue;
+                        }
+                        ++index;
+                    }
+                    return pen;
+//                    int index = firstRightBracket;
+//                    double pen = 0;
+//                    while(index != -1){
+//                        String temp = constraint.substring(constraint.indexOf('(')+1,index);
+//                        boolean result = (boolean)fel.eval(temp);
+//                        if(!result) return 0;
+//                        else pen += computeConstraintValue(temp);
+//                        constraint = constraint.substring(index+1);
+//                        index = constraint.indexOf(')');
+//                    }
+//                    return pen;
+                }
+                else if(constraint.charAt(i) == '|'){
+                    int index = 0;
+                    int numOfBrackets = 0;
+                    int partBegin = 0;
+                    double minPen = Double.MAX_VALUE;
+                    while(index < constraint.length()){
+                        if(constraint.indexOf(index) == '(')
+                            ++numOfBrackets;
+                        else if(constraint.indexOf(index) == ')')
+                            --numOfBrackets;
+                        else if(constraint.indexOf(index) == '|' && numOfBrackets==0){
+                            String temp = constraint.substring(partBegin,index);
+                            boolean result = (boolean)fel.eval(temp);
+                            if(result){
+                                minPen = (computeConstraintValue(temp) < minPen) ? computeConstraintValue(temp) : minPen;
+                            }
+                            index = index + 2;
+                            partBegin = index;
+                            constraint = constraint.substring(index);
+                            continue;
+                        }
+                        ++index;
+                    }
+                    return minPen;
+//                    int index = firstRightBracket;
+//                    double minPen = Double.MAX_VALUE;
+//                    while(index != -1){
+//                        String temp =  constraint.substring(constraint.indexOf('(')+1,index);
+//                        boolean result = (boolean)fel.eval(temp);
+//                        if(result){
+//                            minPen = (computeConstraintValue(temp) < minPen) ? computeConstraintValue(temp) : minPen;
+//                        }
+//                        constraint = constraint.substring(index + 1);
+//                        index = constraint.indexOf(')');
+//                    }
+//                    return minPen;
+                }
+            }
+        }
+        else{
+            if(firstRightBracket != -1){
+                constraint = constraint.substring(constraint.indexOf('(')+1,firstRightBracket);
+            }
+            if(constraint.indexOf('&') != -1){
+                String []strings = constraint.split("&");
+                double pen = 0;
+                for(int i = 0;i < strings.length;++i){
+                    if(strings[i].equals("")) continue;
+                    boolean result = (boolean)fel.eval(strings[i]);
+                    if(!result) return 0;
+                    else pen += computeConstraintValue(strings[i]);
+                }
+                return pen;
+            }
+            else if(constraint.indexOf('|') != -1){
+                String []strings = constraint.split("\\|");
+                double minPen = Double.MAX_VALUE;
+                for(int i = 0;i < strings.length;++i){
+                    if(strings[i].equals("")) continue;
+                    boolean result = (boolean) fel.eval(strings[i]);
+                    if(!result) continue;
+                    else minPen = (computeConstraintValue(strings[i]) < minPen) ? computeConstraintValue(strings[i]) : minPen;
+                }
+                return minPen;
+            }
+            else return computePenalty(constraint,false);
+        }
+        return 0;
+    }
+//    public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
+//        double pen = globalPenalty;
+//        boolean satOrigin = sat;
+//        boolean result = (path[path.length - 1] == automata.forbiddenLoc || automata.forbiddenLoc == -1);
+//        if(!result)  {
+//            return true;
+//        }
+//        for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
+//            //System.out.println(allParametersValues.size());
+//            ctx.set(entry.getKey(),entry.getValue());
+//        }
+//        result = (boolean)fel.eval(automata.cycleConstraint);
+//        if(result && computePenalty(automata.cycleConstraint,true) > cerr) {
+//            sat = false;
+//            globalPenalty += computePenalty(automata.cycleConstraint,true);
+//            return false;
+//        }
+//        //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
+//        if(automata.forbiddenConstraints.size() == 0)
+//            return true;
+//        for(int i = 0;i < automata.forbiddenConstraints.size();++i){
+//            result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
+//            //System.out.println(automata.forbiddenConstraints.get(i));
+//            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) < cerr)){
+//                String constraint = automata.forbiddenConstraints.get(i);
+//                globalPenalty = pen;
+//                if(sat != satOrigin)
+//                    sat = satOrigin;
+//                return true;
+//            }
+//            else{
+//                globalPenalty += computePenalty(automata.forbiddenConstraints.get(i),true);
+//                sat = false;
+//            }
+//        }
+//        sat = false;
+//        return false;
+//    }
 
     public HashMap<String,Double> computeValuesByFlow(HashMap<String,Double> parametersValues,Location location,double arg){
         HashMap<String,Double> tempMap = new HashMap<>();
@@ -301,6 +421,7 @@ public class ObjectFunction implements Task{
                     ctx.set(entry.getKey(),entry.getValue());
                 }
                 checkConstraints(args,newMap);
+                //System.out.println(globalPenalty);
                 for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
@@ -313,6 +434,7 @@ public class ObjectFunction implements Task{
                         }
                         else {
                             sat = false;
+                            //System.out.println(invariant);
                             penalty += computePenalty(invariant, false);
                         }
                     }
@@ -455,6 +577,7 @@ public class ObjectFunction implements Task{
     @Override
     public double getValue(Instance ins) {
         penalty = 0;
+        globalPenalty = 0;
         sat = true;
         allParametersValues = new ArrayList<>();
         double []args = new double[path.length];
@@ -506,10 +629,17 @@ public class ObjectFunction implements Task{
         checkGuards(args);
         //System.out.println("hello2");
         if(!sat) {
-            if(penalty == 0){
-                System.out.println("here");
+            if(penalty + globalPenalty == 0){
+                System.out.println("penalty = 0 when unsat");
+                System.exit(0);
             }
-            return penalty;
+            double penAll = penalty + globalPenalty;
+            if(penAll < valueArc.penAll) {
+                valueArc.penalty = penalty;
+                valueArc.globalPenalty = globalPenalty;
+                valueArc.penAll = penAll;
+            }
+            return penAll;
         }
         //System.out.println("what");
 //        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
@@ -518,6 +648,9 @@ public class ObjectFunction implements Task{
 //        double value = -10000 + map.get("MA") - map.get("x") + map.get("fuel");
 //        System.out.println(value);
 //        System.exit(0);
+//        if(allParametersValues.get(allParametersValues.size()-1).get("angle") > 0.78 && allParametersValues.get(allParametersValues.size()-1).get("angle") < 0.79 && args[0]==19){
+//            System.out.println(allParametersValues.get(allParametersValues.size()-1).get("x"));
+//        }
         return computeValue(args);
     }
 
@@ -529,7 +662,17 @@ public class ObjectFunction implements Task{
         //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
         //System.out.println("x : " + map.get("x"));
         //System.out.println("y : " + map.get("y"));
-        return -Math.pow(map.get("x1"),2);
+//        double target = 0;
+//        for(HashMap.Entry<String,Double> entry : map.entrySet()){
+//            target = entry.getValue();
+//        }
+        double value = Math.sqrt(Math.pow(200-map.get("x"),2) + Math.pow(200-map.get("y"),2));
+        if(value < valueArc.value){
+            valueArc.value = value;
+            valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
+            valueArc.args = args;
+        }
+        return -(1000-value);
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];

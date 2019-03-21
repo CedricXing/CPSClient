@@ -1,0 +1,24 @@
+paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" math="SpaceEx">
+<component id="system">
+<param name="x" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="y" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="v" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="t" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="angle" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="a" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="e1" type="label" local="false"/>
+<param name="e2" type="label" local="false"/>
+<param name="e3" type="label" local="false"/>
+<param name="e4" type="label" local="false"/>
+<param name="e5" type="label" local="false"/>
+<param name="e6" type="label" local="false"/>
+<param name="e7" type="label" local="false"/>
+	<location id="1" name="v1" x="710" y="351" width="135.0" height="73.0">
+      <flow>x'==v*cos(initA) &amp; t'==1 &amp; angle'==0 &amp; y'==v*sin(initA) </flow>
+    </location>
+	<location id="2" name="v1" x="710" y="351" width="135.0" height="73.0">
+      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==0 &amp; y'==v*sin(angle) </flow>
+    </location>
+	<transition source = "1",target = "2">
+	</transition> 
+</sspaceex>

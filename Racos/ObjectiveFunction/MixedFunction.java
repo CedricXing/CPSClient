@@ -14,34 +14,34 @@
  *
  * Copyright (C) 2015 Nanjing University, Nanjing, China
  */
- 
+
  /**
  * @author Yi-Qi Hu
  * @time 2015.11.13
  * @version 2.0
  */
- 
+
 package Racos.ObjectiveFunction;
 
 import Racos.Componet.*;
 
 public class MixedFunction implements Task{
 	private Dimension dim;
-	
+
 	public MixedFunction(int size){
 		dim = new Dimension();
 		dim.setSize(size);
 		for(int i=0; i<size ;i++){
-			
+
 			if(i%2==1){
 				dim.setDimension(i, 0, 1, true);
 			}else{
-				dim.setDimension(i, 0, 100, false);			
+				dim.setDimension(i, 0, 100, false);
 			}
 		}
-		
+
 	}
-	
+
 	public double getValue(Instance ins){
 		double v = 0;
 		int size = ins.getFeature().length;

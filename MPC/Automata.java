@@ -4,6 +4,7 @@ import Racos.Componet.Instance;
 import Racos.Method.Continue;
 import Racos.ObjectiveFunction.ObjectFunction;
 import Racos.ObjectiveFunction.Task;
+import Racos.Tools.ValueArc;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -28,12 +29,13 @@ public class Automata {
     public String forbiddenLocName;
     public int forbiddenLoc;
     public Map<String,Double> initParameterValues;
-    public ArrayList<String> forbiddenConstraints;
+    public String forbiddenConstraints;
     public double cycle;
     public String cycleConstraint;
     File output;
     BufferedWriter bufferedWriter;
     public ArrayList<RangeParameter> rangeParameters;
+    public ValueArc minValueArc;
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLocName = null;
@@ -135,7 +137,7 @@ public class Automata {
                     int target = Integer.parseInt(strings[3]);
                     Transition transition = new Transition(source,target);
                     locations.get(source).addNeibour(target);
-                    tempLine = reader.readLine(); // label (useless)
+                    //tempLine = reader.readLine(); // label (useless)
                     tempLine = reader.readLine(); // guard
                     while(tempLine.indexOf("</transi") == -1){
                         int beginIndex,endIndex;
@@ -181,7 +183,8 @@ public class Automata {
         File cfgFile = new File(cfgFileName);
         BufferedReader reader = null;
         initParameterValues = new HashMap<>();
-        forbiddenConstraints = new ArrayList<>();
+        assert(forbiddenConstraints instanceof String);
+        //forbiddenConstraints = new ArrayList<>();
         try{
             reader = new BufferedReader(new FileReader(cfgFile));
             String tempLine = null;
@@ -192,7 +195,17 @@ public class Automata {
                 }
                 if(tempLine.indexOf("forbidden") != -1){
                     String []strings = tempLine.split("\"");
-                    setForbiddenValues(strings[1]);
+                    strings[1] = strings[1].replace("pow","$(Math).pow");
+                    strings[1] = strings[1].replace("sin","$(Math).sin");
+                    strings[1] = strings[1].replace("cos","$(Math).cos");
+                    strings[1] = strings[1].replace("tan","$(Math).tan");
+                    forbiddenConstraints = strings[1];
+                    //setForbiddenValues(strings[1]);
+                }
+                if(tempLine.indexOf("time-horizon") != -1){
+                    String []strings = tempLine.split("\"");
+                    cycle = Double.parseDouble(strings[1]);
+                    cycleConstraint = new String("t>" + cycle);
                 }
             }
 
@@ -252,6 +265,7 @@ public class Automata {
         }
     }
 
+    /*
     public void setForbiddenValues(String forbiddenValues){
         String []strings = forbiddenValues.split("&");
         for(int i = 0;i < strings.length;++i){
@@ -267,23 +281,23 @@ public class Automata {
                 }
                 continue;
             }
-            if(strings[i].trim().indexOf("t<=") != -1){
-                cycle = Double.parseDouble(strings[i].trim().substring(3).trim());
-                cycleConstraint = new String("t>=" + cycle);
-                continue;
-            }
-            if(strings[i].trim().indexOf("t<") != -1){
-                cycle = Double.parseDouble(strings[i].trim().substring(2).trim());
-                cycleConstraint = new String("t>" + cycle);
-                continue;
-            }
+//            if(strings[i].trim().indexOf("t<=") != -1){
+//                cycle = Double.parseDouble(strings[i].trim().substring(3).trim());
+//                cycleConstraint = new String("t>=" + cycle);
+//                continue;
+//            }
+//            if(strings[i].trim().indexOf("t<") != -1){
+//                cycle = Double.parseDouble(strings[i].trim().substring(2).trim());
+//                cycleConstraint = new String("t>" + cycle);
+//                continue;
+//            }
             if(strings[i].trim().indexOf('(') != -1){
                 strings[i] = strings[i].substring(strings[i].indexOf('(')+1,strings[i].indexOf(')')).trim();
             }
             forbiddenConstraints.add(strings[i].trim());
         }
     }
-
+    */
     public int getInitLoc(){
         return initLoc;
     }
@@ -309,7 +323,33 @@ public class Automata {
         }
     }
 
-    void runRacos(Automata automata,int []path){
+    void DFS1(Automata automata,ArrayList<Integer> arrayListPath,int maxPathSize){
+        int len = arrayListPath.size();
+        int path[] = new int[len];
+        for(int i = 0;i < len;++i)
+            path[i] = arrayListPath.get(i);
+        println("The depth is " + len);
+        System.out.println("The depth is " + len);
+        for(int i = 0;i < len - 1;++i){
+            System.out.print(path[i] + "->");
+            print(path[i] + "->");
+        }
+        System.out.println(path[len-1]);
+        println(Integer.toString(path[len-1]));
+        boolean pruning = runRacos(automata,path);
+        if(pruning || len == maxPathSize)
+            return;
+        ArrayList<Integer> neibours = automata.locations.get(path[len-1]).getNeibours();
+        for(int i = 0;i < neibours.size();++i){
+            arrayListPath.add(neibours.get(i));
+            DFS1(automata,arrayListPath,maxPathSize);
+            arrayListPath.remove(arrayListPath.size()-1);
+        }
+
+    }
+
+
+    boolean runRacos(Automata automata,int []path){
         int samplesize = 1 ;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
@@ -322,6 +362,7 @@ public class Automata {
         ArrayList<Instance> result = new ArrayList<>();
         ArrayList<Instance> feasibleResult = new ArrayList<>();
         double feasibleResultAllTime = 0;
+        boolean pruning = true;
         for (int i = 0; i < repeat; i++) {
             double currentT = System.currentTimeMillis();
             Continue con = new Continue(t);
@@ -331,13 +372,23 @@ public class Automata {
             con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
             con.setRandProbability(probability);// parameter: the probability of sampling from the model
             con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-            con.run();                          // call sequential Racos              // call Racos
+            ValueArc valueArc = con.run();                          // call sequential Racos              // call Racos
             double currentT2 = System.currentTimeMillis();
             ins = con.getOptimal();             // obtain optimal
             //System.out.print("best function value:");
+            //System.out.println(valueArc.penAll);
             if(ins.getValue() < 0){
                 feasibleResult.add(ins);
                 feasibleResultAllTime += (currentT2-currentT) / 1000;
+                pruning = false;
+                if(minValueArc == null || minValueArc.value >= valueArc.value){
+                    minValueArc = valueArc;
+                }
+                //System.out.println(valueArc.allParametersValues.get("x"));
+            }
+            else if(valueArc.penalty < 0){
+                pruning = false;
+                //print("----------------------" + valueArc.penalty + "-------" + valueArc.globalPenalty + "-----------\n");
             }
             print("best function value:");
             print(ins.getValue() + "     ");
@@ -376,6 +427,7 @@ public class Automata {
             println("]");
         }
         println("Average time : " + Double.toString(feasibleResultAllTime / feasibleResult.size()));
+        return pruning;
     }
 
     void checkAutomata(){
@@ -388,10 +440,11 @@ public class Automata {
         println("Forbidden loc is " + forbiddenLocName);
         println("Forbidden loc is " + forbiddenLoc);
         println("Forbidden constraints is ");
-        for(int i = 0;i < forbiddenConstraints.size();++i){
-            println(forbiddenConstraints.get(i));
-            System.out.println(forbiddenConstraints.get(i));
-        }
+        assert(forbiddenConstraints instanceof String);
+//        for(int i = 0;i < forbiddenConstraints.size();++i){
+//            println(forbiddenConstraints.get(i));
+//            System.out.println(forbiddenConstraints.get(i));
+//        }
         for(Map.Entry<Integer,Location> entry : locations.entrySet()){
             println(Integer.toString(entry.getKey()));
             entry.getValue().printLocation();
@@ -448,39 +501,66 @@ public class Automata {
                                            "src/case/quadrotor.xml",
                                            "src/case/model_passive_4d.xml",
                                            "src/case/platoon_hybrid.xml",
-                                           "src/case/helir_10.xml"};
+                                           "src/case/helir_10.xml",
+                                            "src/case/productionSystem.xml",
+                                            "src/case/new_train.xml"};
         String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
                                          "src/case/quadrotor.cfg",
                                          "src/case/COLLISION.cfg",
                                          "src/case/platoon.cfg",
-                                         "src/case/helir_10.cfg"};
-        int repeat = 0;
-        while(repeat < 1) {
-            Automata automata = new Automata(modelFiles[4],cfgFiles[4]);
-            //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-            //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-            automata.output = new File("output/helir_10_racos_" + repeat + ".txt");
-            try {
-                automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-                automata.checkAutomata();
-                int maxPathSize = 3;
-                for (int i = 1; i <= maxPathSize; ++i) {
-                    int[] path = new int[i];
-                    path[0] = automata.getInitLoc();
-                    automata.DFS(automata, path, 0, i);
-                }
-            } catch (IOException e) {
-                System.out.println("Open output.txt fail!");
-            } finally {
-                if (automata.bufferedWriter != null) {
-                    try {
-                        automata.bufferedWriter.close();
-                    } catch (IOException e) {
-                        System.out.println("IO Exception" + '\n' + e.getMessage());
+                                         "src/case/helir_10.cfg",
+                                          "src/case/productionSystem.cfg",
+                                            "src/case/new_train.cfg"};
+        for(int fileIndex = 6;fileIndex < modelFiles.length;++fileIndex) {
+            String []temp = modelFiles[fileIndex].split("/");
+            String fileName = temp[temp.length - 1].substring(0,temp[temp.length-1].indexOf("."));
+            int repeat = 0;
+            while (repeat < 1) {
+                Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
+                //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
+                //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
+                automata.output = new File("output/delta=0.005/" + fileName + "_" + repeat + ".txt");
+                try {
+                    automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
+                    automata.checkAutomata();
+                    int maxPathSize = 2;
+                    ArrayList<Integer> arrayListPath = new ArrayList<>();
+                    arrayListPath.add(automata.getInitLoc());
+                    //automata.DFS1(automata,arrayListPath,maxPathSize);
+//                    for (int i = 1; i <= maxPathSize; ++i) {
+//                        int[] path = new int[i];
+//                        path[0] = automata.getInitLoc();
+//                        automata.DFS(automata, path, 0, i);
+//                    }
+
+                   File file = new File("output/result.txt");
+                   BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                   while(Math.pow(200 - automata.initParameterValues.get("x"),2)+Math.pow(200-automata.initParameterValues.get("y"),2) > 1){
+                       automata.DFS1(automata,arrayListPath,maxPathSize);
+                       HashMap<String ,Double> map = automata.minValueArc.allParametersValues;
+                       for(int i = 0;i < automata.minValueArc.args.length;++i)
+                           bufferedWriter.write(automata.minValueArc.args[i] + " & ");
+                       bufferedWriter.write(map.get("angle") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       System.out.println(map.get("x") + " " + map.get("y"));
+                       automata.initParameterValues.put("x",map.get("x"));
+                       automata.initParameterValues.put("y",map.get("y"));
+                       if(map.containsKey("angle"))
+                           automata.initParameterValues.put("initA",map.get("angle"));
+                   }
+                   bufferedWriter.close();
+                } catch (IOException e) {
+                    System.out.println("Open output.txt fail!");
+                } finally {
+                    if (automata.bufferedWriter != null) {
+                        try {
+                            automata.bufferedWriter.close();
+                        } catch (IOException e) {
+                            System.out.println("IO Exception" + '\n' + e.getMessage());
+                        }
                     }
                 }
+                ++repeat;
             }
-            ++repeat;
         }
     }
 }

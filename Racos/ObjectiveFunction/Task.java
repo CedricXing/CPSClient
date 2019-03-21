@@ -26,6 +26,8 @@ package Racos.ObjectiveFunction;
 
 import Racos.Componet.*;
 
+import java.util.ArrayList;
+
 public interface Task {
 	
 	//for calculating objective function

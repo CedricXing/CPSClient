@@ -22,52 +22,52 @@
  * @version 2.0
  * Sphere function is the square of 2-norm of feature-center
  */
-package Racos.ObjectiveFunction;
-
-import Racos.Componet.Dimension;
-import Racos.Componet.Instance;
-
-public class Sphere implements Task{
-	
-	private Dimension dim; //dimension
-	private double opt[];  //the center of sphere
-	
-	public Sphere(int size){
-		dim = new Dimension();
-		dim.setSize(size);
-		dim.setDimension(0, 1, true);
-		opt = new double[size];
-		for(int i=0; i<size; i++){
-			opt[i] = 0.2;
-		}
-	}
-
-	public Sphere(double opt[]){
-    dim = new Dimension();
-    dim.setSize(opt.length);
-    dim.setDimension(0, 1, true);
-    this.opt = new double[opt.length];
-    System.arraycopy(opt, 0, this.opt, 0, opt.length);
-  }
-
-	@Override
-	public double getValue(Instance ins) {
-		// TODO Auto-generated method stub
-		double sum = 0;
-        double v=0;
-        for(int i=0; i<dim.getSize(); i++){//calculate sphere value
-            v=ins.getFeature(i)-opt[i];
-            sum += v*v;
-        }
-        return sum;
-	}
-
-	@Override
-	public Dimension getDim() {
-		// TODO Auto-generated method stub
-		return dim;
-	}
-	
-	
-
-}
+//package Racos.ObjectiveFunction;
+//
+//import Racos.Componet.Dimension;
+//import Racos.Componet.Instance;
+//
+//public class Sphere implements Task{
+//
+//	private Dimension dim; //dimension
+//	private double opt[];  //the center of sphere
+//
+//	public Sphere(int size){
+//		dim = new Dimension();
+//		dim.setSize(size);
+//		dim.setDimension(0, 1, true);
+//		opt = new double[size];
+//		for(int i=0; i<size; i++){
+//			opt[i] = 0.2;
+//		}
+//	}
+//
+//	public Sphere(double opt[]){
+//    dim = new Dimension();
+//    dim.setSize(opt.length);
+//    dim.setDimension(0, 1, true);
+//    this.opt = new double[opt.length];
+//    System.arraycopy(opt, 0, this.opt, 0, opt.length);
+//  }
+//
+//	@Override
+//	public double getValue(Instance ins) {
+//		// TODO Auto-generated method stub
+//		double sum = 0;
+//        double v=0;
+//        for(int i=0; i<dim.getSize(); i++){//calculate sphere value
+//            v=ins.getFeature(i)-opt[i];
+//            sum += v*v;
+//        }
+//        return sum;
+//	}
+//
+//	@Override
+//	public Dimension getDim() {
+//		// TODO Auto-generated method stub
+//		return dim;
+//	}
+//
+//
+//
+//}

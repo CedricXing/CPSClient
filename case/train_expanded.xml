@@ -6,6 +6,7 @@ paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" 
 <param name="vebi" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="a" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="MA" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="c" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="fuel" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="e1" type="label" local="false"/>
 <param name="e2" type="label" local="false"/>
@@ -40,52 +41,52 @@ paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" 
     <transition source="1" target="2">
       <label>e1</label>
 	  <guard>0&lt;=v&amp;v&lt;=vebi - 20</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 10</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
     </transition>
     <transition source="1" target="3">
       <label>e2</label>
 	  <guard>vebi-30&lt;=v&amp;v&lt;=vebi-10</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = c</assignment>
     </transition>
     <transition source="1" target="4">
       <label>e3</label>
 	  <guard>vebi-15&lt;=v&amp;v&lt;=vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5</assignment>
     </transition>
     <transition source="1" target="5">
       <label>e4</label>
 	  <guard>vebi&lt;=v</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10</assignment>
     </transition>
     <transition source="2" target="3">
       <label>e5</label>
 	  <guard>vebi-30&lt;=v&amp;v&lt;=vebi-10</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = c</assignment>
     </transition>
     <transition source="3" target="2">
       <label>e6</label>
 	  <guard>0&lt;=v&amp;v&lt;=vebi - 20</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 10</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
     </transition>
     <transition source="3" target="4">
       <label>e7</label>
 	  <guard>vebi-15&lt;=v&amp;v&lt;=vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0 </assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5 </assignment>
     </transition>
     <transition source="4" target="3">
       <label>e8</label>
 	  <guard>vebi-30&lt;=v&amp;v&lt;=vebi-10</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 5</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = c</assignment>
 </transition>
     <transition source="4" target="5">
       <label>e9</label>
 	  <guard>vebi&lt;=v</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -10</assignment>
 </transition>
     <transition source="5" target="4">
       <label>e10</label>
 	  <guard>vebi-15&lt;=v&amp;v&lt;=vebi</guard>
-	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = 0</assignment>
+	  <assignment>v'=v &amp; x'=x &amp; t'=t  &amp;vebi'=vebi &amp;a' = -5</assignment>
 </transition>
 </component>
 </spaceex>

@@ -473,7 +473,7 @@ public class Continue extends BaseParameters{
 	 * after setting parameters of Racos, user call this function can obtain optimal
 	 * 
 	 */
-	public void run(){
+	public ValueArc run(){
 		
 		this.BudCount = 0;
 		int ChoosenPos;
@@ -497,7 +497,7 @@ public class Continue extends BaseParameters{
 				double bestValue = getOptimal().getValue();
 				if(bestValue > 0){
 					++sumCount;
-					if(sumCount > 500)
+					if(sumCount > 1000)
 						break;
 				}
 				if(bestValue < 0 && i != 1){
@@ -511,7 +511,7 @@ public class Continue extends BaseParameters{
 					}
 				}
 				preBestValue = bestValue;
-				System.out.println(bestValue);
+				//System.out.println(bestValue);
 //				if(bestValue < 0)
 //					++bestValueCount;
 //				if(bestValueCount > 500) {
@@ -578,6 +578,7 @@ public class Continue extends BaseParameters{
 
 			}
 		}
-		return ;		
+		ObjectFunction of = (ObjectFunction)task;
+		return of.valueArc;
 	}
 }

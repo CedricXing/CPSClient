@@ -14,7 +14,7 @@
  *
  * Copyright (C) 2015 Nanjing University, Nanjing, China
  */
- 
+
  /**
  * The Normalized cut method is one of methods of spectral clustering
  * @author Yi-Qi Hu
@@ -31,7 +31,7 @@ import Racos.Componet.*;
 import Racos.Tools.*;
 
 public class NormalizedCut implements Task{
-	
+
 	private Dimension dim;
 	private double[][] vertex;   //data set, each line is a instance
 	private double sigma;        //hyper-parameter
@@ -46,14 +46,14 @@ public class NormalizedCut implements Task{
 		public int[] C;          //the sequence of this category
 		public int count;
 		public double dis;       //the distance in the same category
-		
+
 		public EachClass(){
 			this.c_num = 0;
 			this.C = null;
 			this.count=0;
 		}
 	}
-	
+
 	public NormalizedCut(double sig, String tra, String tes){
 		FileOperator fo = new FileOperator();
 		sigma = sig;
@@ -62,11 +62,11 @@ public class NormalizedCut implements Task{
 		ArrayList<String> al = fo.FileReader(train);
 		getData(al);
 	}
-	
+
 	public void setSigma(double s){
 		this.sigma = s;
 	}
-	
+
 	/**
 	 * get data from file, initialize some parameters according to file, and generate dimension class
 	 * @param al
@@ -94,10 +94,10 @@ public class NormalizedCut implements Task{
 		this.dim.setDimension(0, this.c_size-1, false);
 		return ;
 	}
-	
+
 	/**
 	 * data analysis according to class
-	 * 
+	 *
 	 * @param s class imformation
 	 * @return the results of analysis in class EachClass[]
 	 */
@@ -118,10 +118,10 @@ public class NormalizedCut implements Task{
 		}
 		return imf_c;
 	}
-	
+
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param best the sample, the result of classification
 	 * @return error rate
 	 */
@@ -136,10 +136,10 @@ public class NormalizedCut implements Task{
 		rate = ((double)count)/best.getFeature().length;
 		return rate;
 	}
-	
+
 	/**
 	 * Calculate the distance^2 between vertex[i] and vertex[j]
-	 * 
+	 *
 	 * @param i vertex[i]
 	 * @param j vertex[j]
 	 * @return distance
@@ -151,11 +151,11 @@ public class NormalizedCut implements Task{
 		}
 		return dis;
 	}
-	
-	
+
+
 	/**
 	 * Calculate the weight between vertex[i] and vertex[j]
-	 * 
+	 *
 	 * @param i vertex[i]
 	 * @param j vertex[j]
 	 * @return the weight
@@ -165,7 +165,7 @@ public class NormalizedCut implements Task{
 		wei = Math.pow(Math.E, -(distance(i,j)/(this.sigma*this.sigma)));
 		return wei;
 	}
-	
+
 	/**
 	 * calculate inner-object distance
 	 * @param ec
@@ -180,7 +180,7 @@ public class NormalizedCut implements Task{
 		}
 		return ;
 	}
-	
+
 	protected double wei_bet_diff_class(EachClass[] ec,int num){
 		double temp = 0;
 		int j;

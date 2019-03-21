@@ -28,10 +28,10 @@ import Racos.Componet.Dimension;
 import Racos.Componet.Instance;
 
 public class Ackley implements Task{
-	
+
 	private Dimension dim; //dimension
 	private double opt[];  //the center of sphere
-	
+
 	public Ackley(int size){
 		dim = new Dimension();
 		dim.setSize(size);
@@ -41,7 +41,7 @@ public class Ackley implements Task{
 			opt[i] = 0.2;
 		}
 	}
-	
+
 	public Ackley(double opt[]){
     dim = new Dimension();
     dim.setSize(opt.length);

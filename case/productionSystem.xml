@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" math="SpaceEx">
+  <component id="system">
+    <param name="x1" type="real" local="false" d1="vx" d2="1" dynamics="any" />
+    <param name="x2" type="real" local="false" d1="vy" d2="1" dynamics="any" />
+    <param name="t" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="a" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="b" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="e1" type="label" local="false" />
+    <location id="1" name="q0">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:= 4&amp; x2:=a &amp;t:=1</flow>
+    </location>
+    <location id="2" name="q1">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=3 &amp; x2:=-2 &amp;t:=1</flow>
+    </location>
+    <location id="3" name="q2">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=2 &amp; x2:=-1 &amp;t:=1</flow>
+    </location>
+    <location id="4" name="q3">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=-2 &amp; x2:=3 &amp; t:=1</flow>
+    </location>
+    <location id="5" name="q4">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=-3 &amp; x2:=2 &amp;t:=1</flow>
+    </location>
+    <location id="6" name="q5">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=b &amp; x2:=0 &amp; t:=1</flow>
+    </location>
+    <location id="7" name="q6">
+      <invariant>0&lt;=x1&amp;x1&lt;=100 &amp; 0&lt;=x2&amp;x2&lt;=100 &amp;t&gt;=0</invariant>
+      <flow>x1:=0 &amp; x2:=0 &amp; t:=1</flow>
+    </location>
+    <transition source="1" target="2">
+      <label>e1</label>
+      <guard>6&lt;=t &amp; t&lt;=8 </guard>
+    </transition>
+    <transition source="2" target="3">
+      <label>e2</label>
+      <guard>10&lt;=t &amp; t&lt;=12 </guard>
+    </transition>
+    <transition source="3" target="4">
+      <label>e3</label>
+      <guard>12.5&lt;=t &amp; t&lt;=14 </guard>
+    </transition>
+    <transition source="4" target="5">
+      <label>e4</label>
+      <guard>16&lt;=t &amp; t&lt;=20 </guard>
+    </transition>
+    <transition source="5" target="6">
+      <label>e5</label>
+      <guard>t&lt;=24 &amp; x2==50</guard>
+    </transition>
+    <transition source="6" target="7">
+      <label>e6</label>
+      <guard>t&lt;=24 &amp;x1==50</guard>
+    </transition>
+    <transition source="7" target="1">
+      <label>e7</label>
+      <guard>t==24 </guard>
+      <assignment>x1:=50 &amp; x2:=50 &amp;t:=0</assignment>
+    </transition>
+  </component>
+</sspaceex>
