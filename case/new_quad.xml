@@ -1,11 +1,13 @@
 paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" math="SpaceEx">
 <component id="system">
+<param name="vx" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="vy" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="x" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="y" type="real" local="false" d1="1" d2="1" dynamics="any"/>
-<param name="v" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="t" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="F" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="angle" type="real" local="false" d1="1" d2="1" dynamics="any"/>
-<param name="a" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="u1" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="fuel" type="real" local="false" d1="1" d2="1" dynamics="any"/>
 <param name="e1" type="label" local="false"/>
 <param name="e2" type="label" local="false"/>
@@ -15,11 +17,10 @@ paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" 
 <param name="e6" type="label" local="false"/>
 <param name="e7" type="label" local="false"/>
 	<location id="1" name="v1" x="710" y="351" width="135.0" height="73.0">
-      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==0 &amp; y'==v*sin(angle) &amp; v'=u2 &amp; fuel'=0.5*v</flow>
-	<invariant> v&lt;=8 </invariant>
+      <flow>x'==vx &amp;y'=vy &amp; t'==1 &amp; angle'==0 &amp;vx'=0 &amp; vy'=F/5-10 &amp; </flow>
     </location>
 	<location id="2" name="v2" x="710" y="351" width="135.0" height="73.0">
-      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==u1 &amp; y'==v*sin(angle) &amp; v'=0 &amp; fuel'=0.5*v</flow>
+      <flow>x'==vx &amp;y'=vy &amp; t'==1 &amp; angle'==u &amp;vx'=F*cos(angle)/5 &amp; vy'=F*sin(angle)/5-10 &amp; </flow>
 	<invariant> angle&gt;=-1.5 &amp;angle&lt;3.14</invariant>
     </location>
 	<transition source = "2",target = "1">

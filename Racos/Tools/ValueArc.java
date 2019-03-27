@@ -10,6 +10,7 @@ public class ValueArc{
     public double penAll;
     public HashMap<String,Double> allParametersValues;
     public double []args;
+    public int []path;
     public ValueArc(double penalty,double globalPenalty,boolean sat){
         this.penalty = penalty;
         this.globalPenalty = globalPenalty;

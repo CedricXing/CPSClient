@@ -654,6 +654,9 @@ public class ObjectFunction implements Task{
         return computeValue(args);
     }
 
+    public double preMaxX = 0;
+    public double preMaxY = 0;
+
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
         //System.out.println(map.get("y"));
@@ -666,7 +669,9 @@ public class ObjectFunction implements Task{
 //        for(HashMap.Entry<String,Double> entry : map.entrySet()){
 //            target = entry.getValue();
 //        }
-        double value = Math.sqrt(Math.pow(200-map.get("x"),2) + Math.pow(200-map.get("y"),2));
+        double value = Math.abs(20-map.get("x"));
+        //if(value <= 2) value += Math.abs(3-map.get("y"));
+        //double value = map.get("fuel") + Math.sqrt(Math.pow(200-map.get("x"),2) + Math.pow(200-map.get("y"),2));
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
