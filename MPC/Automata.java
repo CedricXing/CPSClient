@@ -527,7 +527,7 @@ public class Automata {
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 2;
+                    int maxPathSize = 3;
 
                     //automata.DFS1(automata,arrayListPath,maxPathSize);
 //                    for (int i = 1; i <= maxPathSize; ++i) {
@@ -538,7 +538,7 @@ public class Automata {
 
                    File file = new File("output/result.txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-                   while(Math.abs(20 - automata.initParameterValues.get("x")) > 0.01){
+                   while(Math.abs(40 - automata.initParameterValues.get("x")) > 0.1){
                        //automata.DFS1(automata,arrayListPath,maxPathSize);
                        ArrayList<Integer> arrayListPath = new ArrayList<>();
                        if(automata.getInitLoc() != -1) {
@@ -553,6 +553,14 @@ public class Automata {
                            }
                        }
                        HashMap<String ,Double> map = automata.minValueArc.allParametersValues;
+                       int index;
+                       for(index = 0;index < automata.minValueArc.args.length;++index){
+                           if(automata.minValueArc.args[index] != 0) {
+                               break;
+                           }
+                       }
+                       if(index == automata.minValueArc.args.length)
+                           continue;
                        for(int i = 0;i < automata.minValueArc.path.length;++i)
                            bufferedWriter.write(automata.minValueArc.path[i] + ",");
                        bufferedWriter.write(" & ");
@@ -560,17 +568,21 @@ public class Automata {
                            System.out.println(automata.minValueArc.args[i] + " & ");
                            bufferedWriter.write(automata.minValueArc.args[i] + " & ");
                        }
-                       bufferedWriter.write(map.get("angle") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
-                       System.out.println(map.get("angle") + " " + map.get("u1"));
+                       System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
                        automata.initParameterValues.put("x",map.get("x"));
                        automata.initParameterValues.put("y",map.get("y"));
                        if(map.containsKey("angle"))
                            automata.initParameterValues.put("angle",map.get("angle"));
-                       if(map.containsKey("v"))
-                           automata.initParameterValues.put("v",map.get("v"));
+                       if(map.containsKey("vx"))
+                           automata.initParameterValues.put("vx",map.get("vx"));
+                       if(map.containsKey("vy"))
+                           automata.initParameterValues.put("vx",map.get("vy"));
                        if(map.containsKey("fuel"))
                            automata.initParameterValues.put("fuel",map.get("fuel"));
+                       if(map.containsKey("v"))
+                           automata.initParameterValues.put("v",map.get("v"));
                        automata.minValueArc = null;
                    }
                    bufferedWriter.close();
