@@ -54,6 +54,8 @@ public class ObjectFunction implements Task{
             //System.out.println(entry.getKey() + "  "  + entry.getValue());
         }
         //System.out.println(automata.forbiddenConstraints);
+        if(automata.forbiddenConstraints==null)
+            return;
         boolean result = (boolean)fel.eval(automata.forbiddenConstraints);
         computeConstraintValue(automata.forbiddenConstraints);
         if(!result) return;
@@ -669,7 +671,7 @@ public class ObjectFunction implements Task{
 //        for(HashMap.Entry<String,Double> entry : map.entrySet()){
 //            target = entry.getValue();
 //        }
-        double value = Math.abs(40-map.get("x"));
+        double value = map.get("fuel");
         //if(value <= 2) value += Math.abs(3-map.get("y"));
         //double value = map.get("fuel") + Math.sqrt(Math.pow(200-map.get("x"),2) + Math.pow(200-map.get("y"),2));
         if(value < valueArc.value){
@@ -677,7 +679,7 @@ public class ObjectFunction implements Task{
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
             valueArc.args = args;
         }
-        return -(10000-value);
+        return value;
 //        double sum = 0;
 //        for(int i = 0;i < args.length;++i)
 //            sum += args[i];
