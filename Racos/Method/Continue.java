@@ -8,6 +8,7 @@
 
 package Racos.Method;
 
+import MPC.Automata;
 import Racos.Tools.*;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class Continue extends BaseParameters{
 	private int BudCount;
 	private Model model;
 	private RandomOperator ro;
+
+	private Automata automata;
 	
 	
 	private class Model{                 //the model of generating next instance
@@ -60,11 +63,12 @@ public class Continue extends BaseParameters{
 	 * 
 	 * @param ta  the class which implements interface Task
 	 */
-	public Continue(Task ta){
+	public Continue(Task ta, Automata automata){
 		task = ta;
 		dimension = ta.getDim();
 		ro = new RandomOperator();
-		this.on_off = false; 			//set batch-racos
+		this.on_off = false; 		//set batch-racos
+		this.automata = automata;
 	}
 	
 	//the next several functions are prepared for testing
@@ -174,7 +178,7 @@ public class Continue extends BaseParameters{
 						ins.setFeature(i, pos.getFeature(i));
 					} else {//according to not fixed dimension, random in region
 //					System.out.println("["+model.region[i][0]+", "+model.region[i][1]+"]");
-						ins.setFeature(i, ro.getDouble(model.region[i][0], model.region[i][1]));
+						ins.setFeature(i, ro.getDouble(Math.max(pos.region[i][0],model.region[i][0]),Math.min(pos.region[i][1],model.region[i][1])));
 					}
 				} else {//if i-th dimension type is discrete
 					if (model.label[i]) {//according to fixed dimension, valuate using corresponding value in pos
@@ -412,6 +416,7 @@ public class Continue extends BaseParameters{
 				}
 			}
 			if(j<this.PositiveNum){
+				((ObjectFunction)task).updateInstanceRegion(Pop[i]);
 				TempIns=Pop[i];
 				Pop[i]=PosPop[this.PositiveNum-1];
 				for(int k=this.PositiveNum-1; k>j;k--){
@@ -511,12 +516,6 @@ public class Continue extends BaseParameters{
 					}
 				}
 				preBestValue = bestValue;
-				//System.out.println(bestValue);
-//				if(bestValue < 0)
-//					++bestValueCount;
-//				if(bestValueCount > 500) {
-//					break;
-//				}
 				// for each sample in a loop
 				for(int j=0; j<this.SampleSize; j++){	
 					reSample = true;

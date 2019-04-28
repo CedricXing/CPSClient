@@ -47,7 +47,7 @@ public class ObjectFunction implements Task{
         valueArc = new ValueArc();
     }
 
-    public void checkConstraints(double []args,HashMap<String,Double> parametersValues){
+    public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
         for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
             //System.out.println(allParametersValues.size());
             ctx.set(entry.getKey(),entry.getValue());
@@ -55,13 +55,14 @@ public class ObjectFunction implements Task{
         }
         //System.out.println(automata.forbiddenConstraints);
         if(automata.forbiddenConstraints==null)
-            return;
+            return true;
         boolean result = (boolean)fel.eval(automata.forbiddenConstraints);
         computeConstraintValue(automata.forbiddenConstraints);
-        if(!result) return;
+        if(!result) return true;
         //System.out.println(result);
         sat = false;
         globalPenalty += computeConstraintValue(automata.forbiddenConstraints);
+        return false;
     }
 
     public double computeConstraintValue(String constraint){
@@ -423,7 +424,6 @@ public class ObjectFunction implements Task{
                     ctx.set(entry.getKey(),entry.getValue());
                 }
                 checkConstraints(args,newMap);
-                //System.out.println(globalPenalty);
                 for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
                     boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
                     if(!result) {
@@ -448,6 +448,75 @@ public class ObjectFunction implements Task{
         return true;
     }
 
+    public void updateInstanceRegion(Instance ins){
+        double args[] = new double[path.length];
+        for(int i = 0;i < path.length;++i)
+            args[i] = ins.getFeature(i);
+        HashMap<String,Double> initParameter = automata.duplicateInitParametersValues();
+        for(int i = path.length;i < ins.getFeature().length;++i){
+            initParameter.put(automata.rangeParameters.get(i-path.length).name,ins.getFeature(i));
+        }
+        double end = 0;
+        HashMap<String,Double> newMap = initParameter;
+        for(int locIndex = 0;locIndex < path.length;++locIndex){
+            end = args[locIndex];
+            double step = 0;
+            if(locIndex != 0){
+                Transition transition = automata.getTransitionBySourceAndTarget(path[locIndex - 1],path[locIndex]);
+                if(transition == null){
+                    System.out.println("Found no transition");
+                    System.exit(-1);
+                }
+                for(HashMap.Entry<String,String> entry : transition.assignments.entrySet()){
+                    Object obj = fel.eval(entry.getValue());
+                    double result = 0;
+                    if(obj instanceof Integer)  result = (int)obj;
+                    else if(obj instanceof Double) result = (double)obj;
+                    else{
+                        System.out.println("Not Double and Not Integer!");
+                        System.out.println(entry.getValue());
+                        System.exit(0);
+                    }
+                    newMap.put(entry.getKey(),result);
+                    //allParametersValues.get(locIndex - 1).put(entry.getKey(),result);
+                }
+            }
+            if(end==0){
+
+            }
+            while(step < end){
+                newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
+                for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
+                    ctx.set(entry.getKey(),entry.getValue());
+                }
+                if(!checkConstraints(args,newMap)) {
+                    ins.region[locIndex][1] = step - delta;
+                    return;
+                }
+                for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
+                    boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
+                    if(!result) {
+                        String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
+                        if(computePenalty(invariant,false) < cerr)
+                            continue;
+                        if(Double.isNaN(computePenalty(invariant,false))){
+                            sat = false;
+                            penalty += 100000;
+                        }
+                        else {
+                            sat = false;
+                            //System.out.println(invariant);
+                            penalty += computePenalty(invariant, false);
+                            ins.region[locIndex][1] = step - delta;
+                            return;
+                        }
+                    }
+                }
+                step += 1;
+            }
+        }
+    }
+
     private double computePenaltyOfConstraint(String expression){//just one level
         String []expressions = expression.split("\\|");
         //System.out.println(expressions.length);
@@ -468,30 +537,6 @@ public class ObjectFunction implements Task{
         String []strings;
         String bigPart = "",smallPart = "";
         strings = expression.split("<=|<|>=|>|==");
-        //ctx.set("x3",1.02);
-//        for(int i = 0;i < strings.length;++i)
-//            System.out.println(strings[i]);
-//        if(expression.indexOf("<=") != -1){
-//            strings = expression.split("<=");
-//            bigPart = strings[0].trim();
-//            smallPart = strings[1].trim();
-//        }
-//        else if(expression.indexOf("<") != -1){
-//            strings = expression.split("<");
-//            bigPart = strings[0].trim();
-//            smallPart = strings[1].trim();
-//        }
-//        else if(expression.indexOf(">=") != -1){
-//            strings = expression.split(">=");
-//            bigPart = strings[1].trim();
-//            smallPart = strings[0].trim();
-//        }
-//        else if(expression.indexOf(">") != -1){
-//            strings = expression.split(">");
-//            bigPart = strings[1].trim();
-//            smallPart = strings[0].trim();
-//        }
-        //System.out.println(strings[0].trim());
         Object obj1 = fel.eval(strings[0].trim());
         Object obj2 = fel.eval(strings[1].trim());
         double big = 0,small = 0;
@@ -534,34 +579,34 @@ public class ObjectFunction implements Task{
         return Math.abs(big-small);
     }
 
-    public boolean checkInvarientsByRacos(double []args){
-        int samplesize = 30;       // parameter: the number of samples in each iteration
-        int iteration = 100;       // parameter: the number of iterations for batch racos
-        int budget = 2000;         // parameter: the budget of sampling for sequential racos
-        int positivenum = 1;       // parameter: the number of positive instances in each iteration
-        double probability = 0.95; // parameter: the probability of sampling from the model
-        int uncertainbit = 1;      // parameter: the number of sampled dimensions
-        Instance ins = null;
-        int repeat = 15;
-        allParametersValues.add(0,automata.duplicateInitParametersValues());
-        allParametersValues.remove(allParametersValues.size() - 1);
-        Task t = new InvarientsObjectFunction(automata,path,args,allParametersValues);
-        for (int i = 0; i < repeat; i++) {
-            Continue conti = new Continue(t);
-            //conti.TurnOnSequentialRacos();
-            conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
-            conti.setBudget(budget);              // parameter: the budget of sampling
-            conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
-            conti.setRandProbability(probability);// parameter: the probability of sampling from the model
-            conti.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-            conti.run();                          // call sequential Racos
-            ins = conti.getOptimal();             // obtain optimal
-            if(ins.getValue() == Double.MIN_VALUE)
-                System.out.print("Invarient Check failed");
-            return false;
-        }
-        return true;
-    }
+//    public boolean checkInvarientsByRacos(double []args){
+//        int samplesize = 30;       // parameter: the number of samples in each iteration
+//        int iteration = 100;       // parameter: the number of iterations for batch racos
+//        int budget = 2000;         // parameter: the budget of sampling for sequential racos
+//        int positivenum = 1;       // parameter: the number of positive instances in each iteration
+//        double probability = 0.95; // parameter: the probability of sampling from the model
+//        int uncertainbit = 1;      // parameter: the number of sampled dimensions
+//        Instance ins = null;
+//        int repeat = 15;
+//        allParametersValues.add(0,automata.duplicateInitParametersValues());
+//        allParametersValues.remove(allParametersValues.size() - 1);
+//        Task t = new InvarientsObjectFunction(automata,path,args,allParametersValues);
+//        for (int i = 0; i < repeat; i++) {
+//            Continue conti = new Continue(t);
+//            //conti.TurnOnSequentialRacos();
+//            conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
+//            conti.setBudget(budget);              // parameter: the budget of sampling
+//            conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
+//            conti.setRandProbability(probability);// parameter: the probability of sampling from the model
+//            conti.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
+//            conti.run();                          // call sequential Racos
+//            ins = conti.getOptimal();             // obtain optimal
+//            if(ins.getValue() == Double.MIN_VALUE)
+//                System.out.print("Invarient Check failed");
+//            return false;
+//        }
+//        return true;
+//    }
 
     public boolean checkCycle(double []args){
         double sum = 0;
@@ -599,37 +644,10 @@ public class ObjectFunction implements Task{
         for(int i = path.length;i < ins.getFeature().length;++i){
             automata.initParameterValues.put(automata.rangeParameters.get(i-path.length).name,ins.getFeature(i));
         }
-        //System.out.println("");
-//        if(!checkCycle(args)){
-//            //System.out.println("not");
-//            return 100000;
-//        }
-//        //System.out.println("1");
-//        if(!checkInvarientsByODE(args)) {
-//            //System.out.println("1");
-//            return 10000;
-//        }
-//        //System.out.println("2");
-//        if(!checkConstraints(args)) {
-//            //System.out.println("2");
-//            return 1000;
-//        }
-//        //System.out.println("3");
-//        if(!checkGuards(args)) {
-//            //System.out.println("3");
-//            //System.out.println(p4);
-//            return 100;
-//        }
-        checkCycle(args);
-//        if(!sat) {
-//            System.out.println("over");
+//        if(!checkCycle(args))
 //            return penalty;
-//        }
         checkInvarientsByODE(args);
-        //computeParameterValues(args);
-        //System.out.println("hello1");
         checkGuards(args);
-        //System.out.println("hello2");
         if(!sat) {
             if(penalty + globalPenalty == 0){
                 System.out.println("penalty = 0 when unsat");
@@ -656,34 +674,16 @@ public class ObjectFunction implements Task{
         return computeValue(args);
     }
 
-    public double preMaxX = 0;
-    public double preMaxY = 0;
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        //System.out.println(map.get("y"));
-//        System.out.println("x  " + map.get("x"));
-//        System.out.println("fuel    " + map.get("fuel"));
-        //return -10000 + map.get("MA") - map.get("x") + map.get("fuel");
-        //System.out.println("x : " + map.get("x"));
-        //System.out.println("y : " + map.get("y"));
-//        double target = 0;
-//        for(HashMap.Entry<String,Double> entry : map.entrySet()){
-//            target = entry.getValue();
-//        }
-        double value = map.get("fuel");
-        //if(value <= 2) value += Math.abs(3-map.get("y"));
-        //double value = map.get("fuel") + Math.sqrt(Math.pow(200-map.get("x"),2) + Math.pow(200-map.get("y"),2));
+        double value = Math.abs(200-map.get("x"))+Math.abs(200-map.get("y"))-10000;
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
             valueArc.args = args;
         }
         return value;
-//        double sum = 0;
-//        for(int i = 0;i < args.length;++i)
-//            sum += args[i];
-//        return  -sum;
     }
 
     @Override

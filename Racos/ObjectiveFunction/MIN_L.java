@@ -121,36 +121,36 @@ public class MIN_L implements Task{
         return true;
     }
 
-    public boolean checkConstrain(double []v,double v0,double MA) {
-        int samplesize = 300;       // parameter: the number of samples in each iteration
-        int iteration = 10000;       // parameter: the number of iterations for batch racos
-        int budget = 2000;         // parameter: the budget of sampling for sequential racos
-        int positivenum = 1;       // parameter: the number of positive instances in each iteration
-        double probability = 0.99; // parameter: the probability of sampling from the model
-        int uncertainbit = 1;      // parameter: the number of sampled dimensions
-
-        Instance ins = null;
-        int repeat = 15;
-        Task t = new constrain(1,v,v0,MA);
-        for (int i = 0; i < repeat; i++) {
-            Continue con = new Continue(t);
-            //con.TurnOnSequentialRacos();
-            con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
-            con.setBudget(budget);              // parameter: the budget of sampling
-            con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
-            con.setRandProbability(probability);// parameter: the probability of sampling from the model
-            con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-            con.run();                          // call sequential Racos
-            ins = con.getOptimal();             // obtain optimal
-            if(ins.getValue() < 0) {
-                //System.out.println("check");
-                System.out.println(ins.getFeature(0));
-                System.out.println(ins.getValue());
-                return false;
-            }
-        }
-        return true;
-    }
+//    public boolean checkConstrain(double []v,double v0,double MA) {
+//        int samplesize = 300;       // parameter: the number of samples in each iteration
+//        int iteration = 10000;       // parameter: the number of iterations for batch racos
+//        int budget = 2000;         // parameter: the budget of sampling for sequential racos
+//        int positivenum = 1;       // parameter: the number of positive instances in each iteration
+//        double probability = 0.99; // parameter: the probability of sampling from the model
+//        int uncertainbit = 1;      // parameter: the number of sampled dimensions
+//
+//        Instance ins = null;
+//        int repeat = 15;
+//        Task t = new constrain(1,v,v0,MA);
+//        for (int i = 0; i < repeat; i++) {
+//            Continue con = new Continue(t);
+//            //con.TurnOnSequentialRacos();
+//            con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
+//            con.setBudget(budget);              // parameter: the budget of sampling
+//            con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
+//            con.setRandProbability(probability);// parameter: the probability of sampling from the model
+//            con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
+//            con.run();                          // call sequential Racos
+//            ins = con.getOptimal();             // obtain optimal
+//            if(ins.getValue() < 0) {
+//                //System.out.println("check");
+//                System.out.println(ins.getFeature(0));
+//                System.out.println(ins.getValue());
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     @Override
     public Dimension getDim() {

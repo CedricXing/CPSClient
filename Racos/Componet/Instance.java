@@ -30,7 +30,8 @@ public class Instance {
 	
 	private double[] feature;//the value in each dimension
 	private double value;	 //the objective function value with the feature
-		
+
+	public double [][] region;
 	/**
 	 * constructor with parameter class Dimension
 	 * 
@@ -39,6 +40,11 @@ public class Instance {
 	public Instance(Dimension dim){
 		feature = new double[dim.getSize()];
 		value = 0;
+		region = new double[dim.getSize()][2];
+		for(int i = 0;i < dim.getSize();++i){
+			region[i][0] = dim.getRegion(i)[0];
+			region[i][1] = dim.getRegion(i)[1];
+		}
 	}
 	
 	/**

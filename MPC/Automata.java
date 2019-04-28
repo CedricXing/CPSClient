@@ -353,14 +353,14 @@ public class Automata {
 
 
     boolean runRacos(Automata automata,int []path){
-        int samplesize = 1 ;       // parameter: the number of samples in each iteration
+        int samplesize = 5;       // parameter: the number of samples in each iteration
         int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
-        int positivenum = 10;       // parameter: the number of positive instances in each iteration
+        int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 3;      // parameter: the number of sampled dimensions
         Instance ins = null;
-        int repeat = 10;
+        int repeat = 1;
         Task t = new ObjectFunction(automata,path);
         ArrayList<Instance> result = new ArrayList<>();
         ArrayList<Instance> feasibleResult = new ArrayList<>();
@@ -368,7 +368,7 @@ public class Automata {
         boolean pruning = true;
         for (int i = 0; i < repeat; i++) {
             double currentT = System.currentTimeMillis();
-            Continue con = new Continue(t);
+            Continue con = new Continue(t,automata);
             con.setMaxIteration(iteration);
             con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
             con.setBudget(budget);              // parameter: the budget of sampling
@@ -507,14 +507,14 @@ public class Automata {
                                            "src/case/platoon_hybrid.xml",
                                            "src/case/helir_10.xml",
                                             "src/case/productionSystem.xml",
-                                            "src/case/example.xml"};
+                                            "src/case/new_quad.xml"};
         String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
                                          "src/case/quadrotor.cfg",
                                          "src/case/COLLISION.cfg",
                                          "src/case/platoon.cfg",
                                          "src/case/helir_10.cfg",
                                           "src/case/productionSystem.cfg",
-                                            "src/case/example.cfg"};
+                                            "src/case/new_quad.cfg"};
         for(int fileIndex = 6;fileIndex < modelFiles.length;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             String fileName = temp[temp.length - 1].substring(0,temp[temp.length-1].indexOf("."));
@@ -523,7 +523,7 @@ public class Automata {
                 Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
                 //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
                 //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-                automata.output = new File("output/delta=0.005/example" + "_" + repeat + ".txt");
+                automata.output = new File("output/new_quad" + "_newSampleSize_" + repeat + ".txt");
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
