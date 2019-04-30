@@ -152,10 +152,10 @@ public class Continue extends BaseParameters{
 				}
 			}
 			double sum = 0;
-			for(int j = 0;j < ins.getFeature().length;++j){
+			for(int j = 0;j < ((ObjectFunction)task).getPathLength();++j){
 				sum += ins.getFeature(j);
 			}
-			if(sum <= dimension.getRegion(0)[1])
+			if(sum <= automata.cycle/automata.delta)
 				break;
 		}
 		return ins;
@@ -168,6 +168,7 @@ public class Continue extends BaseParameters{
 	 * @return an Instance, each feature in this instance is a random number from a feasible region named model
 	 */
 	protected Instance RandomInstance(Instance pos){
+//		System.out.println("RandomInstance");
 		Instance ins = new Instance(dimension);
 //		model.PrintLabel();
 		while(true) {
@@ -184,16 +185,28 @@ public class Continue extends BaseParameters{
 					if (model.label[i]) {//according to fixed dimension, valuate using corresponding value in pos
 						ins.setFeature(i, pos.getFeature(i));
 					} else {//according to not fixed dimension, random in region
-						ins.setFeature(i, ro.getInteger((int) model.region[i][0], (int) model.region[i][1]));
+//						if(pos.region[i][1] < model.region[i][1]) {
+//							System.out.println("optimization");
+//						}
+						int bound1 = Math.max((int) pos.region[i][0],(int) model.region[i][0]), bound2 = Math.min((int) pos.region[i][1],(int) model.region[i][1]);
+						if(bound1 > bound2){
+//							System.out.println("Dimsion is " + i);
+//							System.out.println("pos region [" + pos.region[i][0] + "," + pos.region[i][1] + "]");
+//							System.out.println("model region [" + model.region[i][0] + "," + model.region[i][1] + "]");
+							ins.setFeature(i,ro.getInteger((int) model.region[i][0],(int) model.region[i][1]));
+						}
+						else {
+							ins.setFeature(i, ro.getInteger(bound1,bound2));
+						}
 					}
 				}
 
 			}
 			double sum = 0;
-			for(int j = 0;j < ins.getFeature().length;++j){
+			for(int j = 0;j < ((ObjectFunction)task).getPathLength();++j){
 				sum += ins.getFeature(j);
 			}
-			if(sum <= dimension.getRegion(0)[1])
+			if(sum <= automata.cycle/automata.delta)
 				break;
 		}
 		return ins;
@@ -230,6 +243,7 @@ public class Continue extends BaseParameters{
 		PosPop = new Instance[PositiveNum];
 		for(int i=0; i<PositiveNum; i++){
 			PosPop[i] = temp[i];
+			((ObjectFunction)task).updateInstanceRegion(PosPop[i]);
 		}
 		
 		Pop = new Instance[SampleSize];
@@ -265,13 +279,18 @@ public class Continue extends BaseParameters{
 	 * @param pos
 	 */
 	protected void ShrinkModel(Instance pos){
+//		System.out.println("ShrinkModel");
 		int ChoosenDim;  
 		int ChoosenNeg;  
 		double tempBound;
 		
 		int ins_left = SampleSize;
+		int c = 0;
 		while (ins_left>0) {//generate the model
-			
+			if(c>1000){
+				System.out.println("dead loop");
+			}
+			++c;
 			ChoosenDim = ro.getInteger(0, dimension.getSize() - 1);//choose a dimension randomly
 			ChoosenNeg = ro.getInteger(0, this.SampleSize - 1);    //choose a negative instance randomly
 			// shrink model
@@ -321,6 +340,7 @@ public class Continue extends BaseParameters{
 	 * @return
 	 */
 	protected void setRandomBits(){
+//		System.out.println("setRandomBits");
 		int labelMarkNum;
 		int[] labelMark = new int[dimension.getSize()];
 		int tempLab;
@@ -382,6 +402,7 @@ public class Continue extends BaseParameters{
 	 * @return
 	 */
 	protected boolean notExistInstance(int end, Instance ins){
+//		System.out.println("notExistInstance");
 		int i,j;
 		for(i=0; i<this.PositiveNum;i++){
 			if(ins.Equal(PosPop[i])){
@@ -407,6 +428,7 @@ public class Continue extends BaseParameters{
 	 * 
 	 */
 	protected void UpdatePosPop(){
+//		System.out.println("UpdatePosPop");
 		Instance TempIns = new Instance(dimension);
 		int j;
 		for(int i=0; i<this.SampleSize; i++){
@@ -499,16 +521,17 @@ public class Continue extends BaseParameters{
 			double preBestValue = 0;
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
+//				System.out.print(i + " ");
 				double bestValue = getOptimal().getValue();
-				if(bestValue > 0){
-					++sumCount;
-					if(sumCount > 1000)
-						break;
-				}
+//				if(bestValue > 0){
+//					++sumCount;
+//					if(sumCount > 300)
+//						break;
+//				}
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>200)
+						if(bestValueCount>50)
 							break;
 					}
 					else{
@@ -519,7 +542,7 @@ public class Continue extends BaseParameters{
 				// for each sample in a loop
 				for(int j=0; j<this.SampleSize; j++){	
 					reSample = true;
-					while (reSample) {		
+					while (reSample) {
 						ResetModel();
 						ChoosenPos = ro.getInteger(0, this.PositiveNum - 1);
 						GlobalSample = ro.getDouble(0, 1);
@@ -534,6 +557,10 @@ public class Continue extends BaseParameters{
 							reSample = false;
 						}
 					}
+//					if(k == 100){
+//						System.out.println("reset reSample");
+//						NextPop[j].setValue(task.getValue(NextPop[j]));
+//					}
 				}				
 				//copy NextPop
 				for (int j = 0; j < this.SampleSize; j++) {

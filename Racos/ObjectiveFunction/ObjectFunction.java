@@ -22,7 +22,7 @@ public class ObjectFunction implements Task{
     private FelEngine fel;
     private FelContext ctx;
     private ArrayList<HashMap<String,Double>> allParametersValues;
-    public double delta = 0.05;
+    public double delta;
     private double penalty = 0;
     private double globalPenalty = 0;
     private boolean sat = true;
@@ -34,6 +34,7 @@ public class ObjectFunction implements Task{
     public ObjectFunction(Automata automata,int []path){
         this.automata = automata;
         dim = new Dimension();
+        delta = automata.delta;
         rangeParaSize = (automata.rangeParameters == null) ? 0 : automata.rangeParameters.size();
         dim.setSize(path.length + rangeParaSize);
         for(int i = 0;i < path.length;++i)
@@ -47,6 +48,10 @@ public class ObjectFunction implements Task{
         valueArc = new ValueArc();
     }
 
+    public int getPathLength(){
+        return this.path.length;
+    }
+
     public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
         for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
             //System.out.println(allParametersValues.size());
@@ -57,7 +62,7 @@ public class ObjectFunction implements Task{
         if(automata.forbiddenConstraints==null)
             return true;
         boolean result = (boolean)fel.eval(automata.forbiddenConstraints);
-        computeConstraintValue(automata.forbiddenConstraints);
+//        computeConstraintValue(automata.forbiddenConstraints);
         if(!result) return true;
         //System.out.println(result);
         sat = false;
@@ -449,6 +454,7 @@ public class ObjectFunction implements Task{
     }
 
     public void updateInstanceRegion(Instance ins){
+//        System.out.println("updateRegion");
         double args[] = new double[path.length];
         for(int i = 0;i < path.length;++i)
             args[i] = ins.getFeature(i);
@@ -482,7 +488,11 @@ public class ObjectFunction implements Task{
                 }
             }
             if(end==0){
-
+                if(!checkConstraints(args,newMap)){
+                    System.out.println("end==0");
+                    ins.region[locIndex][1] = 1;
+                    return;
+                }
             }
             while(step < end){
                 newMap = computeValuesByFlow(newMap,automata.locations.get(path[locIndex]),delta);
@@ -490,7 +500,11 @@ public class ObjectFunction implements Task{
                     ctx.set(entry.getKey(),entry.getValue());
                 }
                 if(!checkConstraints(args,newMap)) {
-                    ins.region[locIndex][1] = step - delta;
+                    if(step == 0) ++step;
+                    for(int i = 0;i < args.length;++i)
+                        System.out.print(args[i] + " ");
+                    System.out.println("locIndex " + locIndex);
+                    ins.region[locIndex][1] = step;
                     return;
                 }
                 for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
@@ -500,14 +514,11 @@ public class ObjectFunction implements Task{
                         if(computePenalty(invariant,false) < cerr)
                             continue;
                         if(Double.isNaN(computePenalty(invariant,false))){
-                            sat = false;
-                            penalty += 100000;
+                            System.out.println("NaN");
+                            System.exit(-1);
                         }
                         else {
-                            sat = false;
-                            //System.out.println(invariant);
-                            penalty += computePenalty(invariant, false);
-                            ins.region[locIndex][1] = step - delta;
+                            ins.region[locIndex][1] = step;
                             return;
                         }
                     }
@@ -677,7 +688,7 @@ public class ObjectFunction implements Task{
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        double value = Math.abs(200-map.get("x"))+Math.abs(200-map.get("y"))-10000;
+        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) - 10000;
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);

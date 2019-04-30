@@ -36,6 +36,7 @@ public class Automata {
     BufferedWriter bufferedWriter;
     public ArrayList<RangeParameter> rangeParameters;
     public ValueArc minValueArc;
+    public double delta = 0.05;
 
     public Automata(String modelFileName,String cfgFileName){
         forbiddenLocName = null;
@@ -354,11 +355,11 @@ public class Automata {
 
     boolean runRacos(Automata automata,int []path){
         int samplesize = 5;       // parameter: the number of samples in each iteration
-        int iteration = 1000;       // parameter: the number of iterations for batch racos
+        int iteration = 300;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
-        int uncertainbit = 3;      // parameter: the number of sampled dimensions
+        int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
         int repeat = 1;
         Task t = new ObjectFunction(automata,path);
@@ -431,6 +432,7 @@ public class Automata {
             println("]");
         }
         println("Average time : " + Double.toString(feasibleResultAllTime / feasibleResult.size()));
+        System.out.println("Average time : " + Double.toString(feasibleResultAllTime / feasibleResult.size()));
         return pruning;
     }
 
@@ -507,94 +509,96 @@ public class Automata {
                                            "src/case/platoon_hybrid.xml",
                                            "src/case/helir_10.xml",
                                             "src/case/productionSystem.xml",
-                                            "src/case/new_quad.xml"};
+                                            "src/case/new_train.xml"};
         String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
                                          "src/case/quadrotor.cfg",
                                          "src/case/COLLISION.cfg",
                                          "src/case/platoon.cfg",
                                          "src/case/helir_10.cfg",
                                           "src/case/productionSystem.cfg",
-                                            "src/case/new_quad.cfg"};
+                                            "src/case/new_train.cfg"};
         for(int fileIndex = 6;fileIndex < modelFiles.length;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             String fileName = temp[temp.length - 1].substring(0,temp[temp.length-1].indexOf("."));
             int repeat = 0;
+            double currentTime = System.currentTimeMillis();
             while (repeat < 1) {
                 Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
                 //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
                 //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-                automata.output = new File("output/new_quad" + "_newSampleSize_" + repeat + ".txt");
+                automata.output = new File("output/new_train" + "_newSampleSize_" + repeat + ".txt");
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 3;
-                    ArrayList<Integer> arrayListPath = new ArrayList<>();
-                    if (automata.getInitLoc() != -1) {
-                        arrayListPath.add(automata.getInitLoc());
-                        automata.DFS1(automata, arrayListPath, maxPathSize);
-                    } else {
-                        for (Map.Entry<Integer, Location> entry : automata.locations.entrySet()) {
-                            arrayListPath.clear();
-                            arrayListPath.add(entry.getValue().getNo());
-                            automata.DFS1(automata, arrayListPath, maxPathSize);
-                        }
-                    }
-//                    for (int i = 1; i <= maxPathSize; ++i) {
-//                        int[] path = new int[i];
-//                        path[0] = automata.getInitLoc();
-//                        automata.DFS(automata, path, 0, i);
+                    int maxPathSize = 2;
+//                    ArrayList<Integer> arrayListPath = new ArrayList<>();
+//                    if (automata.getInitLoc() != -1) {
+//                        arrayListPath.add(automata.getInitLoc());
+//                        automata.DFS1(automata, arrayListPath, maxPathSize);
+//                    } else {
+//                        for (Map.Entry<Integer, Location> entry : automata.locations.entrySet()) {
+//                            arrayListPath.clear();
+//                            arrayListPath.add(entry.getValue().getNo());
+//                            automata.DFS1(automata, arrayListPath, maxPathSize);
+//                        }
 //                    }
 
-//                   File file = new File("output/result.txt");
-//                   BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-//                   while(Math.abs(40 - automata.initParameterValues.get("x")) > 0.1){
-//                       //automata.DFS1(automata,arrayListPath,maxPathSize);
-//                       ArrayList<Integer> arrayListPath = new ArrayList<>();
-//                       if(automata.getInitLoc() != -1) {
-//                           arrayListPath.add(automata.getInitLoc());
-//                           automata.DFS1(automata,arrayListPath,maxPathSize);
-//                       }
-//                       else{
-//                           for(Map.Entry<Integer,Location> entry:automata.locations.entrySet() ){
-//                               arrayListPath.clear();
-//                               arrayListPath.add(entry.getValue().getNo());
-//                               automata.DFS1(automata,arrayListPath,maxPathSize);
-//                           }
-//                       }
-//                       HashMap<String ,Double> map = automata.minValueArc.allParametersValues;
-//                       int index;
-//                       for(index = 0;index < automata.minValueArc.args.length;++index){
-//                           if(automata.minValueArc.args[index] != 0) {
-//                               break;
-//                           }
-//                       }
-//                       if(index == automata.minValueArc.args.length)
-//                           continue;
-//                       for(int i = 0;i < automata.minValueArc.path.length;++i)
-//                           bufferedWriter.write(automata.minValueArc.path[i] + ",");
-//                       bufferedWriter.write(" & ");
-//                       for(int i = 0;i < automata.minValueArc.args.length;++i) {
-//                           System.out.println(automata.minValueArc.args[i] + " & ");
-//                           bufferedWriter.write(automata.minValueArc.args[i] + " & ");
-//                       }
+
+                   File file = new File("output/result.txt");
+                   BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 1){
+                       //automata.DFS1(automata,arrayListPath,maxPathSize);
+                       ArrayList<Integer> arrayListPath = new ArrayList<>();
+                       if(automata.getInitLoc() != -1) {
+                           arrayListPath.add(automata.getInitLoc());
+                           automata.DFS1(automata,arrayListPath,maxPathSize);
+                       }
+                       else{
+                           for(Map.Entry<Integer,Location> entry:automata.locations.entrySet() ){
+                               arrayListPath.clear();
+                               arrayListPath.add(entry.getValue().getNo());
+                               automata.DFS1(automata,arrayListPath,maxPathSize);
+                           }
+                       }
+                       HashMap<String ,Double> map = automata.minValueArc.allParametersValues;
+                       int index;
+                       for(index = 0;index < automata.minValueArc.args.length;++index){
+                           if(automata.minValueArc.args[index] != 0) {
+                               break;
+                           }
+                       }
+                       if(index == automata.minValueArc.args.length)
+                           continue;
+                       for(int i = 0;i < automata.minValueArc.path.length;++i)
+                           bufferedWriter.write(automata.minValueArc.path[i] + ",");
+                       bufferedWriter.write(" & ");
+                       for(int i = 0;i < automata.minValueArc.args.length;++i) {
+                           System.out.println(automata.minValueArc.args[i] + " & ");
+                           bufferedWriter.write(automata.minValueArc.args[i] + " & ");
+                       }
 //                       bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-//                       System.out.println(map.get("x") + " " + map.get("y"));
-//                       System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
-//                       automata.initParameterValues.put("x",map.get("x"));
-//                       automata.initParameterValues.put("y",map.get("y"));
-//                       if(map.containsKey("angle"))
-//                           automata.initParameterValues.put("angle",map.get("angle"));
-//                       if(map.containsKey("vx"))
-//                           automata.initParameterValues.put("vx",map.get("vx"));
-//                       if(map.containsKey("vy"))
-//                           automata.initParameterValues.put("vx",map.get("vy"));
-//                       if(map.containsKey("fuel"))
-//                           automata.initParameterValues.put("fuel",map.get("fuel"));
-//                       if(map.containsKey("v"))
-//                           automata.initParameterValues.put("v",map.get("v"));
-//                       automata.minValueArc = null;
-//                   }
-//                   bufferedWriter.close();
+                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       System.out.println(map.get("x") + " " + map.get("y"));
+                       //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
+                       automata.initParameterValues.put("x",map.get("x"));
+                       automata.initParameterValues.put("y",map.get("y"));
+                       if(map.containsKey("angle"))
+                           automata.initParameterValues.put("angle",map.get("angle"));
+                       if(map.containsKey("vx"))
+                           automata.initParameterValues.put("vx",map.get("vx"));
+                       if(map.containsKey("vy"))
+                           automata.initParameterValues.put("vx",map.get("vy"));
+                       if(map.containsKey("fuel"))
+                           automata.initParameterValues.put("fuel",map.get("fuel"));
+                       if(map.containsKey("v"))
+                           automata.initParameterValues.put("v",map.get("v"));
+                       if(map.containsKey("u1"))
+                           automata.initParameterValues.put("u1",map.get("u1"));
+                       if(map.containsKey("u2"))
+                           automata.initParameterValues.put("u2",map.get("u2"));
+                       automata.minValueArc = null;
+                   }
+                   bufferedWriter.close();
                 } catch (IOException e) {
                     System.out.println("Open output.txt fail!");
                 } finally {
@@ -607,7 +611,10 @@ public class Automata {
                     }
                 }
                 ++repeat;
+
             }
+            double endTime = System.currentTimeMillis();
+            System.out.println("Time cost :" + (endTime-currentTime)/1000/60 + "minutes");
         }
     }
 }
