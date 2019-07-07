@@ -354,8 +354,8 @@ public class Automata {
 
 
     boolean runRacos(Automata automata,int []path){
-        int samplesize = 5;       // parameter: the number of samples in each iteration
-        int iteration = 300;       // parameter: the number of iterations for batch racos
+        int samplesize = 1;       // parameter: the number of samples in each iteration
+        int iteration = 1000;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
@@ -503,34 +503,37 @@ public class Automata {
 //         //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
 //        automata.checkAutomata();
         //automata.output = new File("output/test_boucing_ball3.txt");
-        String []modelFiles = new String[]{"src/case/boucing_ball.xml",
-                                           "src/case/quadrotor.xml",
-                                           "src/case/model_passive_4d.xml",
-                                           "src/case/platoon_hybrid.xml",
-                                           "src/case/helir_10.xml",
-                                            "src/case/productionSystem.xml",
-                                            "src/case/new_train.xml"};
+        String []modelFiles = new String[]{"src/case/boucing_ball.xml", // 0
+                                           "src/case/quadrotor.xml", // 1
+                                           "src/case/model_passive_4d.xml", // 2
+                                           "src/case/platoon_hybrid.xml",// 3
+                                           "src/case/helir_10.xml",// 4
+                                            "src/case/productionSystem.xml",// 5
+                                            "src/case/new_train.xml",// 6
+                                            "src/case/new_quad.xml", // 7
+                                            "src/case/new_quad_expanded.xml"}; // 8
         String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
                                          "src/case/quadrotor.cfg",
                                          "src/case/COLLISION.cfg",
                                          "src/case/platoon.cfg",
                                          "src/case/helir_10.cfg",
                                           "src/case/productionSystem.cfg",
-                                            "src/case/new_train.cfg"};
-        for(int fileIndex = 6;fileIndex < modelFiles.length;++fileIndex) {
+                                            "src/case/new_train.cfg",
+                                            "src/case/new_quad.cfg",
+                                            "src/case/new_quad_expanded.cfg"};
+        for(int fileIndex = 8;fileIndex < modelFiles.length;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
-            String fileName = temp[temp.length - 1].substring(0,temp[temp.length-1].indexOf("."));
             int repeat = 0;
             double currentTime = System.currentTimeMillis();
             while (repeat < 1) {
                 Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
                 //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
                 //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-                automata.output = new File("output/new_train" + "_newSampleSize_" + repeat + ".txt");
+                automata.output = new File("output/new_quad" + "_newSampleSize_" + repeat + ".txt");
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 2;
+                    int maxPathSize = 3;
 //                    ArrayList<Integer> arrayListPath = new ArrayList<>();
 //                    if (automata.getInitLoc() != -1) {
 //                        arrayListPath.add(automata.getInitLoc());
@@ -544,9 +547,11 @@ public class Automata {
 //                    }
 
 
-                   File file = new File("output/result.txt");
+                   File file = new File("output/result_quad_expanded.txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 1){
+                   while(automata.initParameterValues.get("x") < 40 && Math.abs(40-automata.initParameterValues.get("x")) > 0.5){
+//                   while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
+//                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 1){
                        //automata.DFS1(automata,arrayListPath,maxPathSize);
                        ArrayList<Integer> arrayListPath = new ArrayList<>();
                        if(automata.getInitLoc() != -1) {
@@ -576,12 +581,15 @@ public class Automata {
                            System.out.println(automata.minValueArc.args[i] + " & ");
                            bufferedWriter.write(automata.minValueArc.args[i] + " & ");
                        }
-//                       bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       //bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+//                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & " + map.get("y") + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
-                       automata.initParameterValues.put("x",map.get("x"));
-                       automata.initParameterValues.put("y",map.get("y"));
+                       if(map.containsKey("x"))
+                           automata.initParameterValues.put("x",map.get("x"));
+                       if(map.containsKey("y"))
+                           automata.initParameterValues.put("y",map.get("y"));
                        if(map.containsKey("angle"))
                            automata.initParameterValues.put("angle",map.get("angle"));
                        if(map.containsKey("vx"))

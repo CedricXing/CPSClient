@@ -1,0 +1,54 @@
+paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" math="SpaceEx">
+<component id="system">
+<param name="x" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="y" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="vx" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="vy" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="ax" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="ay" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="t" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T11" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T12" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T13" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T21" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T22" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T23" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T31" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T32" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="T33" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="angle" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="M" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="g" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="L" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="I" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="u" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="fuel" type="real" local="false" d1="1" d2="1" dynamics="any"/>
+<param name="e1" type="label" local="false"/>
+<param name="e2" type="label" local="false"/>
+<param name="e3" type="label" local="false"/>
+<param name="e4" type="label" local="false"/>
+<param name="e5" type="label" local="false"/>
+<param name="e6" type="label" local="false"/>
+<param name="e7" type="label" local="false"/>
+	<location id="1" name="v1" x="710" y="351" width="135.0" height="73.0">
+      <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T11+T12+T13) &amp; vy'= 1 / M * cos(angle) * (T11+T12+T13) - g &amp;t'==1 &amp; angle'== L/I*(T11-T13)</flow>
+    </location>
+	<location id="2" name="v2" x="710" y="351" width="135.0" height="73.0">
+      <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T21+T22+T23) &amp; vy'= 1 / M * cos(angle) * (T21+T22+T23) - g &amp;t'==1 &amp; angle'== L/I*(T21-T23)</flow>
+    </location>
+	<location id="3" name="v3" x="710" y="351" width="135.0" height="73.0">
+      <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T31+T32+T33) &amp; vy'= 1 / M * cos(angle) * (T31+T32+T33) - g &amp;t'==1 &amp; angle'== L/I*(T31-T33)</flow>
+    </location>
+	<transition source = "1",target = "2">
+	</transition> 
+	<transition source = "1",target = "3">
+	</transition> 
+	<transition source = "2",target = "1">
+	</transition> 
+	<transition source = "2",target = "3">
+	</transition> 
+	<transition source = "3",target = "1">
+	</transition> 
+	<transition source = "3",target = "2">
+	</transition> 
+</sspaceex>
