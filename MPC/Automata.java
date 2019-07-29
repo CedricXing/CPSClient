@@ -345,6 +345,8 @@ public class Automata {
             return;
         ArrayList<Integer> neibours = automata.locations.get(path[len-1]).getNeibours();
         for(int i = 0;i < neibours.size();++i){
+            int nextPos = neibours.get(i);
+            if(arrayListPath.contains(nextPos)) continue;
             arrayListPath.add(neibours.get(i));
             DFS1(automata,arrayListPath,maxPathSize);
             arrayListPath.remove(arrayListPath.size()-1);
@@ -595,7 +597,7 @@ public class Automata {
                        if(map.containsKey("vx"))
                            automata.initParameterValues.put("vx",map.get("vx"));
                        if(map.containsKey("vy"))
-                           automata.initParameterValues.put("vx",map.get("vy"));
+                           automata.initParameterValues.put("vy",map.get("vy"));
                        if(map.containsKey("fuel"))
                            automata.initParameterValues.put("fuel",map.get("fuel"));
                        if(map.containsKey("v"))
