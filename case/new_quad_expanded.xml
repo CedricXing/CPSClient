@@ -32,12 +32,15 @@ paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" 
 <param name="e7" type="label" local="false"/>
 	<location id="1" name="v1" x="710" y="351" width="135.0" height="73.0">
       <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T11+T12+T13) &amp; vy'= 1 / M * cos(angle) * (T11+T12+T13) - g &amp;t'==1 &amp; angle'== L/I*(T11-T13)</flow>
+	<invariant>vy&lt;=3</invariant>
     </location>
 	<location id="2" name="v2" x="710" y="351" width="135.0" height="73.0">
       <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T21+T22+T23) &amp; vy'= 1 / M * cos(angle) * (T21+T22+T23) - g &amp;t'==1 &amp; angle'== L/I*(T21-T23)</flow>
+	<invariant>vy&lt;=3</invariant>
     </location>
 	<location id="3" name="v3" x="710" y="351" width="135.0" height="73.0">
       <flow>x'==vx &amp;y'=vy &amp; vx'=1 / M * sin(angle) * (T31+T32+T33) &amp; vy'= 1 / M * cos(angle) * (T31+T32+T33) - g &amp;t'==1 &amp; angle'== L/I*(T31-T33)</flow>
+	<invariant>vy&lt;=3</invariant>
     </location>
 	<transition source = "1",target = "2">
 	</transition> 

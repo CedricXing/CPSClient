@@ -516,6 +516,7 @@ public class Continue extends BaseParameters{
 
 		int bestValueCount = 0;
 		int sumCount = 0;
+		int iterativeNums = this.MaxIteration;
 		// batch Racos
 		if (!this.on_off){
 			double preBestValue = 0;
@@ -531,8 +532,10 @@ public class Continue extends BaseParameters{
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>50)
+						if(bestValueCount>50) {
+							iterativeNums = i;
 							break;
+						}
 					}
 					else{
 						bestValueCount = 0;
@@ -605,6 +608,7 @@ public class Continue extends BaseParameters{
 			}
 		}
 		ObjectFunction of = (ObjectFunction)task;
+		of.valueArc.iterativeNums = iterativeNums;
 		return of.valueArc;
 	}
 }

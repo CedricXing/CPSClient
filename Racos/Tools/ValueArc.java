@@ -11,10 +11,12 @@ public class ValueArc{
     public HashMap<String,Double> allParametersValues;
     public double []args;
     public int []path;
+    public int iterativeNums;
     public ValueArc(double penalty,double globalPenalty,boolean sat){
         this.penalty = penalty;
         this.globalPenalty = globalPenalty;
         this.sat = sat;
+        iterativeNums = 0;
     }
 
     public ValueArc(double value,boolean sat){

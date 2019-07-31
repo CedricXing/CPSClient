@@ -587,6 +587,9 @@ public class Automata {
 //                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
                        bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & " + map.get("y") + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
+                       System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
+                       System.out.println("angle : " + map.get("angle"));
+
                        //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
                        if(map.containsKey("x"))
                            automata.initParameterValues.put("x",map.get("x"));
