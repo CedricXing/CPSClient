@@ -532,7 +532,7 @@ public class Continue extends BaseParameters{
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>50) {
+						if(bestValueCount>50) { // larger convergence ratio ?
 							iterativeNums = i;
 							break;
 						}

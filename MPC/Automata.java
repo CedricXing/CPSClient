@@ -357,7 +357,7 @@ public class Automata {
 
     boolean runRacos(Automata automata,int []path){
         int samplesize = 1;       // parameter: the number of samples in each iteration
-        int iteration = 1000;       // parameter: the number of iterations for batch racos
+        int iteration = 500;       // parameter: the number of iterations for batch racos
         int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
