@@ -506,14 +506,14 @@ public class Automata {
 //        automata.checkAutomata();
         //automata.output = new File("output/test_boucing_ball3.txt");
         File file_ = new File("output/success_id.txt");
-        int success_id = 0;
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file_));
-            success_id = bufferedReader.read();
-        }
-        catch (IOException e){
-            System.out.println("io exception.");
-        }
+//        int success_id = 0;
+//        try {
+//            BufferedReader bufferedReader = new BufferedReader(new FileReader(file_));
+//            success_id = bufferedReader.read();
+//        }
+//        catch (IOException e){
+//            System.out.println("io exception.");
+//        }
         String []modelFiles = new String[]{"src/case/boucing_ball.xml", // 0
                                            "src/case/quadrotor.xml", // 1
                                            "src/case/model_passive_4d.xml", // 2
@@ -558,7 +558,7 @@ public class Automata {
 //                    }
 
 
-                   File file = new File("output/result/result_" + success_id + ".txt");
+                   File file = new File("output/result_" + 0 + ".txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
                    while(automata.initParameterValues.get("x") < 40 && Math.abs(40-automata.initParameterValues.get("x")) > 0.5){
 //                   while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
@@ -594,11 +594,12 @@ public class Automata {
                        }
                        //bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
 //                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-//                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
+                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + "\n");
+//                       bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
                        System.out.println("angle : " + map.get("angle"));
+                       System.out.println("angle_v : " + map.get("angle_v"));
 
                        //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
                        if(map.containsKey("x"))
@@ -607,6 +608,8 @@ public class Automata {
                            automata.initParameterValues.put("y",map.get("y"));
                        if(map.containsKey("angle"))
                            automata.initParameterValues.put("angle",map.get("angle"));
+                       if(map.containsKey("angle_v"))
+                           automata.initParameterValues.put("angle_v",map.get("angle_v"));
                        if(map.containsKey("vx"))
                            automata.initParameterValues.put("vx",map.get("vx"));
                        if(map.containsKey("vy"))
