@@ -505,15 +505,17 @@ public class Automata {
 //         //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
 //        automata.checkAutomata();
         //automata.output = new File("output/test_boucing_ball3.txt");
-        File file_ = new File("output/success_id.txt");
-//        int success_id = 0;
-//        try {
-//            BufferedReader bufferedReader = new BufferedReader(new FileReader(file_));
-//            success_id = bufferedReader.read();
-//        }
-//        catch (IOException e){
-//            System.out.println("io exception.");
-//        }
+        File file_ = new File("success_id.txt");
+        int success_id = 0;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(file_));
+            success_id = Integer.parseInt(bufferedReader.readLine());
+            System.out.println(success_id);
+        }
+        catch (IOException e){
+            System.out.println("io exception.");
+            System.exit(0);
+        }
         String []modelFiles = new String[]{"src/case/boucing_ball.xml", // 0
                                            "src/case/quadrotor.xml", // 1
                                            "src/case/model_passive_4d.xml", // 2
@@ -532,7 +534,7 @@ public class Automata {
                                             "src/case/new_train.cfg",
                                             "src/case/new_quad.cfg",
                                             "src/case/new_quad_expanded.cfg"};
-        for(int fileIndex = 8;fileIndex < modelFiles.length;++fileIndex) {
+        for(int fileIndex = 8;fileIndex < 9;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             int repeat = 0;
             double currentTime = System.currentTimeMillis();
@@ -558,7 +560,7 @@ public class Automata {
 //                    }
 
 
-                   File file = new File("output/result_" + 0 + ".txt");
+                   File file = new File("output/result/result_" + success_id + ".txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
                    while(automata.initParameterValues.get("x") < 40 && Math.abs(40-automata.initParameterValues.get("x")) > 0.5){
 //                   while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
@@ -594,8 +596,8 @@ public class Automata {
                        }
                        //bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
 //                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + "\n");
-//                       bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
+                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
+                       bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
                        System.out.println("angle : " + map.get("angle"));
