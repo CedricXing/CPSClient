@@ -688,8 +688,8 @@ public class ObjectFunction implements Task{
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-//        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) - 10000;
-        double value = Math.abs(40-map.get("x")) - 10000;
+        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) - 10000;
+        //double value = Math.abs(40-map.get("x")) - 10000;
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
