@@ -227,8 +227,29 @@ public class ObjectFunction implements Task{
         }
         for(HashMap.Entry<String,Double> entry : parametersValues.entrySet()){
             if(location.flows.containsKey(entry.getKey())){
-                //System.out.println(location.flows.get(entry.getKey()));
-                Object obj = fel.eval(location.flows.get(entry.getKey()));
+//                System.out.println(location.flows.get(entry.getKey()));
+                String expression = location.flows.get(entry.getKey());
+                if(expression.contains("phi(vx)")){
+//                    System.out.println("vx:"+parametersValues.get("vx"));
+//                    System.out.println("vy:"+parametersValues.get("vy"));
+                    if(parametersValues.get("vx")<=2)
+                        expression = expression.replace("phi(vx)","1");
+                    else if(parametersValues.get("vx")<=5)
+                        expression = expression.replace("phi(vx)","2");
+                    else
+                        expression = expression.replace("phi(vx)","3");
+                }
+                if(expression.contains("phi(vy)")){
+//                    System.out.println("vx:"+parametersValues.get("vx"));
+//                    System.out.println("vy:"+parametersValues.get("vy"));
+                    if(parametersValues.get("vy")<=2)
+                        expression = expression.replace("phi(vy)","1");
+                    else if(parametersValues.get("vy")<=5)
+                        expression = expression.replace("phi(vy)","2");
+                    else
+                        expression = expression.replace("phi(vy)","3");
+                }
+                Object obj = fel.eval(expression);
                 double result;
                 if(obj instanceof Double)
                     result = (double)obj;
@@ -688,8 +709,9 @@ public class ObjectFunction implements Task{
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) + 0.01*map.get("fuel") - 10000;
-        //double value = Math.abs(40-map.get("x")) - 10000;
+//        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) + 0.01*map.get("fuel") - 10000;
+        double value = Math.abs(40-map.get("x")) + 0.01 * map.get("fuel") - 10000;
+//        System.out.println(map.get("fuel"));
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);

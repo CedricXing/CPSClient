@@ -534,7 +534,7 @@ public class Automata {
                                             "src/case/new_train.cfg",
                                             "src/case/new_quad.cfg",
                                             "src/case/new_quad_expanded.cfg"};
-        for(int fileIndex = 6;fileIndex < 7;++fileIndex) {
+        for(int fileIndex = 8;fileIndex < 9;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             int repeat = 0;
             double currentTime = System.currentTimeMillis();
@@ -546,7 +546,7 @@ public class Automata {
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 2;
+                    int maxPathSize = 3;
 //                    ArrayList<Integer> arrayListPath = new ArrayList<>();
 //                    if (automata.getInitLoc() != -1) {
 //                        arrayListPath.add(automata.getInitLoc());
@@ -560,11 +560,11 @@ public class Automata {
 //                    }
 
 
-                   File file = new File("output/result/result_" + (100+success_id) + ".txt");
+                   File file = new File("output/result/result_" + (success_id) + ".txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
                    //while(automata.initParameterValues.get("x") < 40 && Math.abs(40-automata.initParameterValues.get("x")) > 0.5){
-//                   while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
-                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 2){
+                   while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
+//                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 2){
                        //automata.DFS1(automata,arrayListPath,maxPathSize);
                        ArrayList<Integer> arrayListPath = new ArrayList<>();
                        if(automata.getInitLoc() != -1) {
@@ -595,8 +595,8 @@ public class Automata {
                            bufferedWriter.write(automata.minValueArc.args[i] + " & ");
                        }
                        //bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       //bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
+//                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
                        bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
