@@ -15,11 +15,11 @@ paceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.2" 
 <param name="e6" type="label" local="false"/>
 <param name="e7" type="label" local="false"/>
 	<location id="1" name="v1" x="710" y="351" width="135.0" height="73.0">
-      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==0 &amp; y'==v*sin(angle) &amp; v'=u2 &amp; fuel'=0.5*v</flow>
+      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==0 &amp; y'==v*sin(angle) &amp; v'=u2 &amp; fuel'=2*v</flow>
 	<invariant> v&lt;=8 </invariant>
     </location>
 	<location id="2" name="v2" x="710" y="351" width="135.0" height="73.0">
-      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==u1 &amp; y'==v*sin(angle) &amp; v'=0 &amp; fuel'=0.5*v</flow>
+      <flow>x'==v*cos(angle) &amp; t'==1 &amp; angle'==u1 &amp; y'==v*sin(angle) &amp; v'=0 &amp; fuel'=v</flow>
 	<invariant> angle&gt;=-1.5 &amp;angle&lt;3.14</invariant>
     </location>
 	<transition source = "2",target = "1">

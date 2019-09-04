@@ -620,10 +620,10 @@ public class Automata {
                            automata.initParameterValues.put("fuel",map.get("fuel"));
                        if(map.containsKey("v"))
                            automata.initParameterValues.put("v",map.get("v"));
-                       if(map.containsKey("u1"))
-                           automata.initParameterValues.put("u1",map.get("u1"));
-                       if(map.containsKey("u2"))
-                           automata.initParameterValues.put("u2",map.get("u2"));
+                       //if(map.containsKey("u1"))
+                         //  automata.initParameterValues.put("u1",map.get("u1"));
+                       //if(map.containsKey("u2"))
+                         //  automata.initParameterValues.put("u2",map.get("u2"));
                        automata.minValueArc = null;
                    }
                     double endTime = System.currentTimeMillis();
