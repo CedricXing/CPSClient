@@ -600,7 +600,7 @@ public class Automata {
                        bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
-                       //System.out.println("angle : " + map.get("angle"));
+//                       System.out.println("angle : " + map.get("angle"));
                        //System.out.println("angle_v : " + map.get("angle_v"));
 
                        //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
