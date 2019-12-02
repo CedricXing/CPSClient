@@ -517,6 +517,7 @@ public class Continue extends BaseParameters{
 		int bestValueCount = 0;
 		int sumCount = 0;
 		int iterativeNums = this.MaxIteration;
+		ArrayList<Double> arrayListBestValues = new ArrayList<>();
 		// batch Racos
 		if (!this.on_off){
 			double preBestValue = 0;
@@ -524,6 +525,8 @@ public class Continue extends BaseParameters{
 			for(int i=1; i<this.MaxIteration; i++){
 //				System.out.print(i + " ");
 				double bestValue = getOptimal().getValue();
+				if(bestValue < 0)
+					arrayListBestValues.add(bestValue+10000);
 //				if(bestValue > 0){
 //					++sumCount;
 //					if(sumCount > 300)
@@ -609,6 +612,7 @@ public class Continue extends BaseParameters{
 		}
 		ObjectFunction of = (ObjectFunction)task;
 		of.valueArc.iterativeNums = iterativeNums;
+		of.valueArc.arrayListBestValues = arrayListBestValues;
 		return of.valueArc;
 	}
 }

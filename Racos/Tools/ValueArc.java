@@ -1,5 +1,6 @@
 package Racos.Tools;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ValueArc{
@@ -12,6 +13,8 @@ public class ValueArc{
     public double []args;
     public int []path;
     public int iterativeNums;
+    public ArrayList<Double> arrayListBestValues;
+
     public ValueArc(double penalty,double globalPenalty,boolean sat){
         this.penalty = penalty;
         this.globalPenalty = globalPenalty;

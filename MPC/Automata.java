@@ -524,7 +524,8 @@ public class Automata {
                                             "src/case/productionSystem.xml",// 5
                                             "src/case/new_train.xml",// 6
                                             "src/case/new_quad.xml", // 7
-                                            "src/case/new_quad_expanded.xml"}; // 8
+                                            "src/case/new_quad_expanded.xml", // 8
+                                            "src/case/example.xml"}; // 9
         String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
                                          "src/case/quadrotor.cfg",
                                          "src/case/COLLISION.cfg",
@@ -533,7 +534,8 @@ public class Automata {
                                           "src/case/productionSystem.cfg",
                                             "src/case/new_train.cfg",
                                             "src/case/new_quad.cfg",
-                                            "src/case/new_quad_expanded.cfg"};
+                                            "src/case/new_quad_expanded.cfg",
+                                            "src/case/example.cfg"};
         for(int fileIndex = 8;fileIndex < 9;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             int repeat = 0;
@@ -546,7 +548,7 @@ public class Automata {
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 3;
+                    int maxPathSize = 1;
 //                    ArrayList<Integer> arrayListPath = new ArrayList<>();
 //                    if (automata.getInitLoc() != -1) {
 //                        arrayListPath.add(automata.getInitLoc());
@@ -564,6 +566,7 @@ public class Automata {
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
                    //while(automata.initParameterValues.get("x") < 40 && Math.abs(40-automata.initParameterValues.get("x")) > 0.5){
                    while(Math.abs(40-automata.initParameterValues.get("x")) > 1){
+//                    while(Math.abs(20-automata.initParameterValues.get("a")) > 0.1){
 //                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 2){
                        //automata.DFS1(automata,arrayListPath,maxPathSize);
                        ArrayList<Integer> arrayListPath = new ArrayList<>();
@@ -589,6 +592,8 @@ public class Automata {
                            continue;
                        for(int i = 0;i < automata.minValueArc.path.length;++i)
                            bufferedWriter.write(automata.minValueArc.path[i] + ",");
+//                       for(int i = 0;i < automata.minValueArc.arrayListBestValues.size();++i)
+//                           System.out.println("Step " + i + ":" + automata.minValueArc.arrayListBestValues.get(i));
                        bufferedWriter.write(" & ");
                        for(int i = 0;i < automata.minValueArc.args.length;++i) {
                            System.out.println(automata.minValueArc.args[i] + " & ");
@@ -599,6 +604,8 @@ public class Automata {
                        bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
                        bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
+//                       System.out.println(map.get("u0"));
+//                       System.out.println(map.get("u3"));
                        //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
 //                       System.out.println("angle : " + map.get("angle"));
                        //System.out.println("angle_v : " + map.get("angle_v"));
@@ -620,6 +627,8 @@ public class Automata {
                            automata.initParameterValues.put("fuel",map.get("fuel"));
                        if(map.containsKey("v"))
                            automata.initParameterValues.put("v",map.get("v"));
+                       if(map.containsKey("a"))
+                           automata.initParameterValues.put("a",map.get("a"));
                        //if(map.containsKey("u1"))
                          //  automata.initParameterValues.put("u1",map.get("u1"));
                        //if(map.containsKey("u2"))
