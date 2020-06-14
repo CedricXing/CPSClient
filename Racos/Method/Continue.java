@@ -12,6 +12,7 @@ import MPC.Automata;
 import Racos.Tools.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import Racos.Componet.*;
 import Racos.ObjectiveFunction.*;
@@ -614,5 +615,161 @@ public class Continue extends BaseParameters{
 		of.valueArc.iterativeNums = iterativeNums;
 		of.valueArc.arrayListBestValues = arrayListBestValues;
 		return of.valueArc;
+	}
+
+	public ValueArc run1(){
+		int max_iter = 100;
+		int sample_size = 40;
+		int elite_size = 10;
+		double[] gaussion_mean = init_mean();
+		double[] gaussion_variance = init_variance();
+
+		for(int i = 0;i < max_iter;++i){
+			Instance[] instances = gaussionSampling(sample_size,gaussion_mean,gaussion_variance);
+			for(int j = 0;j < sample_size;++j){
+				instances[j].setValue(task.getValue(instances[j]));
+			}
+			java.util.Arrays.sort(instances,new InstanceComparator());
+
+			if(i == 0 || Optimal.getValue() > instances[0].getValue())
+				Optimal = instances[0];
+			System.out.println("iteration" + i + " best value :" + task.getValue(Optimal));
+
+			//update mean and std
+			for(int j = 0;j < dimension.getSize();++j){
+				double mean_j = 0.0,variance_j = 0.0;
+				for(int k = 0;k < elite_size;++k){
+					mean_j += instances[k].getFeature(j);
+				}
+				mean_j /= elite_size;
+				for(int k = 0;k < elite_size;++k){
+					variance_j += Math.pow(instances[k].getFeature(j) - mean_j,2);
+				}
+				variance_j /= (elite_size - 1);
+				gaussion_mean[j] = mean_j;
+				gaussion_variance[j] = variance_j;
+			}
+		}
+		ObjectFunction of = (ObjectFunction)task;
+		return of.valueArc;
+	}
+
+	public Instance[] gaussionSampling(int sample_size,double[] mean,double[] variance){
+		Instance[] instances = new Instance[sample_size];
+		for(int i = 0;i < sample_size;++i){
+			instances[i] = new Instance(dimension);
+			for(int j = 0;j < dimension.getSize();++j){
+				double t = ro.getGaussion(mean[j],variance[j]);
+				while(t < dimension.getRegion(j)[0] || t > dimension.getRegion(j)[1]){
+					t = ro.getGaussion(mean[j],variance[j]);
+				}
+				instances[i].setFeature(j,t);
+			}
+		}
+		return instances;
+	}
+
+	public double[] init_mean(){
+		double[] mean = new double[dimension.getSize()];
+		for(int i = 0;i < dimension.getSize();++i){
+			mean[i] = (dimension.getRegion(i)[0] + dimension.getRegion(i)[1]) / 2.0;
+		}
+		return mean;
+	}
+
+	public double[] init_variance(){
+		double[] variance = new double[dimension.getSize()];
+		for(int i = 0;i < dimension.getSize();++i)
+			variance[i] = Math.pow((dimension.getRegion(i)[1] - dimension.getRegion(i)[0]),2); // may be too large for narrow range
+		return variance;
+	}
+
+	public ValueArc run2(){
+		double mutationProb = 0.3; // the probability of mutation
+		int max_iter = 20;
+		int sample_size = 150;
+		int eliteNum = 20;
+		Instance[] instances = new Instance[sample_size];
+		for(int i = 0;i < sample_size;++i) instances[i] = RandomInstance();
+
+		for(int i = 0;i < max_iter;++i){
+			for(int j = 0;j < sample_size;++j) instances[j].setValue(task.getValue(instances[j]));
+
+			java.util.Arrays.sort(instances,new InstanceComparator());
+
+			if(i == 0 || Optimal.getValue() > instances[0].getValue())
+				Optimal = instances[0];
+
+			System.out.println("iteration" + i + " best value :" + Optimal.getValue());
+
+			instances = crossover(instances,eliteNum,sample_size);
+
+			mutation(instances,mutationProb);
+		}
+		ObjectFunction of = (ObjectFunction)task;
+		return of.valueArc;
+	}
+
+	public Instance[] crossover(Instance[] instances,int eliteNum,int sample_size){
+		int currentPos = 0;
+		Instance[] newInstances = new Instance[sample_size];
+		for(int i = 0;i < eliteNum;++i){
+			for(int j = i + 1;j < eliteNum;++j){
+				newInstances[currentPos] = crossoverBetweenTwoIns(instances[i],instances[j]);
+				if(++currentPos >= sample_size) {
+					i = eliteNum;
+					break;
+				}
+			}
+		}
+		for(int i = 0;i < sample_size && currentPos < sample_size;++i,++currentPos)
+			newInstances[currentPos] = instances[i];
+		return newInstances;
+	}
+
+	public void mutation(Instance[] instances,double mutationProb){
+		int instancePosition = (int)(Math.random() * instances.length);
+		for(int i = 0;i < dimension.getSize();++i){
+			if(Math.random() > mutationProb) continue;
+			int mutationPos = (int)(Math.random() * 8);
+			byte[] bytes = doubleToBytes(instances[instancePosition].getFeature(i));
+			bytes[mutationPos] = (byte) (~(long) (bytes[mutationPos] & 0xff));
+		}
+	}
+
+//	public ValueArc run3(){
+//		byte b = 0x11;
+//		System.out.println((byte) (~(long) (b & 0xff)));
+//		return null;
+//	}
+
+	public Instance crossoverBetweenTwoIns(Instance ins_i,Instance ins_j){
+		Instance new_ins = new Instance(dimension.getSize());
+		for(int i = 0;i < dimension.getSize();++i){
+			byte[] arr_i = doubleToBytes(ins_i.getFeature(i));
+			byte[] arr_j = doubleToBytes(ins_j.getFeature(i));
+			int crossPos = (int)(Math.random() * 7);
+			for(int j = crossPos + 1;j < 8;++j)
+				arr_i[j] = arr_j[j];
+			new_ins.setFeature(i,bytesToDouble(arr_i));
+		}
+		return new_ins;
+	}
+
+	public byte[] doubleToBytes(double d){
+		long value = Double.doubleToRawLongBits(d);
+		byte[] bytes = new byte[8];
+		for(int i = 0;i < 8;++i){
+			bytes[i] = (byte) ((value >> 8 * i) & 0xff);
+		}
+		return bytes;
+	}
+
+	public double bytesToDouble(byte[] arr){
+		long value = 0;
+		for(int i = 0;i < 8;++i){
+			value |= ((long) (arr[i] & 0xff)) << (8 * i);
+		}
+		return Double.longBitsToDouble(value);
 	}
 }
