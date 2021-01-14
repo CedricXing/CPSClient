@@ -617,7 +617,7 @@ public class Continue extends BaseParameters{
 		return of.valueArc;
 	}
 
-	public ValueArc run1(){
+	public ValueArc CEM(){
 		int max_iter = 100;
 		int sample_size = 40;
 		int elite_size = 10;
@@ -684,7 +684,7 @@ public class Continue extends BaseParameters{
 		return variance;
 	}
 
-	public ValueArc run2(){
+	public ValueArc GA(){
 		double mutationProb = 0.3; // the probability of mutation
 		int max_iter = 20;
 		int sample_size = 150;
@@ -737,12 +737,6 @@ public class Continue extends BaseParameters{
 		}
 	}
 
-//	public ValueArc run3(){
-//		byte b = 0x11;
-//		System.out.println((byte) (~(long) (b & 0xff)));
-//		return null;
-//	}
-
 	public Instance crossoverBetweenTwoIns(Instance ins_i,Instance ins_j){
 		Instance new_ins = new Instance(dimension.getSize());
 		for(int i = 0;i < dimension.getSize();++i){
@@ -771,5 +765,96 @@ public class Continue extends BaseParameters{
 			value |= ((long) (arr[i] & 0xff)) << (8 * i);
 		}
 		return Double.longBitsToDouble(value);
+	}
+
+	public ValueArc RRT(){
+		int max_iter = 25;
+		int sample_size = 100;
+		int elite_size = 20;
+
+		Instance[] instances = new Instance[sample_size];
+
+		for(int i = 0;i < sample_size;++i) instances[i] = RandomInstance();
+
+		for(int i = 0;i < max_iter;++i){
+			for(int k = 0;k < sample_size;++k) instances[k].setValue(task.getValue(instances[k]));
+
+			java.util.Arrays.sort(instances,new InstanceComparator());
+
+			if(i == 0 || Optimal.getValue() > instances[0].getValue()) Optimal = instances[0];
+
+			System.out.println("iteration" + i + " best value :" + Optimal.getValue());
+
+			instances = extend(instances,elite_size,sample_size);
+
+//			for(int j = elite_size;j < sample_size;++j) instances[j] = RandomInstance();
+
+		}
+
+		ObjectFunction of = (ObjectFunction)task;
+		return of.valueArc;
+	}
+
+	public Instance[] extend(Instance[] instances,int elite_size,int sample_size){
+        int extend_num = 50;
+        for(int i = 0;i < extend_num;++i){
+            int chosenPos = ro.getInteger(elite_size,sample_size - 1);
+            int chosenDimension = ro.getInteger(0,dimension.getSize() - 1);
+            double delta = ro.getDouble(-0.5,0.5);
+            if(!dimension.getType(chosenDimension)){ // discrete
+            	if(delta <= 0) delta = -1;
+            	else delta = 1;
+
+			}
+			double newValue = instances[chosenPos].getFeature(chosenDimension) + delta;
+			if(newValue >= dimension.getRegion(chosenDimension)[0] && newValue <= dimension.getRegion(chosenDimension)[1]) {
+				instances[chosenPos].setFeature(chosenDimension, newValue);
+//				System.out.println("success");
+			}
+        }
+        return instances;
+	}
+
+	public ValueArc monte(){
+		int max_iter = 50;
+		int sample_size = 100;
+		int elite_size = 10;
+
+		Instance[] instances = new Instance[sample_size];
+
+		for(int i = 0;i < sample_size;++i) instances[i] = RandomInstance();
+
+		for(int i = 0;i < max_iter;++i){
+			for(int k = 0;k < sample_size;++k) instances[k].setValue(task.getValue(instances[k]));
+
+			java.util.Arrays.sort(instances,new InstanceComparator());
+
+			if(i == 0 || Optimal.getValue() > instances[0].getValue()) Optimal = instances[0];
+
+			System.out.println("iteration" + i + " best value :" + Optimal.getValue());
+
+			instances = rejectSampling(instances,elite_size,sample_size);
+		}
+
+		ObjectFunction of = (ObjectFunction)task;
+		return of.valueArc;
+	}
+
+	public Instance[] rejectSampling(Instance[] instances,int elite_size,int sample_size){
+		int sampling_num = 50;
+		for(int i = 0;i < sampling_num;++i){
+			int chosenPos = ro.getInteger(elite_size,sample_size - 1);
+			int chosenDimension = ro.getInteger(0,dimension.getSize() - 1);
+			double max_v = dimension.getRegion(chosenDimension)[0],min_v = dimension.getRegion(chosenDimension)[1];
+			for(int j = 0;j < elite_size;++j){
+				max_v = Math.max(max_v,instances[j].getFeature(chosenDimension));
+				min_v = Math.min(min_v,instances[j].getFeature(chosenDimension));
+			}
+			max_v = Math.min(max_v + 0.5,dimension.getRegion(chosenDimension)[1]);
+			min_v = Math.max(min_v - 0.5,dimension.getRegion(chosenDimension)[0]);
+
+			instances[chosenPos].setFeature(chosenDimension,ro.getDouble(min_v,max_v));
+		}
+		return instances;
 	}
 }

@@ -390,8 +390,10 @@ public class Automata {
             con.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
             con.setRandProbability(probability);// parameter: the probability of sampling from the model
             con.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-//            ValueArc valueArc = con.run();                          // call sequential Racos              // call Racos
-            ValueArc valueArc = con.run2();
+            ValueArc valueArc = con.run();                          // call sequential Racos              // call Racos
+//            ValueArc valueArc = con.RRT();                          // call sequential Racos              // call Racos
+//            ValueArc valueArc = con.monte();                          // call sequential Racos              // call Racos
+//            ValueArc valueArc = con.run2();
             double currentT2 = System.currentTimeMillis();
             ins = con.getOptimal();             // obtain optimal
             //System.out.print("best function value:");
@@ -570,17 +572,17 @@ public class Automata {
                                             "src/case/scenes/quad_two_turn.cfg",
                                             "src/case/scenes/train_emsoft.cfg"};
 
-        for(int fileIndex = 11;fileIndex < 12;++fileIndex) {
+        for(int fileIndex = 8;fileIndex < 9;++fileIndex) {
             String []temp = modelFiles[fileIndex].split("/");
             int repeat = 0;
             double currentTime = System.currentTimeMillis();
             while (repeat < 1) {
                 Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
-                automata.output = new File("output/new_vehicle_CEM" + "_newSampleSize_" + repeat + ".txt");
+                automata.output = new File("output/new_vehicle_GA" + "_newSampleSize_" + repeat + ".txt");
                 try {
                     automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
                     automata.checkAutomata();
-                    int maxPathSize = 2;
+                    int maxPathSize = 3;
 //                    ArrayList<Integer> arrayListPath = new ArrayList<>();
 //                    if (automata.getInitLoc() != -1) {
 //                        arrayListPath.add(automata.getInitLoc());
@@ -594,11 +596,11 @@ public class Automata {
 //                    }
 
 
-                   File file = new File("output/ga/train/forward/test_" + (success_id) + ".txt");
+                   File file = new File("output/test_" + (success_id) + ".txt");
                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
 //                   while(automata.initParameterValues.get("x") < automata.target_x && Math.abs(automata.target_x - automata.initParameterValues.get("x")) > 0.5){
-                   while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) /* + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) */  > 4){
-//                    while(Math.abs(20-automata.initParameterValues.get("a")) > 0.1){
+//                   while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) > 2){
+                       while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) > 2){
 //                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 2){
                        //automata.DFS1(automata,arrayListPath,maxPathSize);
                        ArrayList<Integer> arrayListPath = new ArrayList<>();
@@ -632,10 +634,10 @@ public class Automata {
                            bufferedWriter.write(automata.minValueArc.args[i] + " , ");
                        }
                        bufferedWriter.write("&");
-                       //bufferedWriter.write(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("b1") + " & " + map.get("b2") + " & " + map.get("b3") + " & " + map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-//                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
+//                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
                        bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
+                       System.out.println("value:" + (automata.minValueArc.value + 10000) + "\n");
                        System.out.println(map.get("x") + " " + map.get("y"));
                        System.out.println(map.get("fuel"));
 //                       System.out.println(map.get("u0"));

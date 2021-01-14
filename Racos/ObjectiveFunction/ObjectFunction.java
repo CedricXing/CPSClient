@@ -710,9 +710,8 @@ public class ObjectFunction implements Task{
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-//        double value = Math.abs(200-map.get("x")) + Math.abs(200-map.get("y")) + 0.01*map.get("fuel") - 100000;
-        double value = Math.pow(automata.target_x - map.get("x"),2) + Math.pow(automata.target_y - map.get("y"),2) + 0.01 * map.get("fuel") - 10000;
-//        double value = Math.pow(20-map.get("a"),2) - 1000;
+//        double value = Math.pow(automata.target_x - map.get("x"),2) + Math.pow(automata.target_y - map.get("y"),2) + 0.01 * map.get("fuel") - 10000;
+        double value = Math.pow(automata.target_x - map.get("x"),2) /* + Math.pow(automata.target_y - map.get("y"),2)*/ + 0.01 * map.get("fuel") - 10000;
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);
