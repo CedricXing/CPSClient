@@ -526,8 +526,10 @@ public class Continue extends BaseParameters{
 			for(int i=1; i<this.MaxIteration; i++){
 //				System.out.print(i + " ");
 				double bestValue = getOptimal().getValue();
-				if(bestValue < 0)
-					arrayListBestValues.add(bestValue+10000);
+				if(bestValue < 0) {
+					arrayListBestValues.add(bestValue + 100000);
+					break;
+				}
 //				if(bestValue > 0){
 //					++sumCount;
 //					if(sumCount > 300)
@@ -536,7 +538,7 @@ public class Continue extends BaseParameters{
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>50) { // larger convergence ratio ?
+						if(bestValueCount>20) { // larger convergence ratio ?
 							iterativeNums = i;
 							break;
 						}
@@ -598,15 +600,6 @@ public class Continue extends BaseParameters{
 					}
 				}
 				UpdateSampleSet(new_sample);//update PosPop set
-//				while(true) {
-//					UpdateSampleSet(new_sample);//update PosPop set
-//					double sum = 0;
-//					for(int i = 0;i < new_sample.getFeature().length;++i){
-//						sum += new_sample.getFeature(i);
-//					}
-//					if(sum <= dimension.getRegion(0)[1])
-//						break;
-//				}
 				UpdateOptimal();//obtain optimal
 
 			}

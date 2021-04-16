@@ -22,14 +22,14 @@ import java.util.Map;
  */
 
 public class Automata {
-    public Map<Integer,Location> locations;
+    public Map<Integer, Location> locations;
     public ArrayList<Transition> transitions;
     public ArrayList<String> parameters;
     public int initLoc;
     public String initLocName;
     public String forbiddenLocName;
     public int forbiddenLoc;
-    public Map<String,Double> initParameterValues;
+    public Map<String, Double> initParameterValues;
     public String forbiddenConstraints;
     public double cycle;
     public String cycleConstraint;
@@ -41,7 +41,7 @@ public class Automata {
     public double target_x;
     public double target_y;
 
-    public Automata(String modelFileName,String cfgFileName){
+    public Automata(String modelFileName, String cfgFileName) {
         forbiddenLocName = null;
         forbiddenLoc = -1;
         initLocName = null;
@@ -52,29 +52,29 @@ public class Automata {
         processCFGFile(cfgFileName);
     }
 
-    void processModelFile(String modelFileName){
+    void processModelFile(String modelFileName) {
         File modelFile = new File(modelFileName);
         BufferedReader reader = null;
         locations = new HashMap<>();
         transitions = new ArrayList<>();
         parameters = new ArrayList<>();
-        try{
+        try {
             reader = new BufferedReader(new FileReader(modelFile));
             String tempLine = null;
-            while((tempLine = reader.readLine()) != null){
-                if(tempLine.indexOf("<param") != -1){ // paramater definition
-                    while(true){
-                        String []strings = tempLine.split("\"");
-                        if(strings[3].equals("real"))
+            while ((tempLine = reader.readLine()) != null) {
+                if (tempLine.indexOf("<param") != -1) { // paramater definition
+                    while (true) {
+                        String[] strings = tempLine.split("\"");
+                        if (strings[3].equals("real"))
                             parameters.add(strings[1]);
                         tempLine = reader.readLine();
-                        if(tempLine.indexOf("<para") == -1) {
+                        if (tempLine.indexOf("<para") == -1) {
                             parameters.sort(new Comparator<String>() {
                                 @Override
                                 public int compare(String o1, String o2) {
-                                    if(o1.length() < o2.length())
+                                    if (o1.length() < o2.length())
                                         return -1;
-                                    else if(o1.length() > o2.length())
+                                    else if (o1.length() > o2.length())
                                         return 1;
                                     else return 0;
                                 }
@@ -83,80 +83,78 @@ public class Automata {
                         }
                     }
                 }
-                if(tempLine.indexOf("<location") != -1){ // location definition
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("<location") != -1) { // location definition
+                    String[] strings = tempLine.split("\"");
                     //ID stores in strings[1]
-                    Location location = new Location(Integer.parseInt(strings[1]),strings[3]);
+                    Location location = new Location(Integer.parseInt(strings[1]), strings[3]);
                     //System.out.println(strings[3]);
                     tempLine = reader.readLine();
-                    while(tempLine.indexOf("</location>") == -1){//the end of this location
-                        int beginIndex,endIndex;
-                        if(tempLine.indexOf("<invar") != -1){
-                            while(tempLine.indexOf("</invar") == -1){
-                                if(tempLine.indexOf("<invar") != -1){
+                    while (tempLine.indexOf("</location>") == -1) {//the end of this location
+                        int beginIndex, endIndex;
+                        if (tempLine.indexOf("<invar") != -1) {
+                            while (tempLine.indexOf("</invar") == -1) {
+                                if (tempLine.indexOf("<invar") != -1) {
                                     beginIndex = tempLine.indexOf("<invar") + 11;
                                     tempLine = tempLine.substring(beginIndex).trim();
                                 }
-                                location.setVariant(tempLine,parameters);
+                                location.setVariant(tempLine, parameters);
                                 tempLine = reader.readLine();
                             }
-                            if(tempLine.indexOf("<invar") != -1){
+                            if (tempLine.indexOf("<invar") != -1) {
                                 beginIndex = tempLine.indexOf("<invar") + 11;
                                 endIndex = tempLine.indexOf("</invar");
-                                tempLine = tempLine.substring(beginIndex,endIndex).trim();
-                            }
-                            else{
+                                tempLine = tempLine.substring(beginIndex, endIndex).trim();
+                            } else {
                                 endIndex = tempLine.indexOf("</invar");
-                                tempLine = tempLine.substring(0,endIndex).trim();
+                                tempLine = tempLine.substring(0, endIndex).trim();
                             }
-                            location.setVariant(tempLine,parameters);
+                            location.setVariant(tempLine, parameters);
                         }
-                        if(tempLine.indexOf("<flow>") != -1){
-                            while(tempLine.indexOf("</flow>") == -1){
-                                if(tempLine.indexOf("<flow>") != -1){
+                        if (tempLine.indexOf("<flow>") != -1) {
+                            while (tempLine.indexOf("</flow>") == -1) {
+                                if (tempLine.indexOf("<flow>") != -1) {
                                     beginIndex = tempLine.indexOf("<flow>") + 6;
                                     tempLine = tempLine.substring(beginIndex).trim();
                                 }
-                                location.setFlow(tempLine,parameters);
+                                location.setFlow(tempLine, parameters);
                                 tempLine = reader.readLine();
                             }
-                            if(tempLine.indexOf("<flow>") != -1) {
+                            if (tempLine.indexOf("<flow>") != -1) {
                                 beginIndex = tempLine.indexOf("<flow>") + 6;
                                 endIndex = tempLine.indexOf("</flow>");
-                                tempLine = tempLine.substring(beginIndex,endIndex).trim();
-                            }
-                            else{
+                                tempLine = tempLine.substring(beginIndex, endIndex).trim();
+                            } else {
                                 endIndex = tempLine.indexOf("</flow>");
-                                tempLine = tempLine.substring(0,endIndex).trim();
+                                tempLine = tempLine.substring(0, endIndex).trim();
                             }
                             //System.out.println(tempLine);
-                            location.setFlow(tempLine,parameters);
+                            location.setFlow(tempLine, parameters);
                         }
                         tempLine = reader.readLine();
                     }
-                    locations.put(location.getNo(),location);
+                    locations.put(location.getNo(), location);
                 }
-                if(tempLine.indexOf("<transition") != -1){ // transition definition
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("<transition") != -1) { // transition definition
+                    String[] strings = tempLine.split("\"");
                     int source = Integer.parseInt(strings[1]);
                     int target = Integer.parseInt(strings[3]);
-                    Transition transition = new Transition(source,target);
+                    Transition transition = new Transition(source, target);
                     locations.get(source).addNeibour(target);
                     //tempLine = reader.readLine(); // label (useless)
                     tempLine = reader.readLine(); // guard
-                    while(tempLine.indexOf("</transi") == -1){
-                        int beginIndex,endIndex;
-                        if(tempLine.indexOf("<guard>") != -1){
+                    while (tempLine.indexOf("</transi") == -1) {
+                        int beginIndex, endIndex;
+                        if (tempLine.indexOf("<guard>") != -1) {
                             beginIndex = tempLine.indexOf("<guard>") + 7;
                             endIndex = tempLine.indexOf("</guard>");
-                            String guard = tempLine.substring(beginIndex,endIndex).trim();
-                            transition.setGuard(guard,parameters);
+                            String guard = tempLine.substring(beginIndex, endIndex).trim();
+                            transition.setGuard(guard, parameters);
                         }
-                        if(tempLine.indexOf("<assignment>") != -1){
+                        if (tempLine.indexOf("<assignment>") != -1) {
                             beginIndex = tempLine.indexOf("<assignment>") + 12;
                             endIndex = tempLine.indexOf("</assignment>");
-                            String assignment = tempLine.substring(beginIndex,endIndex).trim();
-                            transition.setAssignment(assignment,parameters);
+                            String assignment = tempLine.substring(beginIndex, endIndex).trim();
+                            transition.setAssignment(assignment, parameters);
                         }
                         tempLine = reader.readLine();
                     }
@@ -165,114 +163,104 @@ public class Automata {
             }
 
 
-        }
-        catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             System.out.println("File not found" + '\n' + e.getMessage());
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("IO Exception" + '\n' + e.getMessage());
-        }
-        finally {
-            if(reader != null){
-                try{
+        } finally {
+            if (reader != null) {
+                try {
                     reader.close();
-                }
-                catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("IO Exception" + '\n' + e.getMessage());
                 }
             }
         }
     }
 
-    void processCFGFile(String cfgFileName){
+    void processCFGFile(String cfgFileName) {
         File cfgFile = new File(cfgFileName);
         BufferedReader reader = null;
         initParameterValues = new HashMap<>();
-        assert(forbiddenConstraints instanceof String);
+        assert (forbiddenConstraints instanceof String);
         //forbiddenConstraints = new ArrayList<>();
-        try{
+        try {
             reader = new BufferedReader(new FileReader(cfgFile));
             String tempLine = null;
-            while((tempLine = reader.readLine()) != null){
-                if(tempLine.charAt(0) == '#')
+            while ((tempLine = reader.readLine()) != null) {
+                if (tempLine.charAt(0) == '#')
                     continue;
-                if(tempLine.indexOf("initially") != -1){
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("initially") != -1) {
+                    String[] strings = tempLine.split("\"");
                     setInitParameterValues(strings[1]);
                 }
-                if(tempLine.indexOf("forbidden") != -1){
-                    String []strings = tempLine.split("\"");
-                    strings[1] = strings[1].replace("pow","$(Math).pow");
-                    strings[1] = strings[1].replace("sin","$(Math).sin");
-                    strings[1] = strings[1].replace("cos","$(Math).cos");
-                    strings[1] = strings[1].replace("tan","$(Math).tan");
-                    strings[1] = strings[1].replace("sqrt","$(Math).sqrt");
+                if (tempLine.indexOf("forbidden") != -1) {
+                    String[] strings = tempLine.split("\"");
+                    strings[1] = strings[1].replace("pow", "$(Math).pow");
+                    strings[1] = strings[1].replace("sin", "$(Math).sin");
+                    strings[1] = strings[1].replace("cos", "$(Math).cos");
+                    strings[1] = strings[1].replace("tan", "$(Math).tan");
+                    strings[1] = strings[1].replace("sqrt", "$(Math).sqrt");
                     forbiddenConstraints = strings[1];
                     //setForbiddenValues(strings[1]);
                 }
-                if(tempLine.indexOf("time-horizon") != -1){
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("time-horizon") != -1) {
+                    String[] strings = tempLine.split("\"");
                     cycle = Double.parseDouble(strings[1]);
                     cycleConstraint = new String("t>" + cycle);
                 }
-                if(tempLine.indexOf("target_x") != -1){
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("target_x") != -1) {
+                    String[] strings = tempLine.split("\"");
                     target_x = Double.parseDouble(strings[1]);
                 }
-                if(tempLine.indexOf("target_y") != -1){
-                    String []strings = tempLine.split("\"");
+                if (tempLine.indexOf("target_y") != -1) {
+                    String[] strings = tempLine.split("\"");
                     target_y = Double.parseDouble(strings[1]);
                 }
             }
 
-        }
-        catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             System.out.println("File not found" + '\n' + e.getMessage());
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("IO Exception" + '\n' + e.getMessage());
-        }
-        finally {
-            if(reader != null){
-                try{
+        } finally {
+            if (reader != null) {
+                try {
                     reader.close();
-                }
-                catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("IO Exception" + '\n' + e.getMessage());
                 }
             }
         }
     }
 
-    public void setInitParameterValues(String initValues){
-        String []strings = initValues.split("&");
-        for(int i = 0;i < strings.length;++i){
-            String []temp = strings[i].split("==");
-            if(temp[0].trim().equals("loc()")){
+    public void setInitParameterValues(String initValues) {
+        String[] strings = initValues.split("&");
+        for (int i = 0; i < strings.length; ++i) {
+            String[] temp = strings[i].split("==");
+            if (temp[0].trim().equals("loc()")) {
                 initLocName = temp[1].trim();
-                for(Map.Entry<Integer,Location> entry : locations.entrySet()){
+                for (Map.Entry<Integer, Location> entry : locations.entrySet()) {
                     //System.out.println(allParametersValues.size());
-                    if(entry.getValue().name.equals(initLocName)){
+                    if (entry.getValue().name.equals(initLocName)) {
                         initLoc = entry.getKey();
                         break;
                     }
                 }
-            }
-            else if(temp[1].indexOf('[') != -1){ // range value,put into Racos
+            } else if (temp[1].indexOf('[') != -1) { // range value,put into Racos
                 int firstIndex = temp[1].indexOf("[");
                 int lastIndex = temp[1].indexOf("]");
-                String []bounds = temp[1].substring(firstIndex + 1,lastIndex).trim().split(",");
+                String[] bounds = temp[1].substring(firstIndex + 1, lastIndex).trim().split(",");
                 double lowerbound = Double.parseDouble(bounds[0].trim());
                 double upperbound = Double.parseDouble(bounds[1].trim());
 //                double randomValue = (upperbound + lowerbound) / 2 + (Math.random() - 0.5) * (upperbound - lowerbound);
 //                initParameterValues.put(temp[0].trim(),randomValue);
-                if(rangeParameters == null) rangeParameters = new ArrayList<>();
-                rangeParameters.add(new RangeParameter(temp[0].trim(),lowerbound,upperbound));
+                if (rangeParameters == null) rangeParameters = new ArrayList<>();
+                rangeParameters.add(new RangeParameter(temp[0].trim(), lowerbound, upperbound));
                 //System.out.println(temp[0] + Double.toString(randomValue));
                 //System.exit(0);
-            }
-            else{
-                initParameterValues.put(temp[0].trim(),Double.parseDouble(temp[1].trim()));
+            } else {
+                initParameterValues.put(temp[0].trim(), Double.parseDouble(temp[1].trim()));
             }
         }
 //        if(initLoc == -1){
@@ -314,76 +302,75 @@ public class Automata {
         }
     }
     */
-    public int getInitLoc(){
+    public int getInitLoc() {
         return initLoc;
     }
 
-    void DFS(Automata automata,int []path,int depth,int maxPathSize){
-        if(depth + 1 == maxPathSize){
+    void DFS(Automata automata, int[] path, int depth, int maxPathSize) {
+        if (depth + 1 == maxPathSize) {
             //System.out.println("The depth is " + maxPathSize);
             println("The depth is " + maxPathSize);
-            for(int i = 0;i < path.length - 1;++i){
+            for (int i = 0; i < path.length - 1; ++i) {
                 //System.out.print(path[i] + "->");
                 print(path[i] + "->");
             }
             //System.out.println(path[path.length - 1]);
             println(Integer.toString(path[path.length - 1]));
-            runRacos(automata,path);
-        }
-        else{
+            runRacos(automata, path);
+        } else {
             ArrayList<Integer> neibours = automata.locations.get(path[depth]).getNeibours();
-            for(int i = 0;i < neibours.size();++i){
+            for (int i = 0; i < neibours.size(); ++i) {
                 path[depth + 1] = neibours.get(i);
-                DFS(automata,path,depth + 1,maxPathSize);
+                DFS(automata, path, depth + 1, maxPathSize);
             }
         }
     }
 
-    void DFS1(Automata automata,ArrayList<Integer> arrayListPath,int maxPathSize){
+    void DFS1(Automata automata, ArrayList<Integer> arrayListPath, int maxPathSize) {
         int len = arrayListPath.size();
         int path[] = new int[len];
-        for(int i = 0;i < len;++i)
+        for (int i = 0; i < len; ++i)
             path[i] = arrayListPath.get(i);
         println("The depth is " + len);
         System.out.println("The depth is " + len);
-        for(int i = 0;i < len - 1;++i){
+        for (int i = 0; i < len - 1; ++i) {
             System.out.print(path[i] + "->");
             print(path[i] + "->");
         }
-        System.out.println(path[len-1]);
-        println(Integer.toString(path[len-1]));
-        boolean pruning = runRacos(automata,path);
-        if(pruning || len == maxPathSize)
+        System.out.println(path[len - 1]);
+        println(Integer.toString(path[len - 1]));
+        boolean pruning = runRacos(automata, path);
+        if (pruning || len == maxPathSize)
             return;
-        ArrayList<Integer> neibours = automata.locations.get(path[len-1]).getNeibours();
-        for(int i = 0;i < neibours.size();++i){
+        ArrayList<Integer> neibours = automata.locations.get(path[len - 1]).getNeibours();
+        for (int i = 0; i < neibours.size(); ++i) {
             int nextPos = neibours.get(i);
 //            if(arrayListPath.contains(nextPos)) continue;
             arrayListPath.add(neibours.get(i));
-            DFS1(automata,arrayListPath,maxPathSize);
-            arrayListPath.remove(arrayListPath.size()-1);
+            DFS1(automata, arrayListPath, maxPathSize);
+            arrayListPath.remove(arrayListPath.size() - 1);
         }
 
     }
 
 
-    boolean runRacos(Automata automata,int []path){
+    boolean runRacos(Automata automata, int[] path) {
         int samplesize = 1;       // parameter: the number of samples in each iteration
-        int iteration = 500;       // parameter: the number of iterations for batch racos
-        int budget = 2000 ;         // parameter: the budget of sampling for sequential racos
+        int iteration = 50;       // parameter: the number of iterations for batch racos
+        int budget = 2000;         // parameter: the budget of sampling for sequential racos
         int positivenum = 1;       // parameter: the number of positive instances in each iteration
         double probability = 0.95; // parameter: the probability of sampling from the model
         int uncertainbit = 1;      // parameter: the number of sampled dimensions
         Instance ins = null;
         int repeat = 1;
-        Task t = new ObjectFunction(automata,path);
+        Task t = new ObjectFunction(automata, path);
         ArrayList<Instance> result = new ArrayList<>();
         ArrayList<Instance> feasibleResult = new ArrayList<>();
         double feasibleResultAllTime = 0;
         boolean pruning = true;
         for (int i = 0; i < repeat; i++) {
             double currentT = System.currentTimeMillis();
-            Continue con = new Continue(t,automata);
+            Continue con = new Continue(t, automata);
             con.setMaxIteration(iteration);
             con.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
             con.setBudget(budget);              // parameter: the budget of sampling
@@ -398,17 +385,16 @@ public class Automata {
             ins = con.getOptimal();             // obtain optimal
             //System.out.print("best function value:");
             //System.out.println(valueArc.penAll);
-            if(ins.getValue() < 0){
+            if (ins.getValue() < 0) {
                 feasibleResult.add(ins);
-                feasibleResultAllTime += (currentT2-currentT) / 1000;
+                feasibleResultAllTime += (currentT2 - currentT) / 1000;
                 pruning = false;
-                if(minValueArc == null || minValueArc.value >= valueArc.value){
+                if (minValueArc == null || minValueArc.value >= valueArc.value) {
                     minValueArc = valueArc;
                     minValueArc.path = path;
                 }
                 //System.out.println(valueArc.allParametersValues.get("x"));
-            }
-            else if(valueArc.penalty < 0){
+            } else if (valueArc.penalty < 0) {
                 pruning = false;
                 //print("----------------------" + valueArc.penalty + "-------" + valueArc.globalPenalty + "-----------\n");
             }
@@ -417,7 +403,7 @@ public class Automata {
             result.add(ins);
             //System.out.print("[");
             print("[");
-            for(int j = 0;j < ins.getFeature().length;++j) {
+            for (int j = 0; j < ins.getFeature().length; ++j) {
                 //System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
                 //print(Double.toString(ins.getFeature(j) * ((ObjectFunction) t).delta) + ",");
                 print(Double.toString(ins.getFeature(j)) + ",");
@@ -426,12 +412,12 @@ public class Automata {
             println("]");
         }
 
-        for(int i = 0;i < result.size();++i){
+        for (int i = 0; i < result.size(); ++i) {
             //System.out.println(result.get(i).getValue());
             println(Double.toString(result.get(i).getValue()));
             //System.out.print("[");
             print("[");
-            for(int j = 0;j < result.get(i).getFeature().length;++j) {
+            for (int j = 0; j < result.get(i).getFeature().length; ++j) {
                 //System.out.print(result.get(i).getFeature(j) * ((ObjectFunction) t).delta+ ",");
                 //print(Double.toString(result.get(i).getFeature(j) * ((ObjectFunction) t).delta) + ",");
                 print(Double.toString(result.get(i).getFeature(j)) + ",");
@@ -440,10 +426,10 @@ public class Automata {
             println("]");
         }
         println("Feasible Result:");
-        for(int i = 0;i < feasibleResult.size();++i){
+        for (int i = 0; i < feasibleResult.size(); ++i) {
             println(Double.toString(feasibleResult.get(i).getValue()));
             print("[");
-            for(int j = 0;j < feasibleResult.get(i).getFeature().length;++j) {
+            for (int j = 0; j < feasibleResult.get(i).getFeature().length; ++j) {
                 print(Double.toString(feasibleResult.get(i).getFeature(j)) + ",");
             }
             println("]");
@@ -453,248 +439,238 @@ public class Automata {
         return pruning;
     }
 
-    void checkAutomata(){
+    void checkAutomata() {
         println("Init loc is " + initLocName);
         println("Init loc is " + initLoc);
-        for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
+        for (Map.Entry<String, Double> entry : initParameterValues.entrySet()) {
             println("The init value of " + entry.getKey() + " is " + entry.getValue());
             System.out.println("The init value of " + entry.getKey() + " is " + entry.getValue());
         }
         println("Forbidden loc is " + forbiddenLocName);
         println("Forbidden loc is " + forbiddenLoc);
         println("Forbidden constraints is ");
-        assert(forbiddenConstraints instanceof String);
+        assert (forbiddenConstraints instanceof String);
 //        for(int i = 0;i < forbiddenConstraints.size();++i){
 //            println(forbiddenConstraints.get(i));
 //            System.out.println(forbiddenConstraints.get(i));
 //        }
-        for(Map.Entry<Integer,Location> entry : locations.entrySet()){
+        for (Map.Entry<Integer, Location> entry : locations.entrySet()) {
             println(Integer.toString(entry.getKey()));
             entry.getValue().printLocation();
             println("**************");
         }
 
-        for(int i = 0;i < transitions.size();++i){
+        for (int i = 0; i < transitions.size(); ++i) {
             transitions.get(i).printTransition();
         }
     }
 
-    public HashMap<String,Double> duplicateInitParametersValues(){
-        HashMap<String,Double> newMap = new HashMap<>();
-        for(Map.Entry<String,Double> entry : initParameterValues.entrySet()){
-            newMap.put(entry.getKey(),entry.getValue());
+    public HashMap<String, Double> duplicateInitParametersValues() {
+        HashMap<String, Double> newMap = new HashMap<>();
+        for (Map.Entry<String, Double> entry : initParameterValues.entrySet()) {
+            newMap.put(entry.getKey(), entry.getValue());
         }
         return newMap;
     }
 
-    public Transition getTransitionBySourceAndTarget(int source,int target){
-        for(int i = 0;i < transitions.size();++i){
-            if(transitions.get(i).source == source && transitions.get(i).target == target)
+    public Transition getTransitionBySourceAndTarget(int source, int target) {
+        for (int i = 0; i < transitions.size(); ++i) {
+            if (transitions.get(i).source == source && transitions.get(i).target == target)
                 return transitions.get(i);
         }
         return null;
     }
 
-    public void println(String str){
+    public void println(String str) {
         try {
             bufferedWriter.write(str + "\n");
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("write to file error!");
         }
     }
 
-    public void print(String str){
+    public void print(String str) {
         try {
             bufferedWriter.write(str);
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             System.out.println("write to file error!");
         }
     }
 
-    public static void main(String []args){
-//        Automata automata = new Automata("/home/cedricxing/Desktop/cases/arch2017/arch2017_nonlinear_dynamics/quadrotor/quadrotor.xml",
-//                "/home/cedricxing/Desktop/cases/arch2017/arch2017_nonlinear_dynamics/quadrotor/quadrotor.cfg");
-//        //Automata automata = new Automata("/home/cedricxing/Desktop/CPS/src/case/train.xml",
-//         //       "/home/cedricxing/Desktop/CPS/src/case/train.cfg");
-//        automata.checkAutomata();
-        //automata.output = new File("output/test_boucing_ball3.txt");
-        File file_ = new File("success_id.txt");
-        int success_id = 0;
+    public static String format(double value) {
+        return String.format("%.5f", value);
+    }
+
+    public static void main(String[] args) {
+        configUtil config = new configUtil();
+        String prefix = new String("models/" + config.get("system") + "_" + config.get("mission"));
+        String modelFile = prefix + ".xml";
+        String cfgFile = prefix + ".cfg";
+        System.out.println(modelFile);
+        System.out.println(cfgFile);
+//        String []modelFiles = new String[]{ "models/train_forward.xml", // 0
+//                                            "models/train_turn.xml", // 1
+//                                            "models/train_circle.xml", // 2
+//                                            "models/quad_turn.xml", // 3
+//                                            "models/quad_two_turn.xml", // 4
+//                                            "models/quad_forward.xml",// 5
+//                                            "models/train_multi_phase.xml", // 6
+//                                            "models/quad_multi_phase.xml", // 7
+//                };
+//        String []cfgFiles = new String[]{   "models/train_forward.cfg",
+//                                            "models/train_turn.cfg",
+//                                            "models/train_circle.cfg",
+//                                            "models/quad_turn.cfg",
+//                                            "models/quad_two_turn.cfg",
+//                                            "models/quad_forward.cfg",
+//                                            "models/train_multi_phase.cfg",
+//                                            "models/quad_multi_phase.cfg",
+//        };
+
+        double currentTime = System.currentTimeMillis();
+        Automata automata = new Automata(modelFile, cfgFile);
+        automata.output = new File("logs.txt");
         try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file_));
-            success_id = Integer.parseInt(bufferedReader.readLine());
-            System.out.println(success_id);
-        }
-        catch (IOException e){
-            System.out.println("io exception.");
-            System.exit(0);
-        }
-        String []modelFiles = new String[]{"src/case/boucing_ball.xml", // 0
-                                           "src/case/quadrotor.xml", // 1
-                                           "src/case/model_passive_4d.xml", // 2
-                                           "src/case/platoon_hybrid.xml",// 3
-                                           "src/case/helir_10.xml",// 4
-                                            "src/case/productionSystem.xml",// 5
-                                            "src/case/new_train.xml",// 6
-                                            "src/case/new_quad.xml", // 7
-                                            "src/case/new_quad_expanded.xml", // 8
-                                            "src/case/example.xml", // 9
-                                            "src/case/scenes/train_forward.xml", // 10
-                                            "src/case/scenes/train_forward.xml", // 11
-                                            "src/case/scenes/train_turn.xml", // 12
-                                            "src/case/scenes/train_turn.xml", // 13
-                                            "src/case/scenes/train_circle.xml", // 14
-                                            "src/case/scenes/train_circle.xml",// 15 not for emsoft
-                                            "src/case/scenes/quad_forward.xml",// 16
-                                            "src/case/scenes/quad_turn.xml", // 17
-                                            "src/case/scenes/quad_two_turn.xml", // 18
-                                            "src/case/scenes/train_forward.xml"}; // 19
-        String []cfgFiles = new String[]{"src/case/bouncing_ball_racos.cfg",
-                                         "src/case/quadrotor.cfg",
-                                         "src/case/COLLISION.cfg",
-                                         "src/case/platoon.cfg",
-                                         "src/case/helir_10.cfg",
-                                          "src/case/productionSystem.cfg",
-                                            "src/case/new_train.cfg",
-                                            "src/case/new_quad.cfg",
-                                            "src/case/new_quad_expanded.cfg",
-                                            "src/case/example.cfg",
-                                            "src/case/scenes/train_forward.cfg",
-                                            "src/case/scenes/train_forward_obs.cfg",
-                                            "src/case/scenes/train_turn.cfg",
-                                            "src/case/scenes/train_turn_obs.cfg",
-                                            "src/case/scenes/train_circle.cfg",
-                                            "src/case/scenes/train_circle_obs.cfg",
-                                            "src/case/scenes/quad_forward.cfg",
-                                            "src/case/scenes/quad_turn.cfg",
-                                            "src/case/scenes/quad_two_turn.cfg",
-                                            "src/case/scenes/train_emsoft.cfg"};
+            automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
+            automata.checkAutomata();
+            int maxPathSize = Integer.parseInt(config.get("bound"));
 
-        for(int fileIndex = 8;fileIndex < 9;++fileIndex) {
-            String []temp = modelFiles[fileIndex].split("/");
-            int repeat = 0;
-            double currentTime = System.currentTimeMillis();
-            while (repeat < 1) {
-                Automata automata = new Automata(modelFiles[fileIndex], cfgFiles[fileIndex]);
-                automata.output = new File("output/new_vehicle_GA" + "_newSampleSize_" + repeat + ".txt");
-                try {
-                    automata.bufferedWriter = new BufferedWriter(new FileWriter(automata.output));
-                    automata.checkAutomata();
-                    int maxPathSize = 3;
-//                    ArrayList<Integer> arrayListPath = new ArrayList<>();
-//                    if (automata.getInitLoc() != -1) {
-//                        arrayListPath.add(automata.getInitLoc());
-//                        automata.DFS1(automata, arrayListPath, maxPathSize);
-//                    } else {
-//                        for (Map.Entry<Integer, Location> entry : automata.locations.entrySet()) {
-//                            arrayListPath.clear();
-//                            arrayListPath.add(entry.getValue().getNo());
-//                            automata.DFS1(automata, arrayListPath, maxPathSize);
-//                        }
-//                    }
-
-
-                   File file = new File("output/test_" + (success_id) + ".txt");
-                   BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            File file = new File("result.txt");
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
 //                   while(automata.initParameterValues.get("x") < automata.target_x && Math.abs(automata.target_x - automata.initParameterValues.get("x")) > 0.5){
 //                   while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) > 2){
-                       while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) > 2){
+            double delta = 5.0;
+            if (config.get("mission").contains("multi")) delta = 2.0;
+
+            if (config.get("system").equals("vehicle")) {
+                bufferedWriter.write("mode\t\tdwell time\t\tu1\t\tu2\n");
+            } else if (config.get("system").equals("drone")) {
+                bufferedWriter.write("mode\t\tdwell time\t\tT1\t\tT2\t\tT3\n");
+            } else if(config.get("system").equals("train")){
+                bufferedWriter.write("model\t\tdwell time\n");
+            } else {
+                System.out.println("Error: system '" + config.get("system") + "' not found!");
+                System.exit(0);
+            }
+            while (Math.pow(automata.target_x - automata.initParameterValues.get("x"), 2) > delta) {
+                double tmpTime = System.currentTimeMillis();
+                if ((tmpTime - currentTime) / 1000 > config.getTimeLimit(modelFile)) {
+                    System.out.println("Fail to synthesize feasible solutions: timeout!");
+                    System.exit(0);
+                }
 //                   while(Math.abs(200 - automata.initParameterValues.get("x")) + Math.abs(200-automata.initParameterValues.get("y")) > 2){
-                       //automata.DFS1(automata,arrayListPath,maxPathSize);
-                       ArrayList<Integer> arrayListPath = new ArrayList<>();
-                       if(automata.getInitLoc() != -1) {
-                           arrayListPath.add(automata.getInitLoc());
-                           automata.DFS1(automata,arrayListPath,maxPathSize);
-                       }
-                       else{
-                           for(Map.Entry<Integer,Location> entry:automata.locations.entrySet() ){
-                               arrayListPath.clear();
-                               arrayListPath.add(entry.getValue().getNo());
-                               automata.DFS1(automata,arrayListPath,maxPathSize);
-                           }
-                       }
-                       HashMap<String ,Double> map = automata.minValueArc.allParametersValues;
-                       int index;
-                       for(index = 0;index < automata.minValueArc.args.length;++index){
-                           if(automata.minValueArc.args[index] != 0) {
-                               break;
-                           }
-                       }
-                       if(index == automata.minValueArc.args.length)
-                           continue;
-                       for(int i = 0;i < automata.minValueArc.path.length;++i)
-                           bufferedWriter.write(automata.minValueArc.path[i] + ",");
-//                       for(int i = 0;i < automata.minValueArc.arrayListBestValues.size();++i)
-//                           System.out.println("Step " + i + ":" + automata.minValueArc.arrayListBestValues.get(i));
-                       bufferedWriter.write("&");
-                       for(int i = 0;i < automata.minValueArc.args.length;++i) {
-                           System.out.println(automata.minValueArc.args[i] + " , ");
-                           bufferedWriter.write(automata.minValueArc.args[i] + " , ");
-                       }
-                       bufferedWriter.write("&");
-//                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-                       bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33")  + " & ");
-                       bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
-                       System.out.println("value:" + (automata.minValueArc.value + 10000) + "\n");
-                       System.out.println(map.get("x") + " " + map.get("y"));
-                       System.out.println(map.get("fuel"));
+                ArrayList<Integer> arrayListPath = new ArrayList<>();
+                if (automata.getInitLoc() != -1) {
+                    arrayListPath.add(automata.getInitLoc());
+                    automata.DFS1(automata, arrayListPath, maxPathSize);
+                } else {
+                    for (Map.Entry<Integer, Location> entry : automata.locations.entrySet()) {
+                        arrayListPath.clear();
+                        arrayListPath.add(entry.getValue().getNo());
+                        automata.DFS1(automata, arrayListPath, maxPathSize);
+                    }
+                }
+                if(automata.minValueArc == null){
+                    System.out.println("Error: automata.minValueArc is Null!");
+                    System.exit(-1);
+                }
+                HashMap<String, Double> map = automata.minValueArc.allParametersValues;
+                int index;
+                for (index = 0; index < automata.minValueArc.args.length; ++index) {
+                    if (automata.minValueArc.args[index] != 0) {
+                        break;
+                    }
+                }
+                if (index == automata.minValueArc.args.length)
+                    continue;
+
+                for (int i = 0; i < automata.minValueArc.path.length; ++i) {
+                    bufferedWriter.write(automata.minValueArc.path[i] + "\t\t");
+                    if (config.get("system").equals("vehicle")) {
+                        if (automata.minValueArc.path[i] == 1) {
+                            bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\t\t" + format(map.get("u2")) + "\t\t" + format(0) + "\n");
+                        } else {
+                            bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\t\t" + format(0) + "\t\t" + format(map.get("u1")) + "\n");
+                        }
+                    } else if (config.get("system").equals("drone")){
+                        if (automata.minValueArc.path[i] == 1) {
+                            bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\t\t" + format(0) + "\t\t" + format(map.get("T12")) + "\t\t" + format(0) + "\n");
+                        } else if (automata.minValueArc.path[i] == 2) {
+                            bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\t\t" + format(0) + "\t\t" + format(map.get("T22")) + "\t\t" + format(map.get("T23")) + "\n");
+                        } else {
+                            bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\t\t" + format(map.get("T31")) + "\t\t" + format(map.get("T32")) + "\t\t" + format(0) + "\n");
+                        }
+                    }else if (config.get("system").equals("train")){
+                        bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\n");
+                    }
+                }
+                bufferedWriter.write("current x is " + map.get("x") + "\n");
+//                bufferedWriter.write(automata.minValueArc.path[automata.minValueArc.path.length - 1]);
+//                bufferedWriter.write("dwell time in each control mode");
+//                for (int i = 0; i < automata.minValueArc.args.length; ++i) {
+//                    System.out.println(automata.minValueArc.args[i] + " , ");
+//                    bufferedWriter.write(automata.minValueArc.args[i] + " , ");
+//                }
+//                bufferedWriter.write("&");
+////                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
+//                bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33") + " & ");
+//                bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
+//                System.out.println("value:" + (automata.minValueArc.value + 10000) + "\n");
+//                System.out.println(map.get("x") + " " + map.get("y"));
+//                System.out.println(map.get("fuel"));
 //                       System.out.println(map.get("u0"));
 //                       System.out.println(map.get("u3"));
-                       //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
+                //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
 //                       System.out.println("angle : " + map.get("angle"));
-                       //System.out.println("angle_v : " + map.get("angle_v"));
+                //System.out.println("angle_v : " + map.get("angle_v"));
 
-                       //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
-                       if(map.containsKey("x"))
-                           automata.initParameterValues.put("x",map.get("x"));
-                       if(map.containsKey("y"))
-                           automata.initParameterValues.put("y",map.get("y"));
-                       if(map.containsKey("angle"))
-                           automata.initParameterValues.put("angle",map.get("angle"));
-                       if(map.containsKey("angle_v"))
-                           automata.initParameterValues.put("angle_v",map.get("angle_v"));
-                       if(map.containsKey("vx"))
-                           automata.initParameterValues.put("vx",map.get("vx"));
-                       if(map.containsKey("vy"))
-                           automata.initParameterValues.put("vy",map.get("vy"));
-                       if(map.containsKey("fuel"))
-                           automata.initParameterValues.put("fuel",map.get("fuel"));
-                       if(map.containsKey("v"))
-                           automata.initParameterValues.put("v",map.get("v"));
-                       if(map.containsKey("a"))
-                           automata.initParameterValues.put("a",map.get("a"));
-                       //if(map.containsKey("u1"))
-                         //  automata.initParameterValues.put("u1",map.get("u1"));
-                       //if(map.containsKey("u2"))
-                         //  automata.initParameterValues.put("u2",map.get("u2"));
-                       automata.minValueArc = null;
+                //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
+                if (map.containsKey("x"))
+                    automata.initParameterValues.put("x", map.get("x"));
+                if (map.containsKey("y"))
+                    automata.initParameterValues.put("y", map.get("y"));
+                if (map.containsKey("angle"))
+                    automata.initParameterValues.put("angle", map.get("angle"));
+                if (map.containsKey("angle_v"))
+                    automata.initParameterValues.put("angle_v", map.get("angle_v"));
+                if (map.containsKey("vx"))
+                    automata.initParameterValues.put("vx", map.get("vx"));
+                if (map.containsKey("vy"))
+                    automata.initParameterValues.put("vy", map.get("vy"));
+                if (map.containsKey("fuel"))
+                    automata.initParameterValues.put("fuel", map.get("fuel"));
+                if (map.containsKey("v"))
+                    automata.initParameterValues.put("v", map.get("v"));
+                if (map.containsKey("a"))
+                    automata.initParameterValues.put("a", map.get("a"));
+                //if(map.containsKey("u1"))
+                //  automata.initParameterValues.put("u1",map.get("u1"));
+                //if(map.containsKey("u2"))
+                //  automata.initParameterValues.put("u2",map.get("u2"));
+                automata.minValueArc = null;
 //                       if(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) <= 1){
 //                           automata.initParameterValues.put("x",8.0);
 //                           automata.initParameterValues.put("y",0.0);
 //                       }
-                   }
-                    double endTime = System.currentTimeMillis();
-                   bufferedWriter.write("time:" + (endTime-currentTime)/1000/60);
-                   bufferedWriter.close();
-                } catch (IOException e) {
-                    System.out.println("Open output.txt fail!");
-                } finally {
-                    if (automata.bufferedWriter != null) {
-                        try {
-                            automata.bufferedWriter.close();
-                        } catch (IOException e) {
-                            System.out.println("IO Exception" + '\n' + e.getMessage());
-                        }
-                    }
-                }
-                ++repeat;
-
+//                break;
             }
             double endTime = System.currentTimeMillis();
-            System.out.println("Time cost :" + (endTime-currentTime)/1000/60 + "minutes");
-
+            bufferedWriter.write("\ntime:" + (endTime - currentTime) / 1000 + " seconds");
+            bufferedWriter.close();
+        } catch (IOException e) {
+            System.out.println("Open output.txt fail!");
+        } finally {
+            if (automata.bufferedWriter != null) {
+                try {
+                    automata.bufferedWriter.close();
+                } catch (IOException e) {
+                    System.out.println("IO Exception" + '\n' + e.getMessage());
+                }
+            }
         }
+
+        double endTime = System.currentTimeMillis();
+        System.out.println("Time cost :" + (endTime - currentTime) / 1000 + " seconds");
+
     }
 }
