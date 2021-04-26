@@ -508,24 +508,6 @@ public class Automata {
         String cfgFile = prefix + ".cfg";
         System.out.println(modelFile);
         System.out.println(cfgFile);
-//        String []modelFiles = new String[]{ "models/train_forward.xml", // 0
-//                                            "models/train_turn.xml", // 1
-//                                            "models/train_circle.xml", // 2
-//                                            "models/quad_turn.xml", // 3
-//                                            "models/quad_two_turn.xml", // 4
-//                                            "models/quad_forward.xml",// 5
-//                                            "models/train_multi_phase.xml", // 6
-//                                            "models/quad_multi_phase.xml", // 7
-//                };
-//        String []cfgFiles = new String[]{   "models/train_forward.cfg",
-//                                            "models/train_turn.cfg",
-//                                            "models/train_circle.cfg",
-//                                            "models/quad_turn.cfg",
-//                                            "models/quad_two_turn.cfg",
-//                                            "models/quad_forward.cfg",
-//                                            "models/train_multi_phase.cfg",
-//                                            "models/quad_multi_phase.cfg",
-//        };
 
         double currentTime = System.currentTimeMillis();
         Automata automata = new Automata(modelFile, cfgFile);

@@ -611,35 +611,6 @@ public class ObjectFunction implements Task{
         return Math.abs(big-small);
     }
 
-//    public boolean checkInvarientsByRacos(double []args){
-//        int samplesize = 30;       // parameter: the number of samples in each iteration
-//        int iteration = 100;       // parameter: the number of iterations for batch racos
-//        int budget = 2000;         // parameter: the budget of sampling for sequential racos
-//        int positivenum = 1;       // parameter: the number of positive instances in each iteration
-//        double probability = 0.95; // parameter: the probability of sampling from the model
-//        int uncertainbit = 1;      // parameter: the number of sampled dimensions
-//        Instance ins = null;
-//        int repeat = 15;
-//        allParametersValues.add(0,automata.duplicateInitParametersValues());
-//        allParametersValues.remove(allParametersValues.size() - 1);
-//        Task t = new InvarientsObjectFunction(automata,path,args,allParametersValues);
-//        for (int i = 0; i < repeat; i++) {
-//            Continue conti = new Continue(t);
-//            //conti.TurnOnSequentialRacos();
-//            conti.setSampleSize(samplesize);      // parameter: the number of samples in each iteration
-//            conti.setBudget(budget);              // parameter: the budget of sampling
-//            conti.setPositiveNum(positivenum);    // parameter: the number of positive instances in each iteration
-//            conti.setRandProbability(probability);// parameter: the probability of sampling from the model
-//            conti.setUncertainBits(uncertainbit); // parameter: the number of samplable dimensions
-//            conti.run();                          // call sequential Racos
-//            ins = conti.getOptimal();             // obtain optimal
-//            if(ins.getValue() == Double.MIN_VALUE)
-//                System.out.print("Invarient Check failed");
-//            return false;
-//        }
-//        return true;
-//    }
-
     public boolean checkCycle(double []args){
         double sum = 0;
         for(int i = 0;i < args.length;++i){
@@ -660,24 +631,12 @@ public class ObjectFunction implements Task{
         sat = true;
         allParametersValues = new ArrayList<>();
         double []args = new double[path.length];
-//        args[0] = 1.984442452584224;
-//        args[1] = 0.1293550138895525;
-//        args[2] = 0.3706788439511385;
-//        args[3] = 1.4731068040009903;
-//        for(int i = 0;i < ins.getFeature().length;++i){
-//            System.out.println(ins.getFeature(i));
-//        }
         for(int i = 0;i < path.length;++i){
             args[i] = ins.getFeature(i);
-            //args[i] = 0.478405658973357;
-//            if(args[i] >= 4000)
-            //System.out.println(args[i] + " ");
         }
         for(int i = path.length;i < ins.getFeature().length;++i){
             automata.initParameterValues.put(automata.rangeParameters.get(i-path.length).name,ins.getFeature(i));
         }
-//        if(!checkCycle(args))
-//            return penalty;
         checkInvarientsByODE(args);
         checkGuards(args);
         if(!sat) {
@@ -694,16 +653,6 @@ public class ObjectFunction implements Task{
             }
             return penAll;
         }
-        //System.out.println("what");
-//        HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-//        System.out.println("x  " + map.get("x"));
-//        System.out.println("fuel    " + map.get("fuel"));
-//        double value = -10000 + map.get("MA") - map.get("x") + map.get("fuel");
-//        System.out.println(value);
-//        System.exit(0);
-//        if(allParametersValues.get(allParametersValues.size()-1).get("angle") > 0.78 && allParametersValues.get(allParametersValues.size()-1).get("angle") < 0.79 && args[0]==19){
-//            System.out.println(allParametersValues.get(allParametersValues.size()-1).get("x"));
-//        }
         return computeValue(args);
     }
 
