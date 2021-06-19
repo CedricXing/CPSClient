@@ -1,5 +1,7 @@
 package MPC;
 
+import MPC.tools.Fel_ExpressionProc;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,18 +36,12 @@ public class Transition {
         }
         processGuard(guard,parameters);
 
-//        for(int i = 0;i < guards.size();++i){
-//            System.out.println(guards.get(i));
-//        }
     }
 
     public void processGuard(String guard,ArrayList<String> parameters){
         guard = guard.replace("&gt;",">");
         guard = guard.replace("&lt;","<");
 
-//        for(int i = parameters.size() - 1;i >= 0;--i ){
-//            guard = guard.replace(parameters.get(i),"$" + i);
-//        }
         guards.add(guard);
     }
 
@@ -59,16 +55,14 @@ public class Transition {
         }
         processAssignment(assignment,parameters);
 
-//        for(HashMap.Entry<String,String> entry : assignments.entrySet()){
-//            System.out.println(entry.getKey() + " " + entry.getValue());
-//        }
     }
 
     public void processAssignment(String assignment,ArrayList<String> parameters){
         String []strings = assignment.split("=");
         for(int i = parameters.size() - 1;i >= 0;--i){
             if(strings[0].indexOf(parameters.get(i)) != -1){
-                String string = processMathFunction(strings[strings.length - 1]);
+//                String string = processMathFunction(strings[strings.length - 1]);
+                String string = Fel_ExpressionProc.processMathFunction(strings[strings.length - 1]);
                 if(string.indexOf("[") != -1){
                     int firstIndex = string.indexOf("[");
                     int lastIndex = string.indexOf("]");
@@ -82,14 +76,6 @@ public class Transition {
                 return;
             }
         }
-    }
-
-    public String processMathFunction(String string){
-        string = string.replace("pow","$(Math).pow");
-        string = string.replace("sin","$(Math).sin");
-        string = string.replace("cos","$(Math).cos");
-        string = string.replace("tan","$(Math).tan");
-        return string;
     }
 
     public void printTransition(){

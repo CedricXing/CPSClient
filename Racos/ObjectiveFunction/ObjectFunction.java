@@ -3,8 +3,6 @@ package Racos.ObjectiveFunction;
 import MPC.Transition;
 import Racos.Componet.Dimension;
 import Racos.Componet.Instance;
-import Racos.Componet.*;
-import Racos.Method.*;
 import MPC.Automata;
 import MPC.Location;
 import Racos.Tools.ValueArc;
@@ -54,17 +52,12 @@ public class ObjectFunction implements Task{
 
     public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
         for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
-            //System.out.println(allParametersValues.size());
             ctx.set(entry.getKey(),entry.getValue());
-            //System.out.println(entry.getKey() + "  "  + entry.getValue());
         }
-//        System.out.println(automata.forbiddenConstraints);
         if(automata.forbiddenConstraints==null)
             return true;
         boolean result = (boolean)fel.eval(automata.forbiddenConstraints);
-//        computeConstraintValue(automata.forbiddenConstraints);
         if(!result) return true;
-        //System.out.println(result);
         sat = false;
         globalPenalty += computeConstraintValue(automata.forbiddenConstraints);
         return false;
@@ -99,17 +92,6 @@ public class ObjectFunction implements Task{
                         ++index;
                     }
                     return pen;
-//                    int index = firstRightBracket;
-//                    double pen = 0;
-//                    while(index != -1){
-//                        String temp = constraint.substring(constraint.indexOf('(')+1,index);
-//                        boolean result = (boolean)fel.eval(temp);
-//                        if(!result) return 0;
-//                        else pen += computeConstraintValue(temp);
-//                        constraint = constraint.substring(index+1);
-//                        index = constraint.indexOf(')');
-//                    }
-//                    return pen;
                 }
                 else if(constraint.charAt(i) == '|'){
                     int index = 0;
@@ -135,18 +117,6 @@ public class ObjectFunction implements Task{
                         ++index;
                     }
                     return minPen;
-//                    int index = firstRightBracket;
-//                    double minPen = Double.MAX_VALUE;
-//                    while(index != -1){
-//                        String temp =  constraint.substring(constraint.indexOf('(')+1,index);
-//                        boolean result = (boolean)fel.eval(temp);
-//                        if(result){
-//                            minPen = (computeConstraintValue(temp) < minPen) ? computeConstraintValue(temp) : minPen;
-//                        }
-//                        constraint = constraint.substring(index + 1);
-//                        index = constraint.indexOf(')');
-//                    }
-//                    return minPen;
                 }
             }
         }
@@ -180,58 +150,16 @@ public class ObjectFunction implements Task{
         }
         return 0;
     }
-//    public boolean checkConstraints(double []args,HashMap<String,Double> parametersValues){
-//        double pen = globalPenalty;
-//        boolean satOrigin = sat;
-//        boolean result = (path[path.length - 1] == automata.forbiddenLoc || automata.forbiddenLoc == -1);
-//        if(!result)  {
-//            return true;
-//        }
-//        for(Map.Entry<String,Double> entry : parametersValues.entrySet()){
-//            //System.out.println(allParametersValues.size());
-//            ctx.set(entry.getKey(),entry.getValue());
-//        }
-//        result = (boolean)fel.eval(automata.cycleConstraint);
-//        if(result && computePenalty(automata.cycleConstraint,true) > cerr) {
-//            sat = false;
-//            globalPenalty += computePenalty(automata.cycleConstraint,true);
-//            return false;
-//        }
-//        //System.out.println(allParametersValues.get(allParametersValues.size() - 1).get("t"));
-//        if(automata.forbiddenConstraints.size() == 0)
-//            return true;
-//        for(int i = 0;i < automata.forbiddenConstraints.size();++i){
-//            result = (boolean)fel.eval(automata.forbiddenConstraints.get(i));
-//            //System.out.println(automata.forbiddenConstraints.get(i));
-//            if(!result || (result && computePenalty(automata.forbiddenConstraints.get(i),true) < cerr)){
-//                String constraint = automata.forbiddenConstraints.get(i);
-//                globalPenalty = pen;
-//                if(sat != satOrigin)
-//                    sat = satOrigin;
-//                return true;
-//            }
-//            else{
-//                globalPenalty += computePenalty(automata.forbiddenConstraints.get(i),true);
-//                sat = false;
-//            }
-//        }
-//        sat = false;
-//        return false;
-//    }
 
     public HashMap<String,Double> computeValuesByFlow(HashMap<String,Double> parametersValues,Location location,double arg){
         HashMap<String,Double> tempMap = new HashMap<>();
         for(HashMap.Entry<String,Double> entry : parametersValues.entrySet()){
             ctx.set(entry.getKey(),entry.getValue());
-            //System.out.println(entry.getKey() + " " + entry.getValue());
         }
         for(HashMap.Entry<String,Double> entry : parametersValues.entrySet()){
             if(location.flows.containsKey(entry.getKey())){
-//                System.out.println(location.flows.get(entry.getKey()));
                 String expression = location.flows.get(entry.getKey());
                 if(expression.contains("phi(vx)")){
-//                    System.out.println("vx:"+parametersValues.get("vx"));
-//                    System.out.println("vy:"+parametersValues.get("vy"));
                     if(parametersValues.get("vx")<=2)
                         expression = expression.replace("phi(vx)","1");
                     else if(parametersValues.get("vx")<=5)
@@ -240,8 +168,6 @@ public class ObjectFunction implements Task{
                         expression = expression.replace("phi(vx)","3");
                 }
                 if(expression.contains("phi(vy)")){
-//                    System.out.println("vx:"+parametersValues.get("vx"));
-//                    System.out.println("vy:"+parametersValues.get("vy"));
                     if(parametersValues.get("vy")<=2)
                         expression = expression.replace("phi(vy)","1");
                     else if(parametersValues.get("vy")<=5)
@@ -255,7 +181,6 @@ public class ObjectFunction implements Task{
                     result = (double)obj;
                 else if(obj instanceof Integer) {
                     result = (int) obj;
-                    //System.out.println(entry.getKey() + " " + entry.getValue());
                 }
                 else if(obj instanceof Long){
                     result = ((Long)obj).doubleValue();
@@ -269,11 +194,9 @@ public class ObjectFunction implements Task{
                     System.exit(0);
                 }
                 double delta = result * arg;
-                //System.out.println(delta);
                 tempMap.put(entry.getKey(),entry.getValue() + delta);
             }
             else {
-                //System.out.println("???");
                 tempMap.put(entry.getKey(),entry.getValue());
             }
         }
@@ -282,11 +205,9 @@ public class ObjectFunction implements Task{
     }
 
     public boolean checkGuards(double []args){
-        // System.out.println("???");
         HashMap<String,Double> parameterValues;
         for(int i = 0;i < path.length;++i){
             Location location = automata.locations.get(path[i]);
-            //System.out.println(location.getNo());
             parameterValues = allParametersValues.get(i);
             int target;
             if(i + 1 < path.length){
@@ -295,15 +216,10 @@ public class ObjectFunction implements Task{
                 for(int k = 0;k < automata.transitions.size();++k){
                     Transition transition = automata.transitions.get(k);
                     if(transition.source == source && transition.target == target){
-                        //System.out.println(parameterValues.get("v"));
-                        //System.out.println(parameterValues.get("vebi"));
                         for(Map.Entry<String,Double> entry : parameterValues.entrySet()){
-                            //System.out.println();
                             ctx.set(entry.getKey(),entry.getValue());
-                            //ctx.set("vebi",0);
                         }
                         for(int guardIndex = 0;guardIndex < transition.guards.size();++guardIndex){
-                            //System.out.println(transition.guards.get(guardIndex));
                             boolean result = (boolean)fel.eval(transition.guards.get(guardIndex));
                             if(!result) {
                                 String guard = transition.guards.get(guardIndex);
@@ -315,8 +231,6 @@ public class ObjectFunction implements Task{
                                     sat = false;
                                     penalty += computePenalty(guard, false);
                                 }
-                                //System.out.println("p4 : " + p4);
-                                //return false;
                             }
                         }
                     }
@@ -325,89 +239,6 @@ public class ObjectFunction implements Task{
         }
 
         return true;
-    }
-
-    public HashMap<String,Double> computeValuesByIntegral(HashMap<String,Double> parametersValues,Location location,double arg){
-        HashMap<String,Double> tempMap = new HashMap<>();
-        double t = parametersValues.get("t") + arg;
-        tempMap.put("t",t);
-        double a;
-        if(location.getNo() == 2)   a = 5;
-        else if(location.getNo() == 3)  a = 0;
-        else if(location.getNo() == 4)  a = -10;
-        else a = 0;
-        tempMap.put("a",a);
-        double v = parametersValues.get("v") + a * arg;
-        tempMap.put("v",v);
-        double fuel = parametersValues.get("fuel") + (parametersValues.get("v") + v) / 2 / 19 * 7;
-        tempMap.put("fuel",fuel);
-        double x = parametersValues.get("x") + parametersValues.get("v") * arg + 0.5 * a * arg * arg;
-        tempMap.put("x",x);
-        double vebi = Math.sqrt(2 * 10 * (parametersValues.get("MA") - x));
-        if(Double.isNaN(vebi)){
-            sat = false;
-            tempMap.put("vebi",-1.0);
-        }
-        else tempMap.put("vebi",vebi);
-        tempMap.put("MA",parametersValues.get("MA"));
-        return tempMap;
-    }
-
-    public void computeParameterValues(double []args){
-        HashMap<String,Double> newMap = new HashMap<>();
-        for(int locIndex = 0;locIndex < path.length;++locIndex){
-            if(locIndex == 0)
-                newMap = automata.duplicateInitParametersValues();
-            else{
-                newMap = (HashMap<String, Double>) allParametersValues.get(locIndex - 1).clone();
-                //check assignments
-                Transition transition = automata.getTransitionBySourceAndTarget(path[locIndex - 1],path[locIndex]);
-                if(transition == null){
-                    System.out.println("Found no transition");
-                    System.exit(-1);
-                }
-                for(HashMap.Entry<String,String> entry : transition.assignments.entrySet()){
-                    Object obj = fel.eval(entry.getValue());
-                    double result = 0;
-                    if(obj instanceof Integer)  result = (int)obj;
-                    else if(obj instanceof Double) result = (double)obj;
-                    else{
-                        System.out.println("Not Double and Not Integer!");
-                        System.out.println(entry.getValue());
-                        System.exit(0);
-                    }
-                    newMap.put(entry.getKey(),result);
-                }
-            }
-            newMap = computeValuesByIntegral(newMap,automata.locations.get(path[locIndex]),args[locIndex]);
-            checkConstraints(args,newMap);
-            for(HashMap.Entry<String,Double> entry : newMap.entrySet()){
-                ctx.set(entry.getKey(),entry.getValue());
-            }
-            for(int i = 0;i < automata.locations.get(path[locIndex]).invariants.size();++i){
-                boolean result = (boolean)fel.eval(automata.locations.get(path[locIndex]).invariants.get((i)));
-                if(!result) {
-                    String invariant = automata.locations.get(path[locIndex]).invariants.get(i);
-                    if(computePenalty(invariant,false) < cerr)
-                        continue;
-                    //p2 = computePenalty(invariant);
-                    //p2 = end - step;
-                    //System.out.println(p2);
-                    //System.out.println(invariant);
-                    if(Double.isNaN(computePenalty(invariant,false))){
-                        sat = false;
-                        penalty += 100000;
-                    }
-                    else {
-                        sat = false;
-                        penalty += computePenalty(invariant, false);
-                    }
-                    //System.out.println(penalty);
-                    //return false;
-                }
-            }
-            allParametersValues.add(newMap);
-        }
     }
 
     public boolean checkInvarientsByODE(double []args){
@@ -438,7 +269,6 @@ public class ObjectFunction implements Task{
                         System.exit(0);
                     }
                     newMap.put(entry.getKey(),result);
-                    //allParametersValues.get(locIndex - 1).put(entry.getKey(),result);
                 }
             }
             if(end==0){
@@ -551,7 +381,6 @@ public class ObjectFunction implements Task{
 
     private double computePenaltyOfConstraint(String expression){//just one level
         String []expressions = expression.split("\\|");
-        //System.out.println(expressions.length);
         double result = Double.MAX_VALUE;
         for(String string:expressions){
             if(string.length()<=0)  continue;
@@ -564,7 +393,6 @@ public class ObjectFunction implements Task{
     private double computePenalty(String expression,boolean isConstraint){
         if(isConstraint && expression.indexOf("|") != -1)
             return computePenaltyOfConstraint(expression);
-        //System.out.println(expression);
 
         String []strings;
         String bigPart = "",smallPart = "";
@@ -590,7 +418,6 @@ public class ObjectFunction implements Task{
             small = (double)obj2;
         else if(obj2 instanceof Integer) {
             small = (int) obj2;
-            //System.out.println(entry.getKey() + " " + entry.getValue());
         }
         else if(obj2 instanceof Long){
             small = ((Long)obj2).doubleValue();
@@ -600,14 +427,6 @@ public class ObjectFunction implements Task{
             System.out.println("Not Double and Not Integer!");
             System.exit(0);
         }
-//        if(isConstraint)
-//            penal = small - big;
-//        else penal = big - small;
-        //System.out.println(penal);
-//        if(penal < 0) {
-//            System.out.println(expression);
-//            System.out.println(small);
-//        }
         return Math.abs(big-small);
     }
 
@@ -617,7 +436,6 @@ public class ObjectFunction implements Task{
             sum += args[i];
         }
         if(sum > automata.cycle / delta) {
-            //p1 = sum - automata.cycle / delta;
             sat = false;
             penalty += sum - automata.cycle /delta;
             return false;
@@ -659,8 +477,27 @@ public class ObjectFunction implements Task{
 
     public double computeValue(double []args){
         HashMap<String,Double> map = allParametersValues.get(allParametersValues.size() - 1);
-//        double value = Math.pow(automata.target_x - map.get("x"),2) + Math.pow(automata.target_y - map.get("y"),2) + 0.01 * map.get("fuel") - 10000;
-        double value = Math.pow(automata.target_x - map.get("x"),2) /* + Math.pow(automata.target_y - map.get("y"),2)*/ + 0.01 * map.get("fuel") - 100000;
+        for(HashMap.Entry<String,Double> entry : map.entrySet()){
+            ctx.set(entry.getKey(),entry.getValue());
+        }
+        ctx.set("target_x",automata.target_x);
+        ctx.set("target_y",automata.target_y);
+        Object obj = fel.eval(automata.obj_function);
+        double value = 0;
+        if(obj instanceof Double)
+            value = (double)obj - 10000;
+        else if(obj instanceof Integer){
+            value = (int) obj - 10000;
+        }
+        else {
+            System.err.println("error: result not of double!");
+            System.out.println(obj);
+            System.exit(-1);
+        }
+        if (value + 10000 < 0){
+            System.out.println(map.get("x"));
+            System.exit(0);
+        }
         if(value < valueArc.value){
             valueArc.value = value;
             valueArc.allParametersValues = allParametersValues.get(allParametersValues.size()-1);

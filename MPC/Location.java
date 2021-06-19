@@ -1,5 +1,7 @@
 package MPC;
 
+import MPC.tools.Fel_ExpressionProc;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,9 +42,6 @@ public class Location {
         }
         processVariant(variant,parameters);
 
-//        for(int i = 0;i < invarientsExpression.size();++i){
-//            System.out.println(invarientsExpression.get(i));
-//        }
     }
 
     private void processVariant(String variant,ArrayList<String> parameters){
@@ -68,19 +67,12 @@ public class Location {
         String []strings = flow.split("=");
         for(int i = parameters.size() - 1;i >= 0;--i){
             if(strings[0].indexOf(parameters.get(i)) != -1){
-                String string = processMathFunction(strings[strings.length - 1]);
+//                String string = processMathFunction(strings[strings.length - 1]);
+                String string = Fel_ExpressionProc.processMathFunction(strings[strings.length - 1]);
                 flows.put(parameters.get(i),string);
                 return;
             }
         }
-    }
-
-    public String processMathFunction(String string){
-        string = string.replace("pow","$(Math).pow");
-        string = string.replace("sin","$(Math).sin");
-        string = string.replace("cos","$(Math).cos");
-        string = string.replace("tan","$(Math).tan");
-        return string;
     }
 
     public void setFlow(String flow,ArrayList<String> parameters){

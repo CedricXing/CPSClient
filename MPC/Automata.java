@@ -1,5 +1,6 @@
 package MPC;
 
+import MPC.tools.Fel_ExpressionProc;
 import Racos.Componet.Instance;
 import Racos.Method.Continue;
 import Racos.ObjectiveFunction.ObjectFunction;
@@ -40,6 +41,7 @@ public class Automata {
     public double delta = 0.05;
     public double target_x;
     public double target_y;
+    public String obj_function;
 
     public Automata(String modelFileName, String cfgFileName) {
         forbiddenLocName = null;
@@ -48,6 +50,7 @@ public class Automata {
         initLoc = -1;
         cycle = -1;
         target_x = target_y = -1;
+        obj_function = null;
         processModelFile(modelFileName);
         processCFGFile(cfgFileName);
     }
@@ -87,7 +90,6 @@ public class Automata {
                     String[] strings = tempLine.split("\"");
                     //ID stores in strings[1]
                     Location location = new Location(Integer.parseInt(strings[1]), strings[3]);
-                    //System.out.println(strings[3]);
                     tempLine = reader.readLine();
                     while (tempLine.indexOf("</location>") == -1) {//the end of this location
                         int beginIndex, endIndex;
@@ -127,7 +129,6 @@ public class Automata {
                                 endIndex = tempLine.indexOf("</flow>");
                                 tempLine = tempLine.substring(0, endIndex).trim();
                             }
-                            //System.out.println(tempLine);
                             location.setFlow(tempLine, parameters);
                         }
                         tempLine = reader.readLine();
@@ -140,7 +141,6 @@ public class Automata {
                     int target = Integer.parseInt(strings[3]);
                     Transition transition = new Transition(source, target);
                     locations.get(source).addNeibour(target);
-                    //tempLine = reader.readLine(); // label (useless)
                     tempLine = reader.readLine(); // guard
                     while (tempLine.indexOf("</transi") == -1) {
                         int beginIndex, endIndex;
@@ -183,18 +183,17 @@ public class Automata {
         BufferedReader reader = null;
         initParameterValues = new HashMap<>();
         assert (forbiddenConstraints instanceof String);
-        //forbiddenConstraints = new ArrayList<>();
         try {
             reader = new BufferedReader(new FileReader(cfgFile));
             String tempLine = null;
             while ((tempLine = reader.readLine()) != null) {
                 if (tempLine.charAt(0) == '#')
                     continue;
-                if (tempLine.indexOf("initially") != -1) {
+                if (tempLine.startsWith("initially")) {
                     String[] strings = tempLine.split("\"");
                     setInitParameterValues(strings[1]);
                 }
-                if (tempLine.indexOf("forbidden") != -1) {
+                if (tempLine.startsWith("forbidden")) {
                     String[] strings = tempLine.split("\"");
                     strings[1] = strings[1].replace("pow", "$(Math).pow");
                     strings[1] = strings[1].replace("sin", "$(Math).sin");
@@ -202,20 +201,23 @@ public class Automata {
                     strings[1] = strings[1].replace("tan", "$(Math).tan");
                     strings[1] = strings[1].replace("sqrt", "$(Math).sqrt");
                     forbiddenConstraints = strings[1];
-                    //setForbiddenValues(strings[1]);
                 }
-                if (tempLine.indexOf("time-horizon") != -1) {
+                if (tempLine.startsWith("time-horizon")) {
                     String[] strings = tempLine.split("\"");
                     cycle = Double.parseDouble(strings[1]);
                     cycleConstraint = new String("t>" + cycle);
                 }
-                if (tempLine.indexOf("target_x") != -1) {
+                if (tempLine.startsWith("target_x")) {
                     String[] strings = tempLine.split("\"");
                     target_x = Double.parseDouble(strings[1]);
                 }
-                if (tempLine.indexOf("target_y") != -1) {
+                if (tempLine.startsWith("target_y")) {
                     String[] strings = tempLine.split("\"");
                     target_y = Double.parseDouble(strings[1]);
+                }
+                if (tempLine.startsWith("obj_function")){
+                    String[] strings = tempLine.split("\"");
+                    obj_function= Fel_ExpressionProc.processMathFunction(strings[1]);
                 }
             }
 
@@ -253,12 +255,8 @@ public class Automata {
                 String[] bounds = temp[1].substring(firstIndex + 1, lastIndex).trim().split(",");
                 double lowerbound = Double.parseDouble(bounds[0].trim());
                 double upperbound = Double.parseDouble(bounds[1].trim());
-//                double randomValue = (upperbound + lowerbound) / 2 + (Math.random() - 0.5) * (upperbound - lowerbound);
-//                initParameterValues.put(temp[0].trim(),randomValue);
                 if (rangeParameters == null) rangeParameters = new ArrayList<>();
                 rangeParameters.add(new RangeParameter(temp[0].trim(), lowerbound, upperbound));
-                //System.out.println(temp[0] + Double.toString(randomValue));
-                //System.exit(0);
             } else {
                 initParameterValues.put(temp[0].trim(), Double.parseDouble(temp[1].trim()));
             }
@@ -269,39 +267,6 @@ public class Automata {
 //        }
     }
 
-    /*
-    public void setForbiddenValues(String forbiddenValues){
-        String []strings = forbiddenValues.split("&");
-        for(int i = 0;i < strings.length;++i){
-            if(strings[i].indexOf("loc()") != -1){
-                String []temps = strings[i].split("=");
-                forbiddenLocName = temps[temps.length - 1].trim();
-                for(Map.Entry<Integer,Location> entry : locations.entrySet()){
-                    //System.out.println(allParametersValues.size());
-                    if(entry.getValue().name.equals(forbiddenLocName)){
-                        forbiddenLoc = entry.getKey();
-                        break;
-                    }
-                }
-                continue;
-            }
-//            if(strings[i].trim().indexOf("t<=") != -1){
-//                cycle = Double.parseDouble(strings[i].trim().substring(3).trim());
-//                cycleConstraint = new String("t>=" + cycle);
-//                continue;
-//            }
-//            if(strings[i].trim().indexOf("t<") != -1){
-//                cycle = Double.parseDouble(strings[i].trim().substring(2).trim());
-//                cycleConstraint = new String("t>" + cycle);
-//                continue;
-//            }
-            if(strings[i].trim().indexOf('(') != -1){
-                strings[i] = strings[i].substring(strings[i].indexOf('(')+1,strings[i].indexOf(')')).trim();
-            }
-            forbiddenConstraints.add(strings[i].trim());
-        }
-    }
-    */
     public int getInitLoc() {
         return initLoc;
     }
@@ -345,7 +310,6 @@ public class Automata {
         ArrayList<Integer> neibours = automata.locations.get(path[len - 1]).getNeibours();
         for (int i = 0; i < neibours.size(); ++i) {
             int nextPos = neibours.get(i);
-//            if(arrayListPath.contains(nextPos)) continue;
             arrayListPath.add(neibours.get(i));
             DFS1(automata, arrayListPath, maxPathSize);
             arrayListPath.remove(arrayListPath.size() - 1);
@@ -383,8 +347,6 @@ public class Automata {
 //            ValueArc valueArc = con.run2();
             double currentT2 = System.currentTimeMillis();
             ins = con.getOptimal();             // obtain optimal
-            //System.out.print("best function value:");
-            //System.out.println(valueArc.penAll);
             if (ins.getValue() < 0) {
                 feasibleResult.add(ins);
                 feasibleResultAllTime += (currentT2 - currentT) / 1000;
@@ -393,10 +355,8 @@ public class Automata {
                     minValueArc = valueArc;
                     minValueArc.path = path;
                 }
-                //System.out.println(valueArc.allParametersValues.get("x"));
             } else if (valueArc.penalty < 0) {
                 pruning = false;
-                //print("----------------------" + valueArc.penalty + "-------" + valueArc.globalPenalty + "-----------\n");
             }
             print("best function value:");
             print(ins.getValue() + "     ");
@@ -404,11 +364,8 @@ public class Automata {
             //System.out.print("[");
             print("[");
             for (int j = 0; j < ins.getFeature().length; ++j) {
-                //System.out.print(ins.getFeature(j) * ((ObjectFunction) t).delta + ",");
-                //print(Double.toString(ins.getFeature(j) * ((ObjectFunction) t).delta) + ",");
                 print(Double.toString(ins.getFeature(j)) + ",");
             }
-            //System.out.println("]");
             println("]");
         }
 
@@ -444,16 +401,16 @@ public class Automata {
         println("Init loc is " + initLoc);
         for (Map.Entry<String, Double> entry : initParameterValues.entrySet()) {
             println("The init value of " + entry.getKey() + " is " + entry.getValue());
-            System.out.println("The init value of " + entry.getKey() + " is " + entry.getValue());
+//            System.out.println("The init value of " + entry.getKey() + " is " + entry.getValue());
         }
         println("Forbidden loc is " + forbiddenLocName);
         println("Forbidden loc is " + forbiddenLoc);
         println("Forbidden constraints is ");
         assert (forbiddenConstraints instanceof String);
-//        for(int i = 0;i < forbiddenConstraints.size();++i){
-//            println(forbiddenConstraints.get(i));
-//            System.out.println(forbiddenConstraints.get(i));
-//        }
+        if(obj_function == null){
+            System.err.println("objective function cannot be empty");
+            System.exit(-1);
+        }
         for (Map.Entry<Integer, Location> entry : locations.entrySet()) {
             println(Integer.toString(entry.getKey()));
             entry.getValue().printLocation();
@@ -506,8 +463,6 @@ public class Automata {
         String prefix = new String("models/" + config.get("system") + "_" + config.get("mission"));
         String modelFile = prefix + ".xml";
         String cfgFile = prefix + ".cfg";
-        System.out.println(modelFile);
-        System.out.println(cfgFile);
 
         double currentTime = System.currentTimeMillis();
         Automata automata = new Automata(modelFile, cfgFile);
@@ -521,8 +476,10 @@ public class Automata {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
 //                   while(automata.initParameterValues.get("x") < automata.target_x && Math.abs(automata.target_x - automata.initParameterValues.get("x")) > 0.5){
 //                   while(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) > 2){
-            double delta = 5.0;
-            if (config.get("mission").contains("multi")) delta = 2.0;
+            double delta = 4.0;
+            if(config.get("mission").contains("two_turn")) {
+                delta = 16.0;
+            }
 
             if (config.get("system").equals("vehicle")) {
                 bufferedWriter.write("mode\t\tdwell time\t\tu1\t\tu2\n");
@@ -586,27 +543,9 @@ public class Automata {
                         bufferedWriter.write(format(automata.minValueArc.args[i] * automata.delta) + " seconds\n");
                     }
                 }
-                bufferedWriter.write("current x is " + map.get("x") + "\n");
-//                bufferedWriter.write(automata.minValueArc.path[automata.minValueArc.path.length - 1]);
-//                bufferedWriter.write("dwell time in each control mode");
-//                for (int i = 0; i < automata.minValueArc.args.length; ++i) {
-//                    System.out.println(automata.minValueArc.args[i] + " , ");
-//                    bufferedWriter.write(automata.minValueArc.args[i] + " , ");
-//                }
-//                bufferedWriter.write("&");
-////                       bufferedWriter.write(map.get("u1") + " & " + map.get("u2") + " & " + map.get("x")  + " & " + map.get("y") + "\n");
-//                bufferedWriter.write(map.get("T11") + " & " + map.get("T12") + " & " + map.get("T13") + " & " + map.get("T21") + " & " + map.get("T22") + " & " + map.get("T23") + " & " + map.get("T31") + " & " + map.get("T32") + " & " + map.get("T33") + " & ");
-//                bufferedWriter.write("itera:" + automata.minValueArc.iterativeNums + "\n");
-//                System.out.println("value:" + (automata.minValueArc.value + 10000) + "\n");
-//                System.out.println(map.get("x") + " " + map.get("y"));
-//                System.out.println(map.get("fuel"));
-//                       System.out.println(map.get("u0"));
-//                       System.out.println(map.get("u3"));
-                //System.out.println("vx : " + map.get("vx") + " " + "vy : " + map.get("vy"));
-//                       System.out.println("angle : " + map.get("angle"));
-                //System.out.println("angle_v : " + map.get("angle_v"));
 
-                //System.out.println(map.get("a1") + " & " + map.get("a2") + " & " + map.get("a3") + " & " + map.get("u1") + " & " + map.get("u2")) ;
+                bufferedWriter.write("current x is " + map.get("x") + "\n");
+
                 if (map.containsKey("x"))
                     automata.initParameterValues.put("x", map.get("x"));
                 if (map.containsKey("y"))
@@ -625,16 +564,7 @@ public class Automata {
                     automata.initParameterValues.put("v", map.get("v"));
                 if (map.containsKey("a"))
                     automata.initParameterValues.put("a", map.get("a"));
-                //if(map.containsKey("u1"))
-                //  automata.initParameterValues.put("u1",map.get("u1"));
-                //if(map.containsKey("u2"))
-                //  automata.initParameterValues.put("u2",map.get("u2"));
                 automata.minValueArc = null;
-//                       if(Math.pow(automata.target_x-automata.initParameterValues.get("x"),2) + Math.pow(automata.target_y-automata.initParameterValues.get("y"),2) <= 1){
-//                           automata.initParameterValues.put("x",8.0);
-//                           automata.initParameterValues.put("y",0.0);
-//                       }
-//                break;
             }
             double endTime = System.currentTimeMillis();
             bufferedWriter.write("\ntime:" + (endTime - currentTime) / 1000 + " seconds");

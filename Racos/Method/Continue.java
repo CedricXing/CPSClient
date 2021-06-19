@@ -524,21 +524,16 @@ public class Continue extends BaseParameters{
 			double preBestValue = 0;
 			// for each loop
 			for(int i=1; i<this.MaxIteration; i++){
-//				System.out.print(i + " ");
 				double bestValue = getOptimal().getValue();
+//				System.out.println(i + " " + bestValue);
 				if(bestValue < 0) {
 					arrayListBestValues.add(bestValue + 100000);
-					break;
+//					break;
 				}
-//				if(bestValue > 0){
-//					++sumCount;
-//					if(sumCount > 300)
-//						break;
-//				}
 				if(bestValue < 0 && i != 1){
 					if(Math.abs(bestValue-preBestValue) < 0.00001){
 						bestValueCount++;
-						if(bestValueCount>20) { // larger convergence ratio ?
+						if(bestValueCount>30) { // larger convergence ratio ?
 							iterativeNums = i;
 							break;
 						}
